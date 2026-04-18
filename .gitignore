@@ -1,0 +1,6 @@
+# Chặn thư mục cấu hình của IntelliJ ở thư mục gốc
+.idea/
+
+# Chặn các file rác hệ thống
+DS_Store
+Thumbs.db
