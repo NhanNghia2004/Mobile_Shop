@@ -31,29 +31,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 1. Lấy token từ header
         String jwt = getJwtFromRequest(request);
 
-        // 2. Kiểm tra token và đảm bảo chưa có authentication trong context
         if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
             String username = tokenProvider.getUsernameFromJWT(jwt);
 
-            // 3. Load thông tin user (đã bao gồm các Role/Authority từ DB)
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (userDetails != null) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                // Thêm thông tin chi tiết về request (IP, Session ID...) vào authentication
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // 4. Xác lập quyền hạn vào hệ thống
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        // 5. Cho phép request đi tiếp đến Controller hoặc Filter tiếp theo
         filterChain.doFilter(request, response);
     }
 

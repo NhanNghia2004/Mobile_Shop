@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     private final String JWT_SECRET = "your_very_secret_key_ensure_it_is_long_enough_for_sha_256";
-    private final long JWT_EXPIRATION = 604800000L; // 7 ngày
+    private final long JWT_EXPIRATION = 604800000L;
 
     public String generateToken(String username, String role) {
         Date now = new Date();
@@ -20,7 +20,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("role", role) // Lưu quyền vào token
+                .claim("role", role)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(Keys.hmacShaKeyFor(JWT_SECRET.getBytes()), SignatureAlgorithm.HS256)

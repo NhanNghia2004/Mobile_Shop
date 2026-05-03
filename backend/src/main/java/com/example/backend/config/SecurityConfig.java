@@ -28,25 +28,31 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+
+                        .requestMatchers("/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/google",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password").permitAll()
+
+                        .requestMatchers("/api/auth/me").authenticated()
+
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+
                         .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
-                // Thay vì dùng authProvider thủ công, Spring Boot sẽ tự động kết nối
-                // UserDetailsService và PasswordEncoder nếu chúng đã được tạo Bean.
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Bean này giúp xử lý việc xác thực (Login) trong Service
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Bean này giúp mã hóa mật khẩu
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

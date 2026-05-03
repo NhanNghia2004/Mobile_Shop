@@ -16,5 +16,9 @@ public class User {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // ADMIN hoặc USER
+    private Role role;
+
+    private String phone;
+    private String address;
+    private String avatarUrl;
 }
