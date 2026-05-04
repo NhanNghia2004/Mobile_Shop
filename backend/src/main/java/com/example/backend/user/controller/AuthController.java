@@ -52,9 +52,12 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> forgotPassword(
             @RequestBody ForgotPasswordRequest request) {
 
-        passwordResetService.requestPasswordReset(request.getEmail());
+        try {
+            passwordResetService.requestPasswordReset(request.getEmail());
+        } catch (Exception ignored) {
 
-        // Luôn trả về thông báo chung (không tiết lộ email có tồn tại không)
+        }
+
         return ResponseEntity.ok(Map.of(
                 "message", "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu!"
         ));
