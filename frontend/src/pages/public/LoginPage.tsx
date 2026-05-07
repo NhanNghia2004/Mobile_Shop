@@ -2,13 +2,38 @@ import { Mail, Lock, Apple, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
+import api from "../../api/axios";
+
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    // Ảnh mới: Sang trọng, tối giản, khớp với phong cách công nghệ
+
+
     const HERO_IMAGE = "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop";
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const response = await api.post('/auth/login', { email, password });
+
+            // Lưu dữ liệu
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+
+            alert("Đăng nhập thành công!");
+
+            // DÙNG DÒNG NÀY để Header cập nhật ngay lập tức:
+            window.location.href = '/';
+        } catch (error: any) {
+            alert(error.response?.data?.message || "Lỗi đăng nhập");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         // Nền xám - Giữ nguyên p-6
@@ -49,7 +74,7 @@ export default function Login() {
                         <p className="text-gray-500 text-base">Chào mừng bạn quay trở lại với cửa hàng</p>
                     </div>
 
-                    <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                    <form className="space-y-4" onSubmit={handleLogin}>
                         {/* Email */}
                         <div className="space-y-1">
                             {/* Tăng từ text-[10px] lên text-xs */}
@@ -108,12 +133,13 @@ export default function Login() {
                         </div>
 
                         <motion.button
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-
-                            className="w-full bg-indigo-700 text-white py-3 rounded-lg font-bold text-base shadow-md shadow-indigo-100 hover:bg-indigo-800 transition-all mt-2"
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full py-3 rounded-lg font-bold text-base shadow-md transition-all mt-2 ${
+                                isLoading ? 'bg-indigo-400' : 'bg-indigo-700 hover:bg-indigo-800'
+                            } text-white`}
                         >
-                            Đăng nhập ngay
+                            {isLoading ? "Đang đăng nhập..." : "Đăng nhập ngay"}
                         </motion.button>
                     </form>
 

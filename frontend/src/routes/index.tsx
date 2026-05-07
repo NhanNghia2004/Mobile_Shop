@@ -4,14 +4,16 @@ import Home from "../pages/public/Home";
 import LoginPage from "../pages/public/LoginPage";
 import Register from "../pages/public/Register";
 import ProductDetail from "../pages/public/ProductDetail";
+import Profile from "../pages/public/Profile";
 
 const AppRoutes = () => {
     return (
         <Routes>
             <Route element={<MainLayout />}>
-                <Route path="/home" element={<Home />} />
+                <Route path="/" element={<Home />} />
 
                 <Route path="/product" element={<ProductDetail />} />
+                <Route path="/profile" element={<Profile />} />
             </Route>
 
             {/* Public Routes */}
@@ -19,7 +21,7 @@ const AppRoutes = () => {
             <Route path="/register" element={<Register />} />
 
             {/* Điều hướng mặc định */}
-            <Route path="*" element={<Navigate to="/home" />} />
+            <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
 };
