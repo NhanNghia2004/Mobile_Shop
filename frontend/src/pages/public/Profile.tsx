@@ -4,7 +4,6 @@ import { User, Mail, Phone, MapPin, Camera, Lock, Save, Loader2 } from 'lucide-r
 import api from "../../api/axios";
 
 export default function Profile() {
-    // 1. Khai báo State
     const [profile, setProfile] = useState({
         username: '',
         email: '',
@@ -22,50 +21,35 @@ export default function Profile() {
     const [isLoading, setIsLoading] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    // 2. Lấy dữ liệu Profile khi load trang
     useEffect(() => {
         fetchProfile();
     }, []);
 
+    // 1. SỬA LẠI HÀM LẤY PROFILE: Không truyền username lên URL
     const fetchProfile = async () => {
         setIsLoading(true);
         try {
-            const userString = localStorage.getItem('user');
-            if (!userString) {
-                window.location.href = '/login';
-                return;
-            }
-
-            const userData = JSON.parse(userString);
-
-            // KIỂM TRA: Nếu console hiện undefined thì Backend của bạn trả về sai tên trường
-            console.log("Username dùng để gọi API:", userData.username);
-
-            const response = await api.get(`/profile/${userData.username}`);
+            // Backend dùng @AuthenticationPrincipal nên chỉ cần gọi đúng Endpoint
+            const response = await api.get('/user/profile');
             setProfile(response.data);
         } catch (error: any) {
-            // In ra lỗi thật để debug
-            console.error("Lỗi chi tiết:", error.response);
-
-            if (error.response?.status === 401 || error.response?.status === 403) {
-                alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-                localStorage.clear();
+            console.error("Lỗi lấy Profile:", error.response);
+            if (error.response?.status === 401) {
+                alert("Phiên đăng nhập hết hạn!");
                 window.location.href = '/login';
-            } else {
-                alert("Không thể kết nối đến máy chủ!");
             }
         } finally {
             setIsLoading(false);
         }
     };
 
-    // 3. Xử lý cập nhật thông tin (Update Profile)
+    // 2. SỬA LẠI HÀM CẬP NHẬT: Không truyền username lên URL
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsUpdating(true);
         try {
-            const userData = JSON.parse(localStorage.getItem('user') || '{}');
-            const response = await api.put(`/profile/${userData.username}/update`, {
+            // Backend nhận RequestBody là UpdateProfileRequest
+            const response = await api.put('/user/profile', {
                 email: profile.email,
                 phone: profile.phone,
                 address: profile.address,
@@ -80,17 +64,20 @@ export default function Profile() {
         }
     };
 
-    // 4. Xử lý đổi mật khẩu
+    // 3. SỬA LẠI HÀM ĐỔI MẬT KHẨU: Đường dẫn đúng là /change-password
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("Mật khẩu mới không khớp!");
+            alert("Mật khẩu xác nhận không khớp!");
             return;
         }
 
         try {
-            const userData = JSON.parse(localStorage.getItem('user') || '{}');
-            await api.put(`/profile/${userData.username}/change-password`, passwordData);
+            await api.put('/user/profile/change-password', {
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+                confirmPassword: passwordData.confirmPassword
+            });
             alert("Đổi mật khẩu thành công!");
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (error: any) {
@@ -104,16 +91,16 @@ export default function Profile() {
         <div className="max-w-5xl mx-auto px-6 py-12 font-sans">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {/* CỘT TRÁI: AVATAR & THÔNG TIN CHUNG */}
+                {/* CỘT TRÁI: HIỂN THỊ */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
                         <div className="relative w-32 h-32 mx-auto mb-4">
                             <img
-                                src={profile.avatarUrl || "https://ui-avatars.com/api/?name=" + profile.username}
+                                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.username}&background=6366f1&color=fff`}
                                 alt="Avatar"
                                 className="w-full h-full rounded-full object-cover border-4 border-indigo-50"
                             />
-                            <button className="absolute bottom-0 right-0 p-2 bg-indigo-600 rounded-full text-white shadow-lg hover:bg-indigo-700">
+                            <button className="absolute bottom-0 right-0 p-2 bg-indigo-600 rounded-full text-white shadow-lg hover:bg-indigo-700 transition-all">
                                 <Camera size={16} />
                             </button>
                         </div>
@@ -122,10 +109,9 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* CỘT PHẢI: FORM CẬP NHẬT & ĐỔI MẬT KHẨU */}
+                {/* CỘT PHẢI: FORM */}
                 <div className="lg:col-span-2 space-y-8">
-
-                    {/* Form Cập nhật thông tin */}
+                    {/* Form thông tin */}
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><User size={20} /></div>
@@ -178,40 +164,39 @@ export default function Profile() {
                         </form>
                     </div>
 
-                    {/* Form Đổi mật khẩu */}
+                    {/* Form mật khẩu */}
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-red-50 rounded-lg text-red-600"><Lock size={20} /></div>
-                            <h3 className="text-xl font-bold text-gray-900">Đổi mật khẩu</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Bảo mật</h3>
                         </div>
 
                         <form onSubmit={handleChangePassword} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <input
-                                    type="password" placeholder="Mật khẩu cũ" required
+                                    type="password" placeholder="Mật khẩu hiện tại" required
                                     value={passwordData.currentPassword}
                                     onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
                                 />
                                 <input
                                     type="password" placeholder="Mật khẩu mới" required
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
                                 />
                                 <input
-                                    type="password" placeholder="Xác nhận mật khẩu mới" required
+                                    type="password" placeholder="Xác nhận mật khẩu" required
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
                                 />
                             </div>
-                            <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all">
+                            <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all text-sm">
                                 Cập nhật mật khẩu
                             </button>
                         </form>
                     </div>
-
                 </div>
             </motion.div>
         </div>
