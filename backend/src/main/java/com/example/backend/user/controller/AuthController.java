@@ -73,4 +73,10 @@ public class AuthController {
                 "message", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại."
         ));
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // Với JWT không lưu state, chỉ cần trả về OK.
+        // Nếu dùng Redis để blacklist token thì xử lý tại đây.
+        return ResponseEntity.ok("Đăng xuất thành công");
+    }
 }

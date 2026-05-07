@@ -49,20 +49,24 @@ public class UserService {
         return toResponse(saved);
     }
 
-    //  ĐĂNG NHẬP
+    // ĐĂNG NHẬP bằng Email
     public String authenticate(LoginRequest loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
-            throw new RuntimeException("Username và password không được để trống!");
+        // 1. Kiểm tra đầu vào (Dùng getEmail() thay vì getUsername())
+        if (loginRequest.getEmail() == null || loginRequest.getPassword() == null) {
+            throw new RuntimeException("Email và password không được để trống!");
         }
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
+        // 2. Tìm User bằng Email
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
 
+        // 3. Kiểm tra mật khẩu
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Mật khẩu không chính xác!");
         }
 
-        return tokenProvider.generateToken(user.getUsername(), user.getRole().name());
+        // 4. Trả về token (thường dùng email hoặc username làm subject đều được)
+        return tokenProvider.generateToken(user.getEmail(), user.getRole().name());
     }
 
     public UserResponse getMe(String username) {
