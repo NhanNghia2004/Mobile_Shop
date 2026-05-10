@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Camera, Lock, Save, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Lock, Save, Loader2 } from 'lucide-react';
 import api from "../../api/axios";
 
 export default function Profile() {
+    // 1. Khai báo State
     const [profile, setProfile] = useState({
         username: '',
         email: '',
@@ -21,42 +22,54 @@ export default function Profile() {
     const [isLoading, setIsLoading] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
+    // 2. Lấy dữ liệu Profile khi load trang
     useEffect(() => {
         fetchProfile();
     }, []);
 
-    // 1. SỬA LẠI HÀM LẤY PROFILE: Không truyền username lên URL
     const fetchProfile = async () => {
         setIsLoading(true);
         try {
-            // Backend dùng @AuthenticationPrincipal nên chỉ cần gọi đúng Endpoint
             const response = await api.get('/user/profile');
             setProfile(response.data);
         } catch (error: any) {
-            console.error("Lỗi lấy Profile:", error.response);
+            console.error("Lỗi chi tiết:", error.response?.status, error.response?.data);
             if (error.response?.status === 401) {
-                alert("Phiên đăng nhập hết hạn!");
+                localStorage.clear();
                 window.location.href = '/login';
             }
+            // Bỏ check 403 ở đây - 403 là lỗi phân quyền, không phải hết hạn token
         } finally {
             setIsLoading(false);
         }
     };
 
-    // 2. SỬA LẠI HÀM CẬP NHẬT: Không truyền username lên URL
+    // 3. Xử lý cập nhật thông tin (Update Profile)
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsUpdating(true);
         try {
-            // Backend nhận RequestBody là UpdateProfileRequest
             const response = await api.put('/user/profile', {
                 email: profile.email,
                 phone: profile.phone,
                 address: profile.address,
-                avatarUrl: profile.avatarUrl
+                // Chỉ gửi avatarUrl nếu có giá trị, tránh gửi chuỗi rỗng
+                avatarUrl: profile.avatarUrl || null
             });
-            alert("Cập nhật thông tin thành công!");
+
+            // Lấy data mới từ response thay vì tự set
             setProfile(response.data);
+
+            // Cập nhật localStorage với data mới nhất từ server
+            const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            localStorage.setItem('user', JSON.stringify({
+                ...savedUser,
+                avatarUrl: response.data.avatarUrl
+            }));
+
+            window.dispatchEvent(new Event("storage"));
+            alert("Cập nhật thành công!");
+
         } catch (error: any) {
             alert(error.response?.data?.message || "Cập nhật thất bại!");
         } finally {
@@ -64,20 +77,18 @@ export default function Profile() {
         }
     };
 
-    // 3. SỬA LẠI HÀM ĐỔI MẬT KHẨU: Đường dẫn đúng là /change-password
+    // 4. Xử lý đổi mật khẩu
+    // Sửa lại trong Profile.tsx
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
         if (passwordData.newPassword !== passwordData.confirmPassword) {
-            alert("Mật khẩu xác nhận không khớp!");
+            alert("Mật khẩu mới không khớp!");
             return;
         }
 
         try {
-            await api.put('/user/profile/change-password', {
-                currentPassword: passwordData.currentPassword,
-                newPassword: passwordData.newPassword,
-                confirmPassword: passwordData.confirmPassword
-            });
+            // BỎ phần username trên URL, gọi đúng endpoint của ProfileController
+            await api.put('/user/profile/change-password', passwordData);
             alert("Đổi mật khẩu thành công!");
             setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (error: any) {
@@ -91,27 +102,39 @@ export default function Profile() {
         <div className="max-w-5xl mx-auto px-6 py-12 font-sans">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {/* CỘT TRÁI: HIỂN THỊ */}
+                {/* CỘT TRÁI: AVATAR & THÔNG TIN CHUNG */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
                         <div className="relative w-32 h-32 mx-auto mb-4">
                             <img
-                                src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.username}&background=6366f1&color=fff`}
+                                // Thêm key={profile.avatarUrl} để React ép render lại khi link thay đổi
+                                key={profile.avatarUrl}
+                                src={profile.avatarUrl || "https://ui-avatars.com/api/?name=" + profile.username}
                                 alt="Avatar"
                                 className="w-full h-full rounded-full object-cover border-4 border-indigo-50"
                             />
-                            <button className="absolute bottom-0 right-0 p-2 bg-indigo-600 rounded-full text-white shadow-lg hover:bg-indigo-700 transition-all">
-                                <Camera size={16} />
-                            </button>
                         </div>
-                        <h2 className="text-xl font-black text-gray-900">@{profile.username}</h2>
-                        <p className="text-gray-500 text-sm">{profile.email}</p>
+                        <h2 className="text-xl font-black text-gray-900">{profile.username}</h2>
+                        <p className="text-gray-500 text-sm mb-4">{profile.email}</p>
+
+                        {/* THÊM Ô INPUT NÀY ĐỂ DÁN LINK URL */}
+                        <div className="space-y-2 text-left">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Link ảnh đại diện (URL)</label>
+                            <input
+                                type="text"
+                                placeholder="Dán link ảnh vào đây..."
+                                value={profile.avatarUrl || ''}
+                                onChange={(e) => setProfile({...profile, avatarUrl: e.target.value})}
+                                className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-100 rounded-lg outline-none focus:border-indigo-600"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* CỘT PHẢI: FORM */}
+                {/* CỘT PHẢI: FORM CẬP NHẬT & ĐỔI MẬT KHẨU */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Form thông tin */}
+
+                    {/* Form Cập nhật thông tin */}
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><User size={20} /></div>
@@ -164,39 +187,40 @@ export default function Profile() {
                         </form>
                     </div>
 
-                    {/* Form mật khẩu */}
+                    {/* Form Đổi mật khẩu */}
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="p-2 bg-red-50 rounded-lg text-red-600"><Lock size={20} /></div>
-                            <h3 className="text-xl font-bold text-gray-900">Bảo mật</h3>
+                            <h3 className="text-xl font-bold text-gray-900">Đổi mật khẩu</h3>
                         </div>
 
                         <form onSubmit={handleChangePassword} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <input
-                                    type="password" placeholder="Mật khẩu hiện tại" required
+                                    type="password" placeholder="Mật khẩu cũ" required
                                     value={passwordData.currentPassword}
                                     onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
                                 />
                                 <input
                                     type="password" placeholder="Mật khẩu mới" required
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
                                 />
                                 <input
-                                    type="password" placeholder="Xác nhận mật khẩu" required
+                                    type="password" placeholder="Xác nhận mật khẩu mới" required
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all text-sm"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-red-500 transition-all"
                                 />
                             </div>
-                            <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all text-sm">
+                            <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-all">
                                 Cập nhật mật khẩu
                             </button>
                         </form>
                     </div>
+
                 </div>
             </motion.div>
         </div>

@@ -1,15 +1,16 @@
 import { Mail, Lock, Apple, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import api from "../../api/axios";
+import { Link } from 'react-router-dom';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const navigate = useNavigate();
 
 
     const HERO_IMAGE = "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop";
@@ -19,15 +20,23 @@ export default function Login() {
         setIsLoading(true);
         try {
             const response = await api.post('/auth/login', { email, password });
+            const { token, user } = response.data;
 
-            // Lưu dữ liệu
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
 
             alert("Đăng nhập thành công!");
 
-            // DÙNG DÒNG NÀY để Header cập nhật ngay lập tức:
-            window.location.href = '/';
+            // Dùng navigate thay cho window.location.href
+            if (user.role === 'ADMIN') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/');
+            }
+
+            // Kích hoạt Header cập nhật lại (Xem giải thích ở dưới)
+            window.dispatchEvent(new Event("storage"));
+
         } catch (error: any) {
             alert(error.response?.data?.message || "Lỗi đăng nhập");
         } finally {
@@ -129,7 +138,9 @@ export default function Login() {
                                 <span className="text-sm font-medium text-gray-600 select-none group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
                             </label>
                             {/* Tăng từ text-xs lên text-sm */}
-                            <a href="#" className="text-sm font-bold text-indigo-600 hover:underline hover:text-indigo-700 transition-colors">Quên mật khẩu?</a>
+                            <Link to="/forgot-password" className="text-sm font-bold text-indigo-600 hover:underline">
+                                Quên mật khẩu?
+                            </Link>
                         </div>
 
                         <motion.button

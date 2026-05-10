@@ -16,15 +16,28 @@ export default function Header() {
     const [user, setUser] = useState<UserType | null>(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
+    // Hàm lấy dữ liệu user từ local
+    const fetchUser = () => {
         const savedUser = localStorage.getItem('user');
-        if (savedUser) {
+        if (savedUser && savedUser !== 'undefined') {
             try {
                 setUser(JSON.parse(savedUser));
             } catch (error) {
-                console.error("Lỗi parse user:", error);
+                setUser(null);
             }
+        } else {
+            setUser(null);
         }
+    };
+    useEffect(() => {
+        fetchUser(); // Lấy user khi mount component
+
+        // Lắng nghe sự kiện thay đổi storage để cập nhật UI ngay lập tức
+        window.addEventListener('storage', fetchUser);
+
+        return () => {
+            window.removeEventListener('storage', fetchUser);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -32,9 +45,7 @@ export default function Header() {
         localStorage.removeItem('user');
         setUser(null);
         alert("Bạn đã đăng xuất!");
-        navigate('/');
-        // Buộc render lại để đồng bộ trạng thái các trang
-        window.location.reload();
+        navigate('/login'); // Dùng navigate mượt mà
     };
 
     return (
@@ -94,7 +105,7 @@ export default function Header() {
                                         {/* Sửa lỗi đỏ bằng cách kiểm tra user tồn tại */}
                                         {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
                                     </div>
-                                    <span className="hidden lg:block text-sm font-bold text-gray-700">@{user.username}</span>
+                                    <span className="hidden lg:block text-sm font-bold text-gray-700">{user.username}</span>
                                 </Link>
                                 <button
                                     onClick={handleLogout}
