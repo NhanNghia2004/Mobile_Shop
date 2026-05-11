@@ -42,7 +42,7 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody GoogleLoginRequest request) {
         String token = googleAuthService.loginWithGoogle(request.getIdToken());
-        String username = jwtTokenProvider.getUsernameFromJWT(token); // cần inject JwtTokenProvider
+        String username = jwtTokenProvider.getUsernameFromJWT(token);
         UserResponse user = userService.getMe(username);
         return ResponseEntity.ok(new AuthResponse(token, user));
     }

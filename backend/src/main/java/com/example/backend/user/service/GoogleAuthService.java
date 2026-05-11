@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import java.util.Map;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,43 +30,47 @@ public class GoogleAuthService {
     @Value("${app.google-client-id}")
     private String googleClientId;
 
+    // Thay toàn bộ hàm loginWithGoogle
     @Transactional
-    public String loginWithGoogle(String idToken) {
+    public String loginWithGoogle(String accessToken) {
+        try {
+            // Gọi Google API để lấy thông tin user từ access_token
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://www.googleapis.com/oauth2/v3/userinfo";
 
-        GoogleIdToken.Payload payload = verifyGoogleToken(idToken);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String email    = payload.getEmail();
-        String name     = (String) payload.get("name");
-        String picture  = (String) payload.get("picture"); // Avatar từ Google
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> payload = response.getBody();
 
-        Optional<User> existingUser = userRepository.findByEmail(email);
+            String email   = (String) payload.get("email");
+            String name    = (String) payload.get("name");
+            String picture = (String) payload.get("picture");
+            String sub     = (String) payload.get("sub");
 
-        User user;
-        if (existingUser.isPresent()) {
+            Optional<User> existingUser = userRepository.findByEmail(email);
+            User user;
 
-            user = existingUser.get();
-            if (user.getAvatarUrl() == null && picture != null) {
+            if (existingUser.isPresent()) {
+                user = existingUser.get();
+            } else {
+                user = new User();
+                user.setEmail(email);
                 user.setAvatarUrl(picture);
+                user.setRole(Role.USER);
+                user.setUsername(generateUniqueUsername(email.split("@")[0]));
+                user.setPassword(UUID.randomUUID().toString());
                 userRepository.save(user);
             }
-        } else {
 
-            user = new User();
-            user.setEmail(email);
-            user.setAvatarUrl(picture);
-            user.setRole(Role.USER);
+            return jwtTokenProvider.generateToken(user.getUsername(), user.getRole().name());
 
-            String baseUsername = email.split("@")[0];
-            user.setUsername(generateUniqueUsername(baseUsername));
-
-            user.setPassword(UUID.randomUUID().toString());
-
-            userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Đăng nhập Google thất bại: " + e.getMessage());
         }
-
-        return jwtTokenProvider.generateToken(user.getUsername(), user.getRole().name());
     }
-
     private GoogleIdToken.Payload verifyGoogleToken(String idToken) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
