@@ -56,13 +56,12 @@ public class ProfileService {
         }
 
         // Cập nhật avatar URL
-        if (request.getAvatarUrl() != null) {
-
+        if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             String url = request.getAvatarUrl().trim();
-            if (!url.isEmpty() && !url.startsWith("http://") && !url.startsWith("https://")) {
-                throw new RuntimeException("URL ảnh đại diện không hợp lệ! Phải bắt đầu bằng http:// hoặc https://");
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                throw new RuntimeException("URL ảnh phải bắt đầu bằng http:// hoặc https://");
             }
-            user.setAvatarUrl(url.isEmpty() ? null : url);
+            user.setAvatarUrl(url);
         }
 
         User saved = userRepository.save(user);

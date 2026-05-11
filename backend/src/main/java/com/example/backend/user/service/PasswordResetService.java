@@ -22,14 +22,14 @@ public class PasswordResetService {
 
     @Transactional
     public void requestPasswordReset(String email) {
-
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email không tồn tại trong hệ thống!"));
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
+
 
         tokenRepository.deleteByUser(user);
+        tokenRepository.flush();
 
         String token = UUID.randomUUID().toString();
-
         PasswordResetToken resetToken = new PasswordResetToken(token, user);
         tokenRepository.save(resetToken);
 
@@ -38,7 +38,7 @@ public class PasswordResetService {
 
     @Transactional
     public void resetPassword(String token, String newPassword) {
-        // Validate password mới
+
         if (newPassword == null || newPassword.length() < 6) {
             throw new RuntimeException("Mật khẩu mới phải có ít nhất 6 ký tự!");
         }
@@ -48,7 +48,7 @@ public class PasswordResetService {
 
 
         if (resetToken.isExpired()) {
-            tokenRepository.delete(resetToken); // Dọn dẹp token hết hạn
+            tokenRepository.delete(resetToken);
             throw new RuntimeException("Link đặt lại mật khẩu đã hết hạn! Vui lòng yêu cầu lại.");
         }
 

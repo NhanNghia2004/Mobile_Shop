@@ -1,6 +1,7 @@
 package com.example.backend.user.service;
 
 import com.example.backend.config.JwtTokenProvider;
+import com.example.backend.user.dto.AuthResponse;
 import com.example.backend.user.dto.LoginRequest;
 import com.example.backend.user.dto.RegisterRequest;
 import com.example.backend.user.dto.UserResponse;
@@ -50,23 +51,20 @@ public class UserService {
     }
 
     // ĐĂNG NHẬP bằng Email
-    public String authenticate(LoginRequest loginRequest) {
-        // 1. Kiểm tra đầu vào (Dùng getEmail() thay vì getUsername())
+    public AuthResponse authenticate(LoginRequest loginRequest) {
         if (loginRequest.getEmail() == null || loginRequest.getPassword() == null) {
             throw new RuntimeException("Email và password không được để trống!");
         }
 
-        // 2. Tìm User bằng Email
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
 
-        // 3. Kiểm tra mật khẩu
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Mật khẩu không chính xác!");
         }
 
-        // 4. Trả về token (thường dùng email hoặc username làm subject đều được)
-        return tokenProvider.generateToken(user.getEmail(), user.getRole().name());
+        String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());
+        return new AuthResponse(token, UserResponse.from(user));
     }
 
     public UserResponse getMe(String username) {

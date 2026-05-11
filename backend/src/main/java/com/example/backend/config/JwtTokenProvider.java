@@ -12,7 +12,6 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // Đọc từ application.properties -> .env, KHÔNG hardcode nữa
     @Value("${app.jwt-secret}")
     private String jwtSecret;
 

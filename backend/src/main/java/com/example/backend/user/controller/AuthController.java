@@ -1,5 +1,6 @@
 package com.example.backend.user.controller;
 
+import com.example.backend.config.JwtTokenProvider;
 import com.example.backend.user.dto.*;
 import com.example.backend.user.service.GoogleAuthService;
 import com.example.backend.user.service.PasswordResetService;
@@ -20,6 +21,7 @@ public class AuthController {
     private final UserService userService;
     private final PasswordResetService passwordResetService;
     private final GoogleAuthService googleAuthService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     //  ĐĂNG KÝ
     @PostMapping("/register")
@@ -31,15 +33,18 @@ public class AuthController {
     //  ĐĂNG NHẬP
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        String token = userService.authenticate(loginRequest);
-        return ResponseEntity.ok(new AuthResponse(token));
+
+        AuthResponse response = userService.authenticate(loginRequest);
+        return ResponseEntity.ok(response);
     }
     //  ĐĂNG NHẬP BẰNG GOOGLE
 
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody GoogleLoginRequest request) {
         String token = googleAuthService.loginWithGoogle(request.getIdToken());
-        return ResponseEntity.ok(new AuthResponse(token));
+        String username = jwtTokenProvider.getUsernameFromJWT(token); // cần inject JwtTokenProvider
+        UserResponse user = userService.getMe(username);
+        return ResponseEntity.ok(new AuthResponse(token, user));
     }
 
     @GetMapping("/me")
@@ -51,10 +56,12 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(
             @RequestBody ForgotPasswordRequest request) {
-
         try {
             passwordResetService.requestPasswordReset(request.getEmail());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+
+            System.err.println("=== Lỗi forgot-password: " + e.getMessage() + " ===");
+            e.printStackTrace();
 
         }
 
@@ -75,8 +82,7 @@ public class AuthController {
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
-        // Với JWT không lưu state, chỉ cần trả về OK.
-        // Nếu dùng Redis để blacklist token thì xử lý tại đây.
+
         return ResponseEntity.ok("Đăng xuất thành công");
     }
 }
