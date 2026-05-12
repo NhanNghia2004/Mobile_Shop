@@ -24,15 +24,9 @@ public class Product {
     @Column(length = 2000)
     private String description;
 
-    // Ảnh đại diện (fallback nếu variant không có ảnh riêng)
     private String imageUrl;
-
-    // Danh mục: flagship, mid-range, budget, gaming
     private String category;
-
-    // Hệ điều hành: Android, iOS
     private String os;
-
     private Double screenSize;
     private Integer batteryCapacity;
     private Integer ram;
@@ -41,18 +35,17 @@ public class Product {
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.ACTIVE;
 
-    // Tổng số đã bán (mọi variant cộng lại)
     private Integer soldCount = 0;
     private Double rating = 0.0;
     private Integer reviewCount = 0;
 
-    // Quan hệ 1-N với variants
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProductVariant> variants = new ArrayList<>();
-
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductVariant> variants = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -65,8 +58,7 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // ── Computed helpers (dùng trong DTO) ────────────────────────────────
-
+    // Computed từ variants
     @Transient
     public Double getMinPrice() {
         return variants.stream()
@@ -85,7 +77,8 @@ public class Product {
 
     @Transient
     public Integer getTotalStock() {
-        return variants.stream().mapToInt(ProductVariant::getStockQuantity).sum();
+        return variants.stream()
+                .mapToInt(ProductVariant::getStockQuantity).sum();
     }
 
     @Transient
@@ -96,14 +89,18 @@ public class Product {
     @Transient
     public List<String> getAvailableColors() {
         return variants.stream()
-                .filter(v -> v.getStatus() == ProductStatus.ACTIVE && v.getStockQuantity() > 0)
-                .map(ProductVariant::getColor).distinct().toList();
+                .filter(v -> v.getStatus() == ProductStatus.ACTIVE
+                        && v.getStockQuantity() > 0)
+                .map(ProductVariant::getColor)
+                .distinct().toList();
     }
 
     @Transient
     public List<Integer> getAvailableStorages() {
         return variants.stream()
-                .filter(v -> v.getStatus() == ProductStatus.ACTIVE && v.getStockQuantity() > 0)
-                .map(ProductVariant::getStorage).distinct().sorted().toList();
+                .filter(v -> v.getStatus() == ProductStatus.ACTIVE
+                        && v.getStockQuantity() > 0)
+                .map(ProductVariant::getStorage)
+                .distinct().sorted().toList();
     }
 }

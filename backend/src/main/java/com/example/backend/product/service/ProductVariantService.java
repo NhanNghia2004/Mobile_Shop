@@ -21,13 +21,13 @@ public class ProductVariantService {
     private final ProductVariantRepository variantRepository;
     private final ProductRepository productRepository;
 
-    // ── Lấy danh sách variants của 1 sản phẩm ────────────────────────────
+    // Lấy danh sách variants của 1 sản phẩm
     public List<VariantResponse> getVariants(Long productId) {
         return variantRepository.findByProductId(productId)
                 .stream().map(VariantResponse::from).collect(Collectors.toList());
     }
 
-    // ── Thêm variant mới vào sản phẩm ────────────────────────────────────
+    // Thêm variant mới vào sản phẩm
     @Transactional
     public VariantResponse addVariant(Long productId, VariantRequest request) {
         Product product = findProductOrThrow(productId);
@@ -47,7 +47,7 @@ public class ProductVariantService {
         return VariantResponse.from(variantRepository.save(variant));
     }
 
-    // ── Cập nhật variant ──────────────────────────────────────────────────
+    //Cập nhật variant
     @Transactional
     public VariantResponse updateVariant(Long productId, Long variantId, VariantRequest request) {
         ProductVariant variant = findVariantOrThrow(variantId, productId);
@@ -67,7 +67,7 @@ public class ProductVariantService {
         return VariantResponse.from(variantRepository.save(variant));
     }
 
-    // ── Xóa variant ───────────────────────────────────────────────────────
+    //Xóa variant
     @Transactional
     public void deleteVariant(Long productId, Long variantId) {
         ProductVariant variant = findVariantOrThrow(variantId, productId);
@@ -82,7 +82,7 @@ public class ProductVariantService {
         variantRepository.delete(variant);
     }
 
-    // ── Cập nhật tồn kho cho 1 variant ───────────────────────────────────
+    //Cập nhật tồn kho cho 1 variant
     @Transactional
     public VariantResponse updateVariantStock(Long productId, Long variantId, int quantity) {
         if (quantity < 0) throw new RuntimeException("Tồn kho không được âm!");
@@ -100,7 +100,7 @@ public class ProductVariantService {
         return VariantResponse.from(variantRepository.save(variant));
     }
 
-    // ── Helper ────────────────────────────────────────────────────────────
+    // Helper
 
     private void validateVariantRequest(VariantRequest request) {
         if (request.getStorage() == null || request.getStorage() <= 0)

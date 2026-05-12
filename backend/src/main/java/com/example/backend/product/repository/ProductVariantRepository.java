@@ -18,7 +18,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     List<ProductVariant> findByProductIdAndStatus(Long productId, ProductStatus status);
 
-    // Tìm đúng variant theo productId + storage + color (để check trùng)
+
     Optional<ProductVariant> findByProductIdAndStorageAndColorIgnoreCase(
             Long productId, Integer storage, String color);
 

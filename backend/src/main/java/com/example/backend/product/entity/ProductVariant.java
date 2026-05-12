@@ -21,33 +21,33 @@ public class ProductVariant {
     @Column(nullable = false)
     private Integer storage;
 
-    // Tên màu: "Titan Đen", "Titan Trắng", "Tím"
+    // Tên màu:
     @Column(nullable = false)
     private String color;
 
-    // Mã hex để hiển thị ô màu trên UI: "#1C1C1E"
+    // Mã hex để hiển thị ô màu trên UI
     private String colorHex;
 
     // Giá riêng cho từng variant
     @Column(nullable = false)
     private Double price;
 
-    // Giá khuyến mãi (null = không giảm)
+    // Giá khuyến mãi
     private Double discountPrice;
 
     // Tồn kho riêng cho từng variant
     @Column(nullable = false)
     private Integer stockQuantity = 0;
 
-    // Ảnh riêng cho màu này (override ảnh của sản phẩm cha nếu có)
+    // Ảnh riêng cho màu này
     private String imageUrl;
 
-    // Trạng thái riêng: ACTIVE, INACTIVE, OUT_OF_STOCK
+    // Trạng thái riêng:
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.ACTIVE;
 
-    // ── Computed helpers ──────────────────────────────────────────────────
+    // Computed helpers
 
     @Transient
     public Double getDisplayPrice() {

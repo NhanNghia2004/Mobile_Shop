@@ -10,15 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Quản lý variants — chỉ ADMIN
- *
- * GET    /api/admin/products/{productId}/variants               → Xem tất cả variants
- * POST   /api/admin/products/{productId}/variants               → Thêm variant mới
- * PUT    /api/admin/products/{productId}/variants/{variantId}   → Cập nhật variant
- * DELETE /api/admin/products/{productId}/variants/{variantId}   → Xóa variant
- * PATCH  /api/admin/products/{productId}/variants/{variantId}/stock → Cập nhật tồn kho
- */
+
 @RestController
 @RequestMapping("/api/admin/products/{productId}/variants")
 @RequiredArgsConstructor
@@ -57,7 +49,7 @@ public class AdminVariantController {
         return ResponseEntity.ok(Map.of("message", "Đã xóa variant thành công!"));
     }
 
-    // PATCH body: { "quantity": 50 }
+
     @PatchMapping("/{variantId}/stock")
     public ResponseEntity<VariantResponse> updateStock(
             @PathVariable Long productId,

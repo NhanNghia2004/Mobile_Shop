@@ -16,6 +16,6 @@ public class ProductRequest {
     private Integer batteryCapacity;
     private String status;           // ACTIVE | INACTIVE
 
-    // Mỗi combo (màu + dung lượng) là 1 variant với giá và tồn kho riêng
+
     private List<VariantRequest> variants;
 }
