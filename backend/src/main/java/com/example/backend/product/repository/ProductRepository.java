@@ -38,20 +38,35 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Pageable pageable
     );
 
-    // Lọc nâng cao: brand + category + khoảng giá + os
-    @Query("""
-    SELECT DISTINCT p FROM Product p
-    LEFT JOIN p.variants v
-    WHERE p.status = 'ACTIVE'
-      AND (:brand IS NULL OR LOWER(p.brand) = LOWER(:brand))
-      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-      AND (:os IS NULL OR LOWER(p.os) = LOWER(:os))
-      AND (:keyword IS NULL 
-           OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-      AND (:minPrice IS NULL OR v.price >= :minPrice)
-      AND (:maxPrice IS NULL OR v.price <= :maxPrice)
-""")
+    // Lọc nâng cao
+    @Query(
+            value = """
+        SELECT DISTINCT p FROM Product p
+        LEFT JOIN p.variants v
+        WHERE p.status = 'ACTIVE'
+          AND (:brand IS NULL OR LOWER(p.brand) = LOWER(:brand))
+          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+          AND (:os IS NULL OR LOWER(p.os) = LOWER(:os))
+          AND (:keyword IS NULL 
+               OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+          AND (:minPrice IS NULL OR v.price >= :minPrice)
+          AND (:maxPrice IS NULL OR v.price <= :maxPrice)
+    """,
+            countQuery = """
+        SELECT COUNT(DISTINCT p.id) FROM Product p
+        LEFT JOIN p.variants v
+        WHERE p.status = 'ACTIVE'
+          AND (:brand IS NULL OR LOWER(p.brand) = LOWER(:brand))
+          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+          AND (:os IS NULL OR LOWER(p.os) = LOWER(:os))
+          AND (:keyword IS NULL 
+               OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+          AND (:minPrice IS NULL OR v.price >= :minPrice)
+          AND (:maxPrice IS NULL OR v.price <= :maxPrice)
+    """
+    )
     Page<Product> filterProducts(
             @Param("brand") String brand,
             @Param("category") String category,

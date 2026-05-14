@@ -29,7 +29,7 @@ public class ProductResponse {
     private Integer reviewCount;
     private LocalDateTime createdAt;
 
-    // Giá hiển thị (để sort/filter, tính từ variant rẻ nhất)
+    // Giá hiển thị
     private Double minPrice;
     private Double maxPrice;
 
@@ -37,11 +37,11 @@ public class ProductResponse {
     private Integer totalStock;
     private boolean inStock;
 
-    // Màu + dung lượng có sẵn (để hiển thị nhanh trên card)
+    // Màu + dung lượng có sẵn
     private List<String> availableColors;
     private List<Integer> availableStorages;
 
-    // Toàn bộ variants (chi tiết đầy đủ - dùng ở trang detail)
+    // Toàn bộ variants
     private List<VariantResponse> variants;
 
     public static ProductResponse from(Product p) {

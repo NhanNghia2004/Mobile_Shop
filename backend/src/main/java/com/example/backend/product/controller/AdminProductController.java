@@ -6,7 +6,6 @@ import com.example.backend.product.dto.ProductResponse;
 import com.example.backend.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,7 +18,7 @@ public class AdminProductController {
 
     private final ProductService productService;
 
-    // ── Xem tất cả sản phẩm
+    //Xem tất cả sản phẩm
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
@@ -29,14 +28,14 @@ public class AdminProductController {
         return ResponseEntity.ok(productService.getAllProductsForAdmin(page, size, sortBy));
     }
 
-    // ── Tạo sản phẩm mới
+    //Tạo sản phẩm mới
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
         ProductResponse response = productService.createProduct(request);
         return ResponseEntity.status(201).body(response);
     }
 
-    // ── Cập nhật sản phẩm
+    //Cập nhật sản phẩm
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
@@ -45,22 +44,21 @@ public class AdminProductController {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
-    // ── Ẩn sản phẩm
+    //Ẩn sản phẩm
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(Map.of("message", "Sản phẩm đã được ẩn thành công!"));
     }
 
-    // ── Xóa hẳn sản phẩm
+    // Xóa hẳn sản phẩm
     @DeleteMapping("/{id}/hard")
     public ResponseEntity<Map<String, String>> hardDeleteProduct(@PathVariable Long id) {
         productService.hardDeleteProduct(id);
         return ResponseEntity.ok(Map.of("message", "Sản phẩm đã bị xóa vĩnh viễn!"));
     }
 
-    // ── Cập nhật tồn kho
-    // PATCH /api/admin/products/5/stock   body: { "quantity": 50 }
+    // Cập nhật tồn kho
     @PatchMapping("/{id}/stock")
     public ResponseEntity<ProductResponse> updateStock(
             @PathVariable Long id,

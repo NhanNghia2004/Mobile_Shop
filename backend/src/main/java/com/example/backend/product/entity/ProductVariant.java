@@ -17,7 +17,7 @@ public class ProductVariant {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // Dung lượng (GB): 128, 256, 512, 1024
+    // Dung lượng (GB)
     @Column(nullable = false)
     private Integer storage;
 
