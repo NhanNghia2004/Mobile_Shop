@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,9 +26,15 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    //  PUBLIC: lấy danh sách sản phẩm có filter
+    //PUBLIC
 
     public PageResponse<ProductResponse> getProducts(ProductFilterRequest filter) {
+        // FIX #7: validate minPrice < maxPrice
+        if (filter.getMinPrice() != null && filter.getMaxPrice() != null
+                && filter.getMinPrice() > filter.getMaxPrice()) {
+            throw new RuntimeException("minPrice không được lớn hơn maxPrice!");
+        }
+
         Pageable pageable = buildPageable(filter);
 
         Page<Product> page = productRepository.filterProducts(
@@ -40,27 +47,48 @@ public class ProductService {
                 pageable
         );
 
-        return PageResponse.from(page, ProductResponse::from);
-    }
+        //sort theo giá thực hiện sau khi fetch (giá nằm ở variant)
+        List<ProductResponse> content = page.getContent()
+                .stream()
+                .map(ProductResponse::from)
+                .collect(Collectors.toList());
 
-    //  PUBLIC: chi tiết sản phẩm
+        String sortBy = filter.getSortBy();
+        if ("price_asc".equals(sortBy)) {
+            content.sort(Comparator.comparingDouble(r -> r.getMinPrice() != null ? r.getMinPrice() : 0));
+        } else if ("price_desc".equals(sortBy)) {
+            content.sort(Comparator.comparingDouble((ProductResponse r) ->
+                    r.getMinPrice() != null ? r.getMinPrice() : 0).reversed());
+        }
+
+        PageResponse<ProductResponse> response = new PageResponse<>();
+        response.setContent(content);
+        response.setPage(page.getNumber());
+        response.setSize(page.getSize());
+        response.setTotalElements(page.getTotalElements());
+        response.setTotalPages(page.getTotalPages());
+        response.setLast(page.isLast());
+        return response;
+    }
 
     public ProductResponse getProductById(Long id) {
         Product product = findActiveProductOrThrow(id);
         return ProductResponse.from(product);
     }
 
-
-    //  PUBLIC: section đặc biệt
-
-
     public List<ProductResponse> getBestsellers() {
-        return productRepository.findTop10ByStatusOrderBySoldCountDesc(ProductStatus.ACTIVE)
+        //  dùng query có JOIN FETCH, giới hạn 10
+        Pageable limit = PageRequest.of(0, 10);
+        return productRepository
+                .findTop10ByStatusOrderBySoldCountDescWithVariants(ProductStatus.ACTIVE, limit)
                 .stream().map(ProductResponse::from).collect(Collectors.toList());
     }
 
     public List<ProductResponse> getNewArrivals() {
-        return productRepository.findTop8ByStatusOrderByCreatedAtDesc(ProductStatus.ACTIVE)
+        //  dùng query có JOIN FETCH, giới hạn 8
+        Pageable limit = PageRequest.of(0, 8);
+        return productRepository
+                .findTop8ByStatusOrderByCreatedAtDescWithVariants(ProductStatus.ACTIVE, limit)
                 .stream().map(ProductResponse::from).collect(Collectors.toList());
     }
 
@@ -74,8 +102,7 @@ public class ProductService {
         return productRepository.findAllBrands();
     }
 
-    //  ADMIN: CRUD
-
+    //ADMIN
 
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
@@ -85,9 +112,9 @@ public class ProductService {
             throw new RuntimeException("Sản phẩm '" + request.getName() + "' đã tồn tại!");
         }
 
-        Product product = mapToEntity(new Product(), request);
-        Product saved = productRepository.save(product);
-        return ProductResponse.from(saved);
+        Product product = mapBasicFields(new Product(), request);
+        applyVariants(product, request);
+        return ProductResponse.from(productRepository.save(product));
     }
 
     @Transactional
@@ -96,9 +123,23 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
 
         validateProductRequest(request);
-        mapToEntity(product, request);
-        Product saved = productRepository.save(product);
-        return ProductResponse.from(saved);
+
+        //kiểm tra tên trùng khi update (loại trừ chính nó)
+        String newName = request.getName().trim();
+        if (!product.getName().equalsIgnoreCase(newName)
+                && productRepository.existsByNameIgnoreCaseAndIdNot(newName, id)) {
+            throw new RuntimeException("Sản phẩm '" + newName + "' đã tồn tại!");
+        }
+
+        mapBasicFields(product, request);
+
+
+        // Nếu variants null → chỉ update thông tin sản phẩm, giữ nguyên variants cũ
+        if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+            applyVariants(product, request);
+        }
+
+        return ProductResponse.from(productRepository.save(product));
     }
 
     @Transactional
@@ -118,36 +159,38 @@ public class ProductService {
     }
 
     public PageResponse<ProductResponse> getAllProductsForAdmin(int page, int size, String sortBy) {
-        Sort sort = buildSort(sortBy);
+        Sort sort = buildAdminSort(sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Product> result = productRepository.findAll(pageable);
+        // FIX #5: fetch variants cùng lúc
+        Page<Product> result = productRepository.findAllWithVariants(pageable);
         return PageResponse.from(result, ProductResponse::from);
     }
-
 
     @Transactional
     public ProductResponse updateStock(Long id, int quantity) {
         throw new RuntimeException(
-                "Tồn kho quản lý theo variant! Dùng: PUT /api/admin/products/{id}/variants/{variantId}/stock"
+                "Tồn kho quản lý theo variant! Dùng: PATCH /api/admin/products/{id}/variants/{variantId}/stock"
         );
     }
 
-
-    //  HELPER METHODS
-
+    // HELPER
 
     private Pageable buildPageable(ProductFilterRequest filter) {
-        Sort sort = buildSort(filter.getSortBy());
+        // FIX #2: price_asc/desc sort ở tầng Java sau fetch → truyền createdAt để DB không cần sort theo giá
+        Sort sort = switch (filter.getSortBy() != null ? filter.getSortBy() : "newest") {
+            case "price_asc", "price_desc" -> Sort.by("createdAt").descending(); // sẽ re-sort ở Java
+            case "bestseller" -> Sort.by("soldCount").descending();
+            case "rating"     -> Sort.by("rating").descending();
+            default           -> Sort.by("createdAt").descending();
+        };
         int page = Math.max(filter.getPage(), 0);
         int size = filter.getSize() > 0 && filter.getSize() <= 50 ? filter.getSize() : 12;
         return PageRequest.of(page, size, sort);
     }
 
-    private Sort buildSort(String sortBy) {
+    private Sort buildAdminSort(String sortBy) {
         if (sortBy == null) return Sort.by("createdAt").descending();
         return switch (sortBy) {
-            case "price_asc"  -> Sort.by("createdAt").ascending(); // variant-based, fallback
-            case "price_desc" -> Sort.by("createdAt").descending();
             case "newest"     -> Sort.by("createdAt").descending();
             case "bestseller" -> Sort.by("soldCount").descending();
             case "rating"     -> Sort.by("rating").descending();
@@ -160,10 +203,10 @@ public class ProductService {
             throw new RuntimeException("Tên sản phẩm phải có ít nhất 2 ký tự!");
         if (request.getBrand() == null || request.getBrand().trim().isEmpty())
             throw new RuntimeException("Brand không được để trống!");
-
     }
 
-    private Product mapToEntity(Product product, ProductRequest req) {
+    // Chỉ map các field cơ bản của Product (không động vào variants)
+    private Product mapBasicFields(Product product, ProductRequest req) {
         product.setName(req.getName().trim());
         product.setBrand(req.getBrand().trim());
         product.setDescription(req.getDescription());
@@ -181,34 +224,33 @@ public class ProductService {
                 throw new RuntimeException("Status không hợp lệ: " + req.getStatus());
             }
         }
-
-
-        if (req.getVariants() != null && !req.getVariants().isEmpty()) {
-            product.getVariants().clear();
-            req.getVariants().forEach(variantReq -> {
-                if (variantReq.getPrice() == null || variantReq.getPrice() <= 0)
-                    throw new RuntimeException("Giá variant phải lớn hơn 0!");
-                if (variantReq.getStorage() == null || variantReq.getStorage() <= 0)
-                    throw new RuntimeException("Dung lượng variant không hợp lệ!");
-                if (variantReq.getColor() == null || variantReq.getColor().isBlank())
-                    throw new RuntimeException("Màu sắc variant không được để trống!");
-
-                ProductVariant variant = new ProductVariant();
-                variant.setProduct(product);
-                variant.setStorage(variantReq.getStorage());
-                variant.setColor(variantReq.getColor().trim());
-                variant.setColorHex(variantReq.getColorHex());
-                variant.setPrice(variantReq.getPrice());
-                variant.setDiscountPrice(variantReq.getDiscountPrice());
-                variant.setStockQuantity(
-                        variantReq.getStockQuantity() != null ? variantReq.getStockQuantity() : 0
-                );
-                variant.setImageUrl(variantReq.getImageUrl());
-                product.getVariants().add(variant);
-            });
-        }
-
         return product;
+    }
+
+    //tách riêng logic xử lý variants
+    private void applyVariants(Product product, ProductRequest req) {
+        product.getVariants().clear();
+        req.getVariants().forEach(variantReq -> {
+            if (variantReq.getPrice() == null || variantReq.getPrice() <= 0)
+                throw new RuntimeException("Giá variant phải lớn hơn 0!");
+            if (variantReq.getStorage() == null || variantReq.getStorage() <= 0)
+                throw new RuntimeException("Dung lượng variant không hợp lệ!");
+            if (variantReq.getColor() == null || variantReq.getColor().isBlank())
+                throw new RuntimeException("Màu sắc variant không được để trống!");
+
+            ProductVariant variant = new ProductVariant();
+            variant.setProduct(product);
+            variant.setStorage(variantReq.getStorage());
+            variant.setColor(variantReq.getColor().trim());
+            variant.setColorHex(variantReq.getColorHex());
+            variant.setPrice(variantReq.getPrice());
+            variant.setDiscountPrice(variantReq.getDiscountPrice());
+            variant.setStockQuantity(
+                    variantReq.getStockQuantity() != null ? variantReq.getStockQuantity() : 0
+            );
+            variant.setImageUrl(variantReq.getImageUrl());
+            product.getVariants().add(variant);
+        });
     }
 
     private Product findActiveProductOrThrow(Long id) {
