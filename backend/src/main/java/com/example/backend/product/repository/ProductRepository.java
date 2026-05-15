@@ -17,8 +17,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long>,
         JpaSpecificationExecutor<Product> {
 
-    // ── FIX #5: Thêm JOIN FETCH variants để tránh N+1 query ──
-
     @Query("""
         SELECT DISTINCT p FROM Product p
         LEFT JOIN FETCH p.variants
@@ -26,7 +24,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     """)
     List<Product> findByStatusWithVariants(@Param("status") ProductStatus status);
 
-    // Dùng cho admin (findAll vẫn cần fetch variants)
     @Query(value = """
         SELECT DISTINCT p FROM Product p
         LEFT JOIN FETCH p.variants
@@ -34,11 +31,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             countQuery = "SELECT COUNT(p) FROM Product p")
     Page<Product> findAllWithVariants(Pageable pageable);
 
-    // ── FIX #5: filterProducts với JOIN FETCH ──
     @Query(
             value = """
             SELECT DISTINCT p FROM Product p
-            LEFT JOIN FETCH p.variants v
+            LEFT JOIN FETCH p.variants
             WHERE p.status = 'ACTIVE'
               AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
               AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
@@ -46,12 +42,19 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
               AND (:keyword  IS NULL
                    OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (:minPrice IS NULL OR v.price >= :minPrice)
-              AND (:maxPrice IS NULL OR v.price <= :maxPrice)
+              AND (
+                    (:minPrice IS NULL AND :maxPrice IS NULL)
+                    OR EXISTS (
+                        SELECT 1 FROM ProductVariant v
+                        WHERE v.product = p
+                          AND v.status = 'ACTIVE'
+                          AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
+                          AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
+                    )
+              )
         """,
             countQuery = """
             SELECT COUNT(DISTINCT p.id) FROM Product p
-            LEFT JOIN p.variants v
             WHERE p.status = 'ACTIVE'
               AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
               AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
@@ -59,21 +62,28 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
               AND (:keyword  IS NULL
                    OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (:minPrice IS NULL OR v.price >= :minPrice)
-              AND (:maxPrice IS NULL OR v.price <= :maxPrice)
+              AND (
+                    (:minPrice IS NULL AND :maxPrice IS NULL)
+                    OR EXISTS (
+                        SELECT 1 FROM ProductVariant v
+                        WHERE v.product = p
+                          AND v.status = 'ACTIVE'
+                          AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
+                          AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
+                    )
+              )
         """
     )
     Page<Product> filterProducts(
-            @Param("brand")     String brand,
-            @Param("category")  String category,
-            @Param("os")        String os,
-            @Param("minPrice")  Double minPrice,
-            @Param("maxPrice")  Double maxPrice,
-            @Param("keyword")   String keyword,
+            @Param("brand")    String brand,
+            @Param("category") String category,
+            @Param("os")       String os,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("keyword")  String keyword,
             Pageable pageable
     );
 
-    // ── FIX #4: ORDER BY giá thấp nhất của từng sản phẩm → ổn định, không lặp ──
     @Query(
             value = """
             SELECT DISTINCT p FROM Product p
@@ -83,8 +93,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
               AND v.discountPrice IS NOT NULL
             ORDER BY (
                 SELECT MIN(v2.discountPrice) FROM ProductVariant v2
-                WHERE v2.product = p
-                  AND v2.discountPrice IS NOT NULL
+                WHERE v2.product = p AND v2.discountPrice IS NOT NULL
             ) ASC
         """,
             countQuery = """
@@ -97,7 +106,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     )
     Page<Product> findDiscountedProducts(Pageable pageable);
 
-    // Bestsellers & new arrivals cũng fetch variants luôn
     @Query("""
         SELECT DISTINCT p FROM Product p
         LEFT JOIN FETCH p.variants
@@ -120,18 +128,28 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Pageable pageable
     );
 
+
+    @Query("""
+        SELECT
+            MIN(COALESCE(v.discountPrice, v.price)),
+            MAX(COALESCE(v.discountPrice, v.price))
+        FROM ProductVariant v
+        WHERE v.product.status = 'ACTIVE'
+          AND v.status = 'ACTIVE'
+    """)
+    Object[] findPriceRange();
+
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.status = 'ACTIVE' ORDER BY p.brand")
     List<String> findAllBrands();
 
     boolean existsByNameIgnoreCase(String name);
 
-    // Kiểm tra tên trùng khi update (loại trừ chính nó)
     @Query("""
         SELECT COUNT(p) > 0 FROM Product p
         WHERE LOWER(p.name) = LOWER(:name) AND p.id <> :excludeId
     """)
     boolean existsByNameIgnoreCaseAndIdNot(
-            @Param("name") String name,
+            @Param("name")      String name,
             @Param("excludeId") Long excludeId
     );
 

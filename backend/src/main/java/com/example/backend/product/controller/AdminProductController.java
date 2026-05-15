@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api/admin/products")
 @RequiredArgsConstructor
@@ -18,24 +17,23 @@ public class AdminProductController {
 
     private final ProductService productService;
 
-    //Xem tất cả sản phẩm
+    // Xem tất cả sản phẩm
     @GetMapping
     public ResponseEntity<PageResponse<ProductResponse>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "0")      int page,
+            @RequestParam(defaultValue = "20")     int size,
             @RequestParam(defaultValue = "newest") String sortBy
     ) {
         return ResponseEntity.ok(productService.getAllProductsForAdmin(page, size, sortBy));
     }
 
-    //Tạo sản phẩm mới
+    // Tạo sản phẩm mới
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
-        ProductResponse response = productService.createProduct(request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(201).body(productService.createProduct(request));
     }
 
-    //Cập nhật sản phẩm
+    // Cập nhật sản phẩm
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
@@ -44,7 +42,7 @@ public class AdminProductController {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
-    //Ẩn sản phẩm
+    // Ẩn sản phẩm
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
@@ -58,16 +56,12 @@ public class AdminProductController {
         return ResponseEntity.ok(Map.of("message", "Sản phẩm đã bị xóa vĩnh viễn!"));
     }
 
-    // Cập nhật tồn kho
+
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductResponse> updateStock(
-            @PathVariable Long id,
-            @RequestBody Map<String, Integer> body
-    ) {
-        Integer quantity = body.get("quantity");
-        if (quantity == null) {
-            throw new RuntimeException("Thiếu trường 'quantity' trong request body!");
-        }
-        return ResponseEntity.ok(productService.updateStock(id, quantity));
+    public ResponseEntity<Map<String, String>> updateStock(@PathVariable Long id) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", "Tồn kho quản lý theo variant! " +
+                        "Dùng: PATCH /api/admin/products/" + id + "/variants/{variantId}/stock"
+        ));
     }
 }

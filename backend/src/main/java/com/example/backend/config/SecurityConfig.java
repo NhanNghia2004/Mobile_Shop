@@ -30,6 +30,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Sản phẩm
                         .requestMatchers("/api/products/**").permitAll()
                         // File ảnh upload công khai
                         .requestMatchers("/uploads/**").permitAll()

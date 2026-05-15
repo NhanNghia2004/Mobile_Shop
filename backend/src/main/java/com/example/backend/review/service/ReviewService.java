@@ -34,17 +34,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository     reviewRepository;
-    private final ProductRepository    productRepository;
+    private final ReviewRepository         reviewRepository;
+    private final ProductRepository        productRepository;
     private final ProductVariantRepository variantRepository;
-    private final UserRepository       userRepository;
-    private final FileStorageService   fileStorageService;
+    private final UserRepository           userRepository;
+    private final FileStorageService       fileStorageService;
 
     private static final int MAX_IMAGES_PER_REVIEW = 5;
 
-    // ── PUBLIC: đọc review ───────────────────────────────────────────────────
-
-    /** Danh sách review phân trang, lọc theo sao */
+    //PUBLIC
     public PageResponse<ReviewResponse> getProductReviews(
             Long productId, Integer rating, int page, int size) {
 
@@ -60,13 +58,12 @@ public class ReviewService {
         return PageResponse.from(result, ReviewResponse::from);
     }
 
-    /** Thống kê rating: avg + breakdown 1★–5★ */
     public ReviewSummaryResponse getReviewSummary(Long productId) {
         Double avg   = reviewRepository.avgRatingByProductId(productId);
         long   total = reviewRepository.countByProductIdAndStatus(
                 productId, ReviewStatus.VISIBLE);
 
-        List<Object[]> rows  = reviewRepository.countByRatingForProduct(productId);
+        List<Object[]> rows      = reviewRepository.countByRatingForProduct(productId);
         Map<Integer, Long> breakdown = new HashMap<>();
         for (int i = 1; i <= 5; i++) breakdown.put(i, 0L);
         for (Object[] row : rows) {
@@ -80,23 +77,23 @@ public class ReviewService {
         return summary;
     }
 
-    // ── USER: tạo / sửa / xóa review ────────────────────────────────────────
+    //USER
 
     @Transactional
     public ReviewResponse createReview(String username,
                                        ReviewRequest request,
                                        List<MultipartFile> images) {
-        User           user    = findUser(username);
+        User user = findUser(username);
+
+        validateCreateRequest(request);
+
         ProductVariant variant = findVariant(request.getVariantId());
         Product        product = variant.getProduct();
 
-        // Mỗi user chỉ review 1 lần / 1 variant
         if (reviewRepository.existsByUserIdAndVariantId(user.getId(), variant.getId())) {
             throw new RuntimeException(
                     "Bạn đã đánh giá sản phẩm này rồi! Hãy chỉnh sửa review cũ.");
         }
-
-        validateRequest(request);
 
         Review review = new Review();
         review.setProduct(product);
@@ -105,7 +102,6 @@ public class ReviewService {
         review.setRating(request.getRating());
         review.setComment(request.getComment());
 
-        // Lưu ảnh
         if (images != null && !images.isEmpty()) {
             attachImages(review, images);
         }
@@ -121,14 +117,15 @@ public class ReviewService {
                                        ReviewRequest request,
                                        List<MultipartFile> newImages) {
         Review review = findReviewAndCheckOwner(reviewId, username);
-        validateRequest(request);
+
+        validateUpdateRequest(request);
 
         review.setRating(request.getRating());
         review.setComment(request.getComment());
 
-        // Thêm ảnh mới (không xóa ảnh cũ — frontend gửi danh sách xóa riêng)
         if (newImages != null && !newImages.isEmpty()) {
-            int current = review.getImages().size();
+
+            int current = (review.getImages() != null) ? review.getImages().size() : 0;
             if (current + newImages.size() > MAX_IMAGES_PER_REVIEW) {
                 throw new RuntimeException(
                         "Mỗi review tối đa " + MAX_IMAGES_PER_REVIEW + " ảnh! " +
@@ -164,7 +161,7 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    // ── ADMIN ────────────────────────────────────────────────────────────────
+    //ADMIN
 
     public PageResponse<ReviewResponse> getAllReviewsForAdmin(
             Long productId, int page, int size) {
@@ -202,12 +199,21 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    // ── HELPER ───────────────────────────────────────────────────────────────
+    // HELPER
 
-    private void validateRequest(ReviewRequest request) {
+    private void validateCreateRequest(ReviewRequest request) {
         if (request.getVariantId() == null) {
             throw new RuntimeException("Thiếu variantId!");
         }
+        validateRatingAndComment(request);
+    }
+
+
+    private void validateUpdateRequest(ReviewRequest request) {
+        validateRatingAndComment(request);
+    }
+
+    private void validateRatingAndComment(ReviewRequest request) {
         if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
             throw new RuntimeException("Rating phải từ 1 đến 5 sao!");
         }
@@ -217,7 +223,8 @@ public class ReviewService {
     }
 
     private void attachImages(Review review, List<MultipartFile> files) {
-        int order = review.getImages().size();
+
+        int order = (review.getImages() != null) ? review.getImages().size() : 0;
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) continue;
             String[] stored = fileStorageService.storeReviewImage(file);
@@ -225,7 +232,6 @@ public class ReviewService {
         }
     }
 
-    /** Cập nhật avgRating + reviewCount trên Product sau mỗi thay đổi review */
     private void updateProductRating(Product product) {
         Double avg = reviewRepository.avgRatingByProductId(product.getId());
         long   cnt = reviewRepository.countByProductIdAndStatus(
@@ -237,7 +243,9 @@ public class ReviewService {
     }
 
     private void deleteReviewFiles(Review review) {
-        review.getImages().forEach(img -> fileStorageService.delete(img.getFilePath()));
+        if (review.getImages() != null) {
+            review.getImages().forEach(img -> fileStorageService.delete(img.getFilePath()));
+        }
     }
 
     private Review findReviewOrThrow(Long reviewId) {
