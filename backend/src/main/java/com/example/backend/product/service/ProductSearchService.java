@@ -52,6 +52,8 @@ public class ProductSearchService {
                 parsed.getRamGb(),
                 parsed.getStorageGb(),
                 color,
+                filter.getMinPrice(),  // thêm
+                filter.getMaxPrice(),  // thêm
                 t1, t2, t3,
                 pageable
         );

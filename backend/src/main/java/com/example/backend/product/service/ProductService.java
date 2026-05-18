@@ -23,16 +23,9 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository    productRepository;
-    private final ProductSearchService productSearchService;  // NEW
+    private final ProductSearchService productSearchService;
 
-    // ── PUBLIC ───────────────────────────────────────────────────────────────
-
-    /**
-     * Điểm vào duy nhất cho lọc + tìm kiếm sản phẩm.
-     *
-     * Nếu có keyword → ủy quyền cho ProductSearchService (smart search).
-     * Nếu không có keyword → query filter thông thường (brand, category, os, price).
-     */
+    // ── PUBLIC
     public PageResponse<ProductResponse> getProducts(ProductFilterRequest filter) {
         validatePriceFilter(filter.getMinPrice(), filter.getMaxPrice());
 
@@ -111,14 +104,11 @@ public class ProductService {
         return new PriceRangeResponse(min, max);
     }
 
-    /**
-     * Trả về kết quả parse keyword — frontend dùng để hiển thị tag "Đang tìm: 128GB • Samsung".
-     */
     public ParsedKeyword parseSearchKeyword(String keyword) {
         return productSearchService.parseKeyword(keyword);
     }
 
-    // ── ADMIN ────────────────────────────────────────────────────────────────
+    // ── ADMIN
 
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {

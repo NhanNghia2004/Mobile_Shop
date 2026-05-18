@@ -11,17 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductSearchRepository extends JpaRepository<Product, Long> {
 
-    /**
-     * Smart search kết hợp tất cả signal:
-     *  - storageGb  : lọc variant có đúng dung lượng
-     *  - ramGb      : lọc product có đúng RAM
-     *  - color      : lọc variant có màu LIKE %color%
-     *  - os         : lọc product theo OS
-     *  - textTokens : LIKE trên name + brand + description (truyền từng token)
-     *
-     * Mỗi điều kiện chỉ áp dụng khi param khác NULL.
-     * Dùng EXISTS subquery cho storage + color để tránh duplicate rows.
-     */
     @Query(value = """
         SELECT DISTINCT p FROM Product p
         LEFT JOIN FETCH p.variants
@@ -58,6 +47,16 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                      AND LOWER(v.color) LIKE LOWER(CONCAT('%', :color, '%'))
                )
           )
+          AND (
+               (:minPrice IS NULL AND :maxPrice IS NULL)
+               OR EXISTS (
+                   SELECT 1 FROM ProductVariant v2
+                   WHERE v2.product = p
+                     AND v2.status = 'ACTIVE'
+                     AND (:minPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) >= :minPrice)
+                     AND (:maxPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) <= :maxPrice)
+               )
+          )
     """,
             countQuery = """
         SELECT COUNT(DISTINCT p.id) FROM Product p
@@ -91,15 +90,27 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                      AND LOWER(v.color) LIKE LOWER(CONCAT('%', :color, '%'))
                )
           )
+          AND (
+               (:minPrice IS NULL AND :maxPrice IS NULL)
+               OR EXISTS (
+                   SELECT 1 FROM ProductVariant v2
+                   WHERE v2.product = p
+                     AND v2.status = 'ACTIVE'
+                     AND (:minPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) >= :minPrice)
+                     AND (:maxPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) <= :maxPrice)
+               )
+          )
     """)
     Page<Product> smartSearch(
-            @Param("os")         String os,
-            @Param("ramGb")      Integer ramGb,
-            @Param("storageGb")  Integer storageGb,
-            @Param("color")      String color,
-            @Param("textToken1") String textToken1,
-            @Param("textToken2") String textToken2,
-            @Param("textToken3") String textToken3,
+            @Param("os")          String os,
+            @Param("ramGb")       Integer ramGb,
+            @Param("storageGb")   Integer storageGb,
+            @Param("color")       String color,
+            @Param("minPrice")    Double minPrice,
+            @Param("maxPrice")    Double maxPrice,
+            @Param("textToken1")  String textToken1,
+            @Param("textToken2")  String textToken2,
+            @Param("textToken3")  String textToken3,
             Pageable pageable
     );
 }
