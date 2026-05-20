@@ -47,6 +47,13 @@ public class Product {
             orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductVariant> variants = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<com.example.backend.review.entity.Review> reviews = new ArrayList<>();
+
+    @org.hibernate.annotations.Formula("(SELECT MIN(COALESCE(v.discount_price, v.price)) FROM product_variants v WHERE v.product_id = id AND v.status = 'ACTIVE')")
+    private Double minPriceDb;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

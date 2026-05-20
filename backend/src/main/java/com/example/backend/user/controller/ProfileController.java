@@ -40,6 +40,15 @@ public class ProfileController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<UserResponse> updateProfileMultipart(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ModelAttribute UpdateProfileRequest request) {
+
+        UserResponse response = profileService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(response);
+    }
+
     //  ĐỔI MẬT KHẨU
 
     @PutMapping("/change-password")

@@ -20,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.exception.ForbiddenException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -103,10 +105,18 @@ public class ReviewService {
         review.setComment(request.getComment());
 
         if (images != null && !images.isEmpty()) {
+            if (images.size() > MAX_IMAGES_PER_REVIEW) {
+                throw new RuntimeException("Mỗi review tối đa " + MAX_IMAGES_PER_REVIEW + " ảnh!");
+            }
             attachImages(review, images);
         }
 
-        Review saved = reviewRepository.save(review);
+        Review saved;
+        try {
+            saved = reviewRepository.saveAndFlush(review);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new RuntimeException("Bạn đã đánh giá sản phẩm này rồi! Hãy chỉnh sửa review cũ.");
+        }
         updateProductRating(product);
         return ReviewResponse.from(saved);
     }
@@ -237,9 +247,12 @@ public class ReviewService {
         long   cnt = reviewRepository.countByProductIdAndStatus(
                 product.getId(), ReviewStatus.VISIBLE);
 
-        product.setRating(Math.round(avg * 10.0) / 10.0);
-        product.setReviewCount((int) cnt);
-        productRepository.save(product);
+        Product lockedProduct = productRepository.findByIdForUpdate(product.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + product.getId()));
+
+        lockedProduct.setRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
+        lockedProduct.setReviewCount((int) cnt);
+        productRepository.save(lockedProduct);
     }
 
     private void deleteReviewFiles(Review review) {
@@ -250,26 +263,26 @@ public class ReviewService {
 
     private Review findReviewOrThrow(Long reviewId) {
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy review id: " + reviewId));
     }
 
     private Review findReviewAndCheckOwner(Long reviewId, String username) {
         Review review = findReviewOrThrow(reviewId);
         if (!review.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("Bạn không có quyền chỉnh sửa review này!");
+            throw new ForbiddenException("Bạn không có quyền chỉnh sửa review này!");
         }
         return review;
     }
 
     private User findUser(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại!"));
     }
 
     private ProductVariant findVariant(Long variantId) {
         return variantRepository.findById(variantId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy variant id: " + variantId));
     }
 }

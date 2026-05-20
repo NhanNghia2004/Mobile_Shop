@@ -51,6 +51,30 @@ public class FileStorageService {
         }
     }
 
+    /**
+     * Lưu file vào <uploadDir>/avatars/ và trả về publicUrl
+     */
+    public String storeAvatarImage(MultipartFile file) {
+        validate(file);
+
+        try {
+            Path dir = Paths.get(uploadDir, "avatars").toAbsolutePath();
+            Files.createDirectories(dir);
+
+            String ext      = getExtension(file.getOriginalFilename());
+            String fileName = UUID.randomUUID() + "." + ext;
+            Path   target   = dir.resolve(fileName);
+
+            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+            String filePath = "avatars/" + fileName;
+            return baseUrl + "/uploads/" + filePath;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Không thể lưu file ảnh avatar: " + e.getMessage());
+        }
+    }
+
     /** Xóa file khỏi disk (khi xóa review hoặc xóa ảnh) */
     public void delete(String filePath) {
         try {

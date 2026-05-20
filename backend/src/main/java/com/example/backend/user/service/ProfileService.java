@@ -6,6 +6,7 @@ import com.example.backend.user.dto.UserResponse;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import com.example.backend.review.service.FileStorageService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ public class ProfileService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileStorageService fileStorageService;
 
     // LẤY THÔNG TIN PROFILE
     public UserResponse getProfile(String username) {
@@ -55,8 +57,11 @@ public class ProfileService {
             user.setAddress(request.getAddress().trim());
         }
 
-        // Cập nhật avatar URL
-        if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
+        // Cập nhật avatar (ưu tiên file upload trước, sau đó mới đến url)
+        if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
+            String uploadedUrl = fileStorageService.storeAvatarImage(request.getAvatarFile());
+            user.setAvatarUrl(uploadedUrl);
+        } else if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             String url = request.getAvatarUrl().trim();
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 throw new RuntimeException("URL ảnh phải bắt đầu bằng http:// hoặc https://");

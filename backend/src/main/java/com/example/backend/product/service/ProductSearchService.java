@@ -58,18 +58,9 @@ public class ProductSearchService {
                 pageable
         );
 
-        // Re-sort theo giá ở tầng Java
         List<ProductResponse> content = page.getContent().stream()
                 .map(ProductResponse::from)
                 .collect(Collectors.toList());
-
-        String sortBy = filter.getSortBy();
-        if ("price_asc".equals(sortBy)) {
-            content.sort(Comparator.comparingDouble(r -> r.getMinPrice() != null ? r.getMinPrice() : 0));
-        } else if ("price_desc".equals(sortBy)) {
-            content.sort(Comparator.comparingDouble(
-                    (ProductResponse r) -> r.getMinPrice() != null ? r.getMinPrice() : 0).reversed());
-        }
 
         PageResponse<ProductResponse> response = new PageResponse<>();
         response.setContent(content);
@@ -87,10 +78,11 @@ public class ProductSearchService {
 
     private Pageable buildPageable(ProductFilterRequest filter) {
         Sort sort = switch (filter.getSortBy() != null ? filter.getSortBy() : "newest") {
-            case "price_asc", "price_desc" -> Sort.by("createdAt").descending();
-            case "bestseller"              -> Sort.by("soldCount").descending();
-            case "rating"                  -> Sort.by("rating").descending();
-            default                        -> Sort.by("createdAt").descending();
+            case "price_asc"  -> Sort.by("minPriceDb").ascending();
+            case "price_desc" -> Sort.by("minPriceDb").descending();
+            case "bestseller" -> Sort.by("soldCount").descending();
+            case "rating"     -> Sort.by("rating").descending();
+            default           -> Sort.by("createdAt").descending();
         };
         int page = Math.max(filter.getPage(), 0);
         int size = (filter.getSize() > 0 && filter.getSize() <= 50) ? filter.getSize() : 12;

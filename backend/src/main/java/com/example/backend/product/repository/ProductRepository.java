@@ -87,10 +87,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @Query(
             value = """
             SELECT DISTINCT p FROM Product p
-            JOIN p.variants v
+            LEFT JOIN FETCH p.variants
             WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-              AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-              AND v.discountPrice IS NOT NULL
+              AND EXISTS (
+                  SELECT 1 FROM ProductVariant v
+                  WHERE v.product = p
+                    AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+                    AND v.discountPrice IS NOT NULL
+              )
             ORDER BY (
                 SELECT MIN(v2.discountPrice) FROM ProductVariant v2
                 WHERE v2.product = p AND v2.discountPrice IS NOT NULL
@@ -105,6 +109,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
         """
     )
     Page<Product> findDiscountedProducts(Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT p FROM Product p
+        LEFT JOIN FETCH p.variants
+        WHERE p.id = :id
+    """)
+    Optional<Product> findByIdWithVariants(@Param("id") Long id);
 
     @Query("""
         SELECT DISTINCT p FROM Product p
@@ -153,5 +164,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             @Param("excludeId") Long excludeId
     );
 
-    Optional<Product> findById(Long id);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> findByIdForUpdate(@Param("id") Long id);
 }

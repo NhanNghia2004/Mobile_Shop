@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.example.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,14 +52,6 @@ public class ProductService {
         List<ProductResponse> content = page.getContent().stream()
                 .map(ProductResponse::from)
                 .collect(Collectors.toList());
-
-        String sortBy = filter.getSortBy();
-        if ("price_asc".equals(sortBy)) {
-            content.sort(Comparator.comparingDouble(r -> r.getMinPrice() != null ? r.getMinPrice() : 0));
-        } else if ("price_desc".equals(sortBy)) {
-            content.sort(Comparator.comparingDouble(
-                    (ProductResponse r) -> r.getMinPrice() != null ? r.getMinPrice() : 0).reversed());
-        }
 
         PageResponse<ProductResponse> response = new PageResponse<>();
         response.setContent(content);
@@ -123,8 +116,8 @@ public class ProductService {
 
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+        Product product = productRepository.findByIdWithVariants(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với id: " + id));
         validateProductRequest(request);
         String newName = request.getName().trim();
         if (!product.getName().equalsIgnoreCase(newName)
@@ -141,7 +134,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với id: " + id));
         product.setStatus(ProductStatus.INACTIVE);
         productRepository.save(product);
     }
@@ -149,7 +142,7 @@ public class ProductService {
     @Transactional
     public void hardDeleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Không tìm thấy sản phẩm với id: " + id);
+            throw new ResourceNotFoundException("Không tìm thấy sản phẩm với id: " + id);
         }
         productRepository.deleteById(id);
     }
@@ -172,10 +165,11 @@ public class ProductService {
 
     private Pageable buildPageable(ProductFilterRequest filter) {
         Sort sort = switch (filter.getSortBy() != null ? filter.getSortBy() : "newest") {
-            case "price_asc", "price_desc" -> Sort.by("createdAt").descending();
-            case "bestseller"              -> Sort.by("soldCount").descending();
-            case "rating"                  -> Sort.by("rating").descending();
-            default                        -> Sort.by("createdAt").descending();
+            case "price_asc"  -> Sort.by("minPriceDb").ascending();
+            case "price_desc" -> Sort.by("minPriceDb").descending();
+            case "bestseller" -> Sort.by("soldCount").descending();
+            case "rating"     -> Sort.by("rating").descending();
+            default           -> Sort.by("createdAt").descending();
         };
         int page = Math.max(filter.getPage(), 0);
         int size = (filter.getSize() > 0 && filter.getSize() <= 50) ? filter.getSize() : 12;
@@ -241,8 +235,8 @@ public class ProductService {
     }
 
     private Product findActiveProductOrThrow(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + id));
+        Product product = productRepository.findByIdWithVariants(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với id: " + id));
         if (product.getStatus() == ProductStatus.INACTIVE)
             throw new RuntimeException("Sản phẩm này hiện không khả dụng!");
         return product;
