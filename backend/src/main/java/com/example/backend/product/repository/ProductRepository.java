@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             value = """
             SELECT DISTINCT p FROM Product p
             LEFT JOIN FETCH p.variants
-            WHERE p.status = 'ACTIVE'
+            WHERE p.status = :status
               AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
               AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
               AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
@@ -47,7 +47,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
                     OR EXISTS (
                         SELECT 1 FROM ProductVariant v
                         WHERE v.product = p
-                          AND v.status = 'ACTIVE'
+                          AND v.status = :status
                           AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
                           AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
                     )
@@ -55,7 +55,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
         """,
             countQuery = """
             SELECT COUNT(DISTINCT p.id) FROM Product p
-            WHERE p.status = 'ACTIVE'
+            WHERE p.status = :status
               AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
               AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
               AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
@@ -67,7 +67,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
                     OR EXISTS (
                         SELECT 1 FROM ProductVariant v
                         WHERE v.product = p
-                          AND v.status = 'ACTIVE'
+                          AND v.status = :status
                           AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
                           AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
                     )
@@ -75,6 +75,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
         """
     )
     Page<Product> filterProducts(
+            @Param("status")   ProductStatus status,
             @Param("brand")    String brand,
             @Param("category") String category,
             @Param("os")       String os,
@@ -88,11 +89,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             value = """
             SELECT DISTINCT p FROM Product p
             LEFT JOIN FETCH p.variants
-            WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+            WHERE p.status = :status
               AND EXISTS (
                   SELECT 1 FROM ProductVariant v
                   WHERE v.product = p
-                    AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+                    AND v.status = :status
                     AND v.discountPrice IS NOT NULL
               )
             ORDER BY (
@@ -103,12 +104,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             countQuery = """
             SELECT COUNT(DISTINCT p.id) FROM Product p
             JOIN p.variants v
-            WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-              AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+            WHERE p.status = :status
+              AND v.status = :status
               AND v.discountPrice IS NOT NULL
         """
     )
-    Page<Product> findDiscountedProducts(Pageable pageable);
+    Page<Product> findDiscountedProducts(@Param("status") ProductStatus status, Pageable pageable);
 
     @Query("""
         SELECT DISTINCT p FROM Product p
@@ -145,13 +146,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             MIN(COALESCE(v.discountPrice, v.price)),
             MAX(COALESCE(v.discountPrice, v.price))
         FROM ProductVariant v
-        WHERE v.product.status = 'ACTIVE'
-          AND v.status = 'ACTIVE'
+        WHERE v.product.status = :status
+          AND v.status = :status
     """)
-    Object[] findPriceRange();
+    Object[] findPriceRange(@Param("status") ProductStatus status);
 
-    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.status = 'ACTIVE' ORDER BY p.brand")
-    List<String> findAllBrands();
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.status = :status ORDER BY p.brand")
+    List<String> findAllBrands(@Param("status") ProductStatus status);
 
     boolean existsByNameIgnoreCase(String name);
 

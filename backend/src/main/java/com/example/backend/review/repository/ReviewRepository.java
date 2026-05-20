@@ -50,7 +50,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("""
         SELECT COALESCE(AVG(r.rating), 0.0) FROM Review r
         WHERE r.product.id = :productId
-          AND r.status = 'VISIBLE'
+          AND r.status = com.example.backend.review.entity.ReviewStatus.VISIBLE
     """)
     Double avgRatingByProductId(@Param("productId") Long productId);
 
@@ -61,7 +61,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("""
         SELECT r.rating, COUNT(r) FROM Review r
         WHERE r.product.id = :productId
-          AND r.status = 'VISIBLE'
+          AND r.status = com.example.backend.review.entity.ReviewStatus.VISIBLE
         GROUP BY r.rating
     """)
     java.util.List<Object[]> countByRatingForProduct(@Param("productId") Long productId);

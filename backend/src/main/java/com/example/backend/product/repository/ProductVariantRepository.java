@@ -28,6 +28,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     // Cập nhật trạng thái khi hết hàng
     @Modifying
-    @Query("UPDATE ProductVariant v SET v.status = 'OUT_OF_STOCK' WHERE v.stockQuantity = 0 AND v.status = 'ACTIVE'")
+    @Query("UPDATE ProductVariant v SET v.status = com.example.backend.product.entity.ProductStatus.OUT_OF_STOCK WHERE v.stockQuantity = 0 AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE")
     int markOutOfStockVariants();
 }

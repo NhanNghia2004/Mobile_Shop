@@ -14,7 +14,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
     @Query(value = """
         SELECT DISTINCT p FROM Product p
         LEFT JOIN FETCH p.variants
-        WHERE p.status = 'ACTIVE'
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND (:os          IS NULL OR LOWER(p.os)  = LOWER(:os))
           AND (:ramGb        IS NULL OR p.ram        = :ramGb)
           AND (:textToken1  IS NULL
@@ -34,7 +34,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v
                    WHERE v.product = p
-                     AND v.status  = 'ACTIVE'
+                     AND v.status  = com.example.backend.product.entity.ProductStatus.ACTIVE
                      AND v.storage = :storageGb
                )
           )
@@ -43,7 +43,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v
                    WHERE v.product = p
-                     AND v.status  = 'ACTIVE'
+                     AND v.status  = com.example.backend.product.entity.ProductStatus.ACTIVE
                      AND LOWER(v.color) LIKE LOWER(CONCAT('%', :color, '%'))
                )
           )
@@ -52,7 +52,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v2
                    WHERE v2.product = p
-                     AND v2.status = 'ACTIVE'
+                     AND v2.status = com.example.backend.product.entity.ProductStatus.ACTIVE
                      AND (:minPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) >= :minPrice)
                      AND (:maxPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) <= :maxPrice)
                )
@@ -60,7 +60,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
     """,
             countQuery = """
         SELECT COUNT(DISTINCT p.id) FROM Product p
-        WHERE p.status = 'ACTIVE'
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND (:os          IS NULL OR LOWER(p.os)  = LOWER(:os))
           AND (:ramGb        IS NULL OR p.ram        = :ramGb)
           AND (:textToken1  IS NULL
@@ -79,14 +79,14 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                :storageGb IS NULL
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v
-                   WHERE v.product = p AND v.status = 'ACTIVE' AND v.storage = :storageGb
+                   WHERE v.product = p AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE AND v.storage = :storageGb
                )
           )
           AND (
                :color IS NULL
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v
-                   WHERE v.product = p AND v.status = 'ACTIVE'
+                   WHERE v.product = p AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
                      AND LOWER(v.color) LIKE LOWER(CONCAT('%', :color, '%'))
                )
           )
@@ -95,7 +95,7 @@ public interface ProductSearchRepository extends JpaRepository<Product, Long> {
                OR EXISTS (
                    SELECT 1 FROM ProductVariant v2
                    WHERE v2.product = p
-                     AND v2.status = 'ACTIVE'
+                     AND v2.status = com.example.backend.product.entity.ProductStatus.ACTIVE
                      AND (:minPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) >= :minPrice)
                      AND (:maxPrice IS NULL OR COALESCE(v2.discountPrice, v2.price) <= :maxPrice)
                )

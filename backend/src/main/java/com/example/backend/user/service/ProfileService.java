@@ -59,12 +59,16 @@ public class ProfileService {
 
         // Cập nhật avatar (ưu tiên file upload trước, sau đó mới đến url)
         if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
+            fileStorageService.deleteOldAvatar(user.getAvatarUrl());
             String uploadedUrl = fileStorageService.storeAvatarImage(request.getAvatarFile());
             user.setAvatarUrl(uploadedUrl);
         } else if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             String url = request.getAvatarUrl().trim();
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 throw new RuntimeException("URL ảnh phải bắt đầu bằng http:// hoặc https://");
+            }
+            if (!url.equalsIgnoreCase(user.getAvatarUrl())) {
+                fileStorageService.deleteOldAvatar(user.getAvatarUrl());
             }
             user.setAvatarUrl(url);
         }

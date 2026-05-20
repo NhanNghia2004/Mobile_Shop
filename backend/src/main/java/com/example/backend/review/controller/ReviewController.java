@@ -60,7 +60,7 @@ public class ReviewController {
         request.setComment(comment);
 
         ReviewResponse response = reviewService.createReview(
-                userDetails.getUsername(), request, images);
+                userDetails.getUsername(), productId, request, images);
         return ResponseEntity.status(201).body(response);
     }
 
@@ -80,7 +80,7 @@ public class ReviewController {
         request.setComment(comment);
 
         return ResponseEntity.ok(
-                reviewService.updateReview(userDetails.getUsername(), reviewId, request, images));
+                reviewService.updateReview(userDetails.getUsername(), productId, reviewId, request, images));
     }
 
     // USER: xóa 1 ảnh trong review
@@ -93,7 +93,7 @@ public class ReviewController {
             @PathVariable Long imageId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        reviewService.deleteReviewImage(userDetails.getUsername(), reviewId, imageId);
+        reviewService.deleteReviewImage(userDetails.getUsername(), productId, reviewId, imageId);
         return ResponseEntity.ok(Map.of("message", "Đã xóa ảnh thành công!"));
     }
 
@@ -105,7 +105,7 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        reviewService.deleteReview(userDetails.getUsername(), reviewId);
+        reviewService.deleteReview(userDetails.getUsername(), productId, reviewId);
         return ResponseEntity.ok(Map.of("message", "Đã xóa review thành công!"));
     }
 }

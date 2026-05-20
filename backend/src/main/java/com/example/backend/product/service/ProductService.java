@@ -40,6 +40,7 @@ public class ProductService {
         // Filter thông thường (không có keyword)
         Pageable pageable = buildPageable(filter);
         Page<Product> page = productRepository.filterProducts(
+                ProductStatus.ACTIVE,
                 nullIfBlank(filter.getBrand()),
                 nullIfBlank(filter.getCategory()),
                 nullIfBlank(filter.getOs()),
@@ -83,15 +84,15 @@ public class ProductService {
 
     public PageResponse<ProductResponse> getDiscountedProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return PageResponse.from(productRepository.findDiscountedProducts(pageable), ProductResponse::from);
+        return PageResponse.from(productRepository.findDiscountedProducts(ProductStatus.ACTIVE, pageable), ProductResponse::from);
     }
 
     public List<String> getAllBrands() {
-        return productRepository.findAllBrands();
+        return productRepository.findAllBrands(ProductStatus.ACTIVE);
     }
 
     public PriceRangeResponse getPriceRange() {
-        Object[] result = productRepository.findPriceRange();
+        Object[] result = productRepository.findPriceRange(ProductStatus.ACTIVE);
         double min = result[0] != null ? ((Number) result[0]).doubleValue() : 0.0;
         double max = result[1] != null ? ((Number) result[1]).doubleValue() : 0.0;
         return new PriceRangeResponse(min, max);

@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

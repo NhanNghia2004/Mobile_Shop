@@ -83,6 +83,7 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(String username,
+                                       Long productId,
                                        ReviewRequest request,
                                        List<MultipartFile> images) {
         User user = findUser(username);
@@ -91,6 +92,10 @@ public class ReviewService {
 
         ProductVariant variant = findVariant(request.getVariantId());
         Product        product = variant.getProduct();
+
+        if (!product.getId().equals(productId)) {
+            throw new RuntimeException("Biến thể sản phẩm không thuộc về sản phẩm này!");
+        }
 
         if (reviewRepository.existsByUserIdAndVariantId(user.getId(), variant.getId())) {
             throw new RuntimeException(
@@ -115,6 +120,10 @@ public class ReviewService {
         try {
             saved = reviewRepository.saveAndFlush(review);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Cleanup orphaned files uploaded before the save failed
+            if (review.getImages() != null) {
+                review.getImages().forEach(img -> fileStorageService.delete(img.getFilePath()));
+            }
             throw new RuntimeException("Bạn đã đánh giá sản phẩm này rồi! Hãy chỉnh sửa review cũ.");
         }
         updateProductRating(product);
@@ -123,10 +132,15 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse updateReview(String username,
+                                       Long productId,
                                        Long reviewId,
                                        ReviewRequest request,
                                        List<MultipartFile> newImages) {
         Review review = findReviewAndCheckOwner(reviewId, username);
+
+        if (!review.getProduct().getId().equals(productId)) {
+            throw new ResourceNotFoundException("Đánh giá này không thuộc về sản phẩm đang chọn!");
+        }
 
         validateUpdateRequest(request);
 
@@ -150,8 +164,12 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReviewImage(String username, Long reviewId, Long imageId) {
+    public void deleteReviewImage(String username, Long productId, Long reviewId, Long imageId) {
         Review review = findReviewAndCheckOwner(reviewId, username);
+
+        if (!review.getProduct().getId().equals(productId)) {
+            throw new ResourceNotFoundException("Đánh giá này không thuộc về sản phẩm đang chọn!");
+        }
 
         ReviewImage img = review.getImages().stream()
                 .filter(i -> i.getId().equals(imageId))
@@ -164,8 +182,13 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(String username, Long reviewId) {
+    public void deleteReview(String username, Long productId, Long reviewId) {
         Review review = findReviewAndCheckOwner(reviewId, username);
+
+        if (!review.getProduct().getId().equals(productId)) {
+            throw new ResourceNotFoundException("Đánh giá này không thuộc về sản phẩm đang chọn!");
+        }
+
         deleteReviewFiles(review);
         reviewRepository.delete(review);
         updateProductRating(review.getProduct());
@@ -243,12 +266,12 @@ public class ReviewService {
     }
 
     private void updateProductRating(Product product) {
+        Product lockedProduct = productRepository.findByIdForUpdate(product.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + product.getId()));
+
         Double avg = reviewRepository.avgRatingByProductId(product.getId());
         long   cnt = reviewRepository.countByProductIdAndStatus(
                 product.getId(), ReviewStatus.VISIBLE);
-
-        Product lockedProduct = productRepository.findByIdForUpdate(product.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + product.getId()));
 
         lockedProduct.setRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
         lockedProduct.setReviewCount((int) cnt);

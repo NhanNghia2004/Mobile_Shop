@@ -86,6 +86,18 @@ public class FileStorageService {
         }
     }
 
+    /** Xóa avatar cũ khỏi disk nếu là file nội bộ */
+    public void deleteOldAvatar(String oldAvatarUrl) {
+        if (oldAvatarUrl == null || oldAvatarUrl.isBlank()) return;
+
+        String pattern = "/uploads/avatars/";
+        int idx = oldAvatarUrl.indexOf(pattern);
+        if (idx != -1) {
+            String relativePath = "avatars/" + oldAvatarUrl.substring(idx + pattern.length());
+            delete(relativePath);
+        }
+    }
+
     // ── helper ───────────────────────────────────────────────────────────────
 
     private void validate(MultipartFile file) {

@@ -23,7 +23,7 @@ public interface ProductSuggestionRepository extends JpaRepository<Product, Long
     @Query("""
         SELECT p.name, p.imageUrl, p.id
         FROM Product p
-        WHERE p.status = 'ACTIVE'
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
         ORDER BY p.soldCount DESC
         LIMIT :limit
@@ -36,7 +36,7 @@ public interface ProductSuggestionRepository extends JpaRepository<Product, Long
     @Query("""
         SELECT p.brand, COUNT(p)
         FROM Product p
-        WHERE p.status = 'ACTIVE'
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND LOWER(p.brand) LIKE LOWER(CONCAT('%', :q, '%'))
         GROUP BY p.brand
         ORDER BY COUNT(p) DESC
@@ -51,8 +51,8 @@ public interface ProductSuggestionRepository extends JpaRepository<Product, Long
     @Query("""
         SELECT DISTINCT v.storage, COUNT(DISTINCT v.product.id)
         FROM ProductVariant v
-        WHERE v.product.status = 'ACTIVE'
-          AND v.status = 'ACTIVE'
+        WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+          AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND CAST(v.storage AS string) LIKE CONCAT(:q, '%')
         GROUP BY v.storage
         ORDER BY v.storage ASC
@@ -66,8 +66,8 @@ public interface ProductSuggestionRepository extends JpaRepository<Product, Long
     @Query("""
         SELECT DISTINCT v.color, COUNT(DISTINCT v.product.id)
         FROM ProductVariant v
-        WHERE v.product.status = 'ACTIVE'
-          AND v.status = 'ACTIVE'
+        WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+          AND v.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND LOWER(v.color) LIKE LOWER(CONCAT(:q, '%'))
         GROUP BY v.color
         ORDER BY COUNT(DISTINCT v.product.id) DESC
@@ -81,7 +81,7 @@ public interface ProductSuggestionRepository extends JpaRepository<Product, Long
     @Query("""
         SELECT DISTINCT p.ram, COUNT(p)
         FROM Product p
-        WHERE p.status = 'ACTIVE'
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
           AND p.ram IS NOT NULL
           AND CAST(p.ram AS string) LIKE CONCAT(:q, '%')
         GROUP BY p.ram

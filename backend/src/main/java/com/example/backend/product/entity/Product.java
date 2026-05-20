@@ -68,10 +68,11 @@ public class Product {
     // Computed từ variants
     @Transient
     public Double getMinPrice() {
-        return variants.stream()
+        if (minPriceDb != null) return minPriceDb;
+        return variants != null ? variants.stream()
                 .filter(v -> v.getStatus() == ProductStatus.ACTIVE)
                 .mapToDouble(ProductVariant::getDisplayPrice)
-                .min().orElse(0.0);
+                .min().orElse(0.0) : 0.0;
     }
 
     @Transient

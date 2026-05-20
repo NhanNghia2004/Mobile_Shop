@@ -17,7 +17,9 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     Optional<CartItem> findByUserIdAndVariantId(Long userId, Long variantId);
 
+    @org.springframework.transaction.annotation.Transactional
     void deleteByUserId(Long userId);
 
+    @org.springframework.transaction.annotation.Transactional
     void deleteByUserIdAndVariantId(Long userId, Long variantId);
 }
