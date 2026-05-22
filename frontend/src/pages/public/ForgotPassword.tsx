@@ -14,9 +14,9 @@ export default function ForgotPassword() {
         setIsLoading(true);
         try {
             await api.post('/auth/forgot-password', { email });
-            setIsSent(true); // Luôn hiện thông báo thành công dù email có tồn tại hay không (bảo mật)
+            setIsSent(true);
         } catch (error) {
-            setIsSent(true); // Vẫn hiện thành công để tránh lộ thông tin email
+            setIsSent(true);
         } finally {
             setIsLoading(false);
         }

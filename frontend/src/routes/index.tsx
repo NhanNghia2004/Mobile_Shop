@@ -9,6 +9,7 @@ import Profile from "../pages/public/Profile";
 import AdminDashboard from "../pages/admin/AdminDashboard.tsx";
 import ForgotPassword from '../pages/public/ForgotPassword';
 import ResetPassword from '../pages/public/ResetPassword';
+import PublicRoute from "./PublicRoute";
 
 const AppRoutes = () => {
     return (
@@ -16,7 +17,7 @@ const AppRoutes = () => {
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/product" element={<ProductDetail />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
                 {/* Private Routes - Phải đăng nhập (USER hoặc ADMIN đều được) */}
                 <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
@@ -31,11 +32,13 @@ const AppRoutes = () => {
 
             </Route>
 
-            {/* Public Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-
+            {/* Các trang CHỈ dành cho người CHƯA đăng nhập */}
+            <Route element={<PublicRoute />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+            </Route>
 
             {/* Điều hướng mặc định */}
             <Route path="*" element={<Navigate to="/" />} />

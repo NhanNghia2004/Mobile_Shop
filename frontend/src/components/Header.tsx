@@ -101,10 +101,17 @@ export default function Header() {
                         {user ? (
                             <div className="flex items-center gap-3 ml-2 border-l pl-4 border-gray-100">
                                 <Link to="/profile" className="flex items-center gap-2 group">
-                                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                        {/* Sửa lỗi đỏ bằng cách kiểm tra user tồn tại */}
-                                        {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
-                                    </div>
+                                    {user.avatarUrl ? (
+                                        <img
+                                            src={user.avatarUrl}
+                                            alt={user.username}
+                                            className="w-8 h-8 rounded-full object-cover border border-indigo-200"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                            {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                                        </div>
+                                    )}
                                     <span className="hidden lg:block text-sm font-bold text-gray-700">{user.username}</span>
                                 </Link>
                                 <button
@@ -145,9 +152,17 @@ export default function Header() {
                         <div className="px-4 pt-2 pb-6 space-y-2">
                             {user && (
                                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-4">
-                                    <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-                                        {user.username.charAt(0).toUpperCase()}
-                                    </div>
+                                    {user.avatarUrl ? (
+                                        <img
+                                            src={user.avatarUrl}
+                                            alt={user.username}
+                                            className="w-10 h-10 rounded-full object-cover border border-indigo-200"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                                            {user.username.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
                                     <div>
                                         <p className="text-sm font-bold text-gray-900">@{user.username}</p>
                                         <p className="text-xs text-gray-500">{user.email}</p>
