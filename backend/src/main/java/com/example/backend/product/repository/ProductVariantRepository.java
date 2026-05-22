@@ -22,6 +22,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Optional<ProductVariant> findByProductIdAndStorageAndColorIgnoreCase(
             Long productId, Integer storage, String color);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT v FROM ProductVariant v WHERE v.id = :id")
+    Optional<ProductVariant> findByIdForUpdate(@Param("id") Long id);
+
     // Tổng tồn kho của 1 sản phẩm
     @Query("SELECT COALESCE(SUM(v.stockQuantity), 0) FROM ProductVariant v WHERE v.product.id = :productId")
     Integer sumStockByProductId(@Param("productId") Long productId);

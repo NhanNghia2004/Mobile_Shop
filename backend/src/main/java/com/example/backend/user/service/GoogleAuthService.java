@@ -23,6 +23,7 @@ public class GoogleAuthService {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Value("${app.google-client-id}")
     private String googleClientId;
@@ -52,7 +53,7 @@ public class GoogleAuthService {
             user.setRole(Role.USER);
             user.setUsername(generateUniqueUsername(email.split("@")[0]));
             // Mật khẩu random vì user đăng nhập qua Google, không dùng password
-            user.setPassword(UUID.randomUUID().toString());
+            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             userRepository.save(user);
         }
 

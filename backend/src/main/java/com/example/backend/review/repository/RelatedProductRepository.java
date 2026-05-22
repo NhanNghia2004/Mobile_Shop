@@ -19,14 +19,14 @@ public interface RelatedProductRepository extends JpaRepository<Product, Long> {
         LEFT JOIN FETCH p.variants
         WHERE p.id <> :excludeId
           AND LOWER(p.brand) = LOWER(:brand)
-          AND LOWER(p.category) = LOWER(:category)
+          AND p.category = :category
           AND p.status = :status
         ORDER BY p.soldCount DESC
     """)
     List<Product> findRelatedBySameBrandAndCategory(
             @Param("excludeId")  Long productId,
             @Param("brand")      String brand,
-            @Param("category")   String category,
+            @Param("category")   com.example.backend.product.entity.ProductCategory category,
             @Param("status")     ProductStatus status,
             Pageable pageable
     );

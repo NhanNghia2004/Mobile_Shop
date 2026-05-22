@@ -122,7 +122,6 @@ public class ProductVariantService {
         v.setPrice(req.getPrice());
         v.setDiscountPrice(req.getDiscountPrice());
         v.setStockQuantity(req.getStockQuantity() != null ? req.getStockQuantity() : 0);
-        v.setImageUrl(req.getImageUrl());
 
         if (req.getStatus() != null) {
             try {

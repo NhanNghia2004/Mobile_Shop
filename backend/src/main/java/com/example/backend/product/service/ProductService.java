@@ -198,8 +198,18 @@ public class ProductService {
         product.setBrand(req.getBrand().trim());
         product.setDescription(req.getDescription());
         product.setImageUrl(req.getImageUrl());
-        product.setCategory(req.getCategory());
-        product.setOs(req.getOs());
+        
+        try {
+            product.setCategory(req.getCategory() != null ? com.example.backend.product.entity.ProductCategory.valueOf(req.getCategory().toUpperCase()) : null);
+        } catch (IllegalArgumentException e) {
+            // default or throw
+        }
+        
+        try {
+            product.setOs(req.getOs() != null ? com.example.backend.product.entity.OperatingSystem.valueOf(req.getOs().toUpperCase()) : null);
+        } catch (IllegalArgumentException e) {
+            // default or throw
+        }
         product.setRam(req.getRam());
         product.setScreenSize(req.getScreenSize());
         product.setBatteryCapacity(req.getBatteryCapacity());
@@ -230,7 +240,7 @@ public class ProductService {
             variant.setPrice(variantReq.getPrice());
             variant.setDiscountPrice(variantReq.getDiscountPrice());
             variant.setStockQuantity(variantReq.getStockQuantity() != null ? variantReq.getStockQuantity() : 0);
-            variant.setImageUrl(variantReq.getImageUrl());
+            
             product.getVariants().add(variant);
         });
     }

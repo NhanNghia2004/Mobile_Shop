@@ -10,6 +10,5 @@ public class VariantRequest {
     private Double price;
     private Double discountPrice;
     private Integer stockQuantity;
-    private String imageUrl;
     private String status;
 }

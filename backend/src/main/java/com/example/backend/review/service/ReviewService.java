@@ -109,22 +109,26 @@ public class ReviewService {
         review.setRating(request.getRating());
         review.setComment(request.getComment());
 
-        if (images != null && !images.isEmpty()) {
-            if (images.size() > MAX_IMAGES_PER_REVIEW) {
-                throw new RuntimeException("Mỗi review tối đa " + MAX_IMAGES_PER_REVIEW + " ảnh!");
-            }
-            attachImages(review, images);
-        }
-
         Review saved;
         try {
             saved = reviewRepository.saveAndFlush(review);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            // Cleanup orphaned files uploaded before the save failed
-            if (review.getImages() != null) {
-                review.getImages().forEach(img -> fileStorageService.delete(img.getFilePath()));
-            }
             throw new RuntimeException("Bạn đã đánh giá sản phẩm này rồi! Hãy chỉnh sửa review cũ.");
+        }
+
+        if (images != null && !images.isEmpty()) {
+            if (images.size() > MAX_IMAGES_PER_REVIEW) {
+                throw new RuntimeException("Mỗi review tối đa " + MAX_IMAGES_PER_REVIEW + " ảnh!");
+            }
+            try {
+                attachImages(saved, images);
+                saved = reviewRepository.saveAndFlush(saved);
+            } catch (Exception e) {
+                if (saved.getImages() != null) {
+                    saved.getImages().forEach(img -> fileStorageService.delete(img.getFilePath()));
+                }
+                throw new RuntimeException("Lỗi khi tải ảnh lên: " + e.getMessage());
+            }
         }
         updateProductRating(product);
         return ReviewResponse.from(saved);

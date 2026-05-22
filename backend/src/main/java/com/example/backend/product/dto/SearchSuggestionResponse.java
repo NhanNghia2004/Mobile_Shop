@@ -16,6 +16,7 @@ public class SearchSuggestionResponse {
         private String type;
         private String label;
         private String value;
+        private String category;
         private String imageUrl;
         private Long   count;
     }

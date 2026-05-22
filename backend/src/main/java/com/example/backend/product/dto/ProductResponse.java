@@ -51,8 +51,8 @@ public class ProductResponse {
         dto.setBrand(p.getBrand());
         dto.setDescription(p.getDescription());
         dto.setImageUrl(p.getImageUrl());
-        dto.setCategory(p.getCategory());
-        dto.setOs(p.getOs());
+        dto.setCategory(p.getCategory() != null ? p.getCategory().name() : null);
+        dto.setOs(p.getOs() != null ? p.getOs().name() : null);
         dto.setRam(p.getRam());
         dto.setScreenSize(p.getScreenSize());
         dto.setBatteryCapacity(p.getBatteryCapacity());

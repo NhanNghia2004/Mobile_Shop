@@ -12,7 +12,8 @@ import java.util.Optional;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
-    @Query("SELECT ci FROM CartItem ci JOIN FETCH ci.variant v JOIN FETCH v.product p WHERE ci.user.id = :userId")
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variant", "variant.product"})
+    @Query("SELECT ci FROM CartItem ci WHERE ci.user.id = :userId")
     List<CartItem> findByUserIdWithProductAndVariant(@Param("userId") Long userId);
 
     Optional<CartItem> findByUserIdAndVariantId(Long userId, Long variantId);

@@ -71,6 +71,7 @@ public class ProductSuggestionService {
                     brand,
                     brand,
                     null,
+                    null,
                     count
             ));
         });
@@ -88,6 +89,7 @@ public class ProductSuggestionService {
                     label,
                     label,
                     null,
+                    null,
                     count
             ));
         });
@@ -103,6 +105,7 @@ public class ProductSuggestionService {
                     label,
                     "ram " + ram + "gb",
                     null,
+                    null,
                     count
             ));
         });
@@ -116,6 +119,7 @@ public class ProductSuggestionService {
                     "color",
                     "Màu " + color,
                     color,
+                    null,
                     null,
                     count
             ));
@@ -131,6 +135,7 @@ public class ProductSuggestionService {
                     "product",
                     name,
                     name,
+                    null,
                     imageUrl,
                     null
             ));

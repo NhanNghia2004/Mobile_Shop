@@ -1,10 +1,10 @@
-package com.example.backend.cart.dto;
+package com.example.backend.order.dto;
 
-import com.example.backend.cart.entity.CartItem;
+import com.example.backend.order.entity.OrderItem;
 import lombok.Data;
 
 @Data
-public class CartItemResponse {
+public class OrderItemResponse {
     private Long id;
     private Long variantId;
     private Long productId;
@@ -12,14 +12,11 @@ public class CartItemResponse {
     private String color;
     private Integer storage;
     private String imageUrl;
-    private Double price;
-    private Double originalPrice;
     private Integer quantity;
-    private Integer stockQuantity;
-    private Double subTotal;
+    private Double price;
 
-    public static CartItemResponse from(CartItem item) {
-        CartItemResponse response = new CartItemResponse();
+    public static OrderItemResponse from(OrderItem item) {
+        OrderItemResponse response = new OrderItemResponse();
         response.setId(item.getId());
         response.setVariantId(item.getVariant().getId());
         response.setProductId(item.getVariant().getProduct().getId());
@@ -27,11 +24,8 @@ public class CartItemResponse {
         response.setColor(item.getVariant().getColor());
         response.setStorage(item.getVariant().getStorage());
         response.setImageUrl(item.getVariant().getPrimaryImageUrl());
-        response.setPrice(item.getVariant().getDisplayPrice());
-        response.setOriginalPrice(item.getVariant().getPrice());
         response.setQuantity(item.getQuantity());
-        response.setStockQuantity(item.getVariant().getStockQuantity());
-        response.setSubTotal(response.getPrice() * item.getQuantity());
+        response.setPrice(item.getPrice());
         return response;
     }
 }

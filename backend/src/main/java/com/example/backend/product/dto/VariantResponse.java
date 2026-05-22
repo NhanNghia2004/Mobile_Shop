@@ -14,7 +14,7 @@ public class VariantResponse {
     private Double discountPrice;
     private Integer discountPercent;
     private Integer stockQuantity;
-    private String imageUrl;
+    private java.util.List<String> images;
     private ProductStatus status;
 
     public static VariantResponse from(ProductVariant v) {
@@ -27,7 +27,14 @@ public class VariantResponse {
         dto.setDiscountPrice(v.getDiscountPrice());
         dto.setDiscountPercent(v.getDiscountPercent());
         dto.setStockQuantity(v.getStockQuantity());
-        dto.setImageUrl(v.getImageUrl());
+        if (v.getImages() != null) {
+            dto.setImages(v.getImages().stream()
+                .sorted(java.util.Comparator.comparingInt(com.example.backend.product.entity.ProductVariantImage::getDisplayOrder))
+                .map(com.example.backend.product.entity.ProductVariantImage::getImageUrl)
+                .collect(java.util.stream.Collectors.toList()));
+        } else {
+            dto.setImages(new java.util.ArrayList<>());
+        }
         dto.setStatus(v.getStatus());
         return dto;
     }

@@ -39,8 +39,8 @@ public class ProductVariant {
     @Column(nullable = false)
     private Integer stockQuantity = 0;
 
-    // Ảnh riêng cho màu này
-    private String imageUrl;
+    @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<ProductVariantImage> images = new java.util.ArrayList<>();
 
     // Trạng thái riêng:
     @Enumerated(EnumType.STRING)
@@ -58,5 +58,17 @@ public class ProductVariant {
     public Integer getDiscountPercent() {
         if (discountPrice == null || price == null || price == 0) return 0;
         return (int) Math.round((1 - discountPrice / price) * 100);
+    }
+
+    @Transient
+    public String getPrimaryImageUrl() {
+        if (images != null && !images.isEmpty()) {
+            return images.stream()
+                .sorted(java.util.Comparator.comparingInt(ProductVariantImage::getDisplayOrder))
+                .findFirst()
+                .map(ProductVariantImage::getImageUrl)
+                .orElse(null);
+        }
+        return null;
     }
 }

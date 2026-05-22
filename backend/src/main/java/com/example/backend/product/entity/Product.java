@@ -25,8 +25,11 @@ public class Product {
     private String description;
 
     private String imageUrl;
-    private String category;
-    private String os;
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+    
+    @Enumerated(EnumType.STRING)
+    private OperatingSystem os;
     private Double screenSize;
     private Integer batteryCapacity;
     private Integer ram;
