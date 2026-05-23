@@ -39,6 +39,10 @@ public class SecurityConfig {
                         // Giỏ hàng & viết/sửa/xóa đánh giá (yêu cầu quyền USER hoặc ADMIN)
                         .requestMatchers("/api/cart/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/api/products/*/reviews/**").hasAnyAuthority("USER", "ADMIN")
+                       //payment
+                        .requestMatchers("/api/payment/vnpay/return").permitAll()
+                        .requestMatchers("/api/payment/vnpay/ipn").permitAll()
+                        .requestMatchers("/api/payment/**").hasAnyAuthority("USER", "ADMIN")
                         // User routes
                         .requestMatchers("/api/user/**").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
