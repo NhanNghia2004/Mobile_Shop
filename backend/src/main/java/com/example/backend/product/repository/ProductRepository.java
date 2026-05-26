@@ -168,4 +168,125 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Long id);
+
+// ══════════════════════════════════════════════════════════════════════
+// Admin product
+// ══════════════════════════════════════════════════════════════════════
+//1. Filter nâng cao dành cho admin
+
+    @Query(value = """
+        SELECT DISTINCT p FROM Product p
+        LEFT JOIN FETCH p.variants
+        WHERE (:status   IS NULL OR p.status   = :status)
+          AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+          AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+          AND (:keyword  IS NULL
+               OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """,
+            countQuery = """
+        SELECT COUNT(DISTINCT p.id) FROM Product p
+        WHERE (:status   IS NULL OR p.status   = :status)
+          AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+          AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+          AND (:keyword  IS NULL
+               OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """)
+    Page<Product> filterProductsForAdmin(
+            @Param("status")   ProductStatus status,
+            @Param("brand")    String brand,
+            @Param("category") String category,
+            @Param("os")       String os,
+            @Param("keyword")  String keyword,
+            Pageable pageable
+    );
+
+    // 2. Đếm theo từng status
+
+    long countByStatus(ProductStatus status);
+
+    // 3. Đếm sản phẩm hoàn toàn hết hàng
+
+    @Query("""
+        SELECT COUNT(DISTINCT p.id) FROM Product p
+        JOIN p.variants v
+        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+        GROUP BY p.id
+        HAVING SUM(v.stockQuantity) = 0
+    """)
+    long countCompletelyOutOfStock();
+
+    // 4. Tổng soldCount toàn hệ thống
+
+    @Query("SELECT COALESCE(SUM(p.soldCount), 0) FROM Product p")
+    long sumTotalSoldCount();
+
+    // 5. Tổng số variant
+
+    @Query("SELECT COUNT(v.id) FROM ProductVariant v")
+    long countTotalVariants();
+
+// ══════════════════════════════════════════════════════════════════════
+// Admin tồn kho
+// ══════════════════════════════════════════════════════════════════════
+
+    // 1. Query tồn kho với filter đầy đủ (dùng cho trang quản lý tồn kho)
+    @Query(value = """
+    SELECT DISTINCT p FROM Product p
+    LEFT JOIN FETCH p.variants v
+    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+      AND (:keyword  IS NULL
+           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""",
+            countQuery = """
+    SELECT COUNT(DISTINCT p.id) FROM Product p
+    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+      AND (:keyword  IS NULL
+           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""")
+    Page<Product> findForInventory(
+            @Param("keyword")  String keyword,
+            @Param("brand")    String brand,
+            @Param("category") String category,
+            Pageable pageable
+    );
+
+    // 2. Thống kê nhanh cho dashboard tồn kho
+    @Query("""
+    SELECT COUNT(DISTINCT p.id)
+    FROM Product p
+    WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+""")
+    long countActiveProducts();
+
+    @Query("""
+    SELECT COUNT(v.id)
+    FROM ProductVariant v
+    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+""")
+    long countAllVariants();
+
+    @Query("""
+    SELECT COUNT(v.id)
+    FROM ProductVariant v
+    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+      AND v.stockQuantity = 0
+""")
+    long countOutOfStockVariants();
+
+    @Query("""
+    SELECT COALESCE(SUM(v.stockQuantity), 0)
+    FROM ProductVariant v
+    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+""")
+    long sumTotalStockUnits();
 }

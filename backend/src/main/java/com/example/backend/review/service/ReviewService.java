@@ -1,11 +1,11 @@
 package com.example.backend.review.service;
 
+import com.example.backend.admin.review.dto.AdminReplyRequest;
 import com.example.backend.product.dto.PageResponse;
 import com.example.backend.product.entity.Product;
 import com.example.backend.product.entity.ProductVariant;
 import com.example.backend.product.repository.ProductRepository;
 import com.example.backend.product.repository.ProductVariantRepository;
-import com.example.backend.review.dto.AdminReplyRequest;
 import com.example.backend.review.dto.ReviewRequest;
 import com.example.backend.review.dto.ReviewResponse;
 import com.example.backend.review.dto.ReviewSummaryResponse;
@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -200,13 +199,13 @@ public class ReviewService {
 
     //ADMIN
 
-    public PageResponse<ReviewResponse> getAllReviewsForAdmin(
-            Long productId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size,
-                Sort.by("createdAt").descending());
-        Page<Review> result = reviewRepository.findAllForAdmin(productId, pageable);
-        return PageResponse.from(result, ReviewResponse::from);
-    }
+//    public PageResponse<ReviewResponse> getAllReviewsForAdmin(
+//            Long productId, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size,
+//                Sort.by("createdAt").descending());
+//        Page<Review> result = reviewRepository.findAllForAdmin(productId, pageable);
+//        return PageResponse.from(result, ReviewResponse::from);
+//    }
 
     @Transactional
     public ReviewResponse toggleVisibility(Long reviewId) {

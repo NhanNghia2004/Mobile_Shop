@@ -1,5 +1,8 @@
 package com.example.backend.order.service;
 
+import com.example.backend.admin.inventory.entity.StockChangeType;
+import com.example.backend.admin.inventory.entity.StockHistory;
+import com.example.backend.admin.inventory.repository.StockHistoryRepository;
 import com.example.backend.cart.dto.CartResponse;
 import com.example.backend.cart.service.CartService;
 import com.example.backend.exception.ForbiddenException;
@@ -16,23 +19,19 @@ import com.example.backend.product.repository.ProductVariantRepository;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final CartService cartService;
+    private final OrderRepository          orderRepository;
+    private final UserRepository           userRepository;
+    private final CartService              cartService;
     private final ProductVariantRepository variantRepository;
+    private final StockHistoryRepository   stockHistoryRepository; // ← MỚI
 
     @Transactional
     public OrderResponse checkout(String username, OrderRequest request) {
@@ -50,32 +49,54 @@ public class OrderService {
         order.setShippingAddress(request.getShippingAddress());
         order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "COD");
         order.setTotalAmount(cart.getTotalAmount());
-        
+
         for (var cartItem : cart.getItems()) {
             ProductVariant variant = variantRepository.findByIdForUpdate(cartItem.getVariantId())
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
 
             if (variant.getStockQuantity() < cartItem.getQuantity()) {
-                throw new RuntimeException("Sản phẩm " + variant.getProduct().getName() + " không đủ số lượng tồn kho!");
+                throw new RuntimeException("Sản phẩm " + variant.getProduct().getName()
+                        + " không đủ số lượng tồn kho!");
             }
 
-            variant.setStockQuantity(variant.getStockQuantity() - cartItem.getQuantity());
-            
+            int stockBefore = variant.getStockQuantity();
+            variant.setStockQuantity(stockBefore - cartItem.getQuantity());
+
             com.example.backend.product.entity.Product product = variant.getProduct();
             product.setSoldCount(product.getSoldCount() + cartItem.getQuantity());
-            
+
             variantRepository.save(variant);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setVariant(variant);
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(cartItem.getPrice()); // Save the current price
-
+            orderItem.setPrice(cartItem.getPrice());
             order.getOrderItems().add(orderItem);
+
+            //Ghi lịch sử tồn kho
+            stockHistoryRepository.save(new StockHistory(
+                    variant,
+                    StockChangeType.ORDER_DEDUCT,
+                    -cartItem.getQuantity(),
+                    stockBefore,
+                    variant.getStockQuantity(),
+                    username,
+                    "Đơn hàng #[pending]"
+            ));
         }
 
         Order savedOrder = orderRepository.save(order);
+
+        // Cập nhật note lịch sử với orderId thực
+        stockHistoryRepository.findAll().stream()
+                .filter(h -> h.getNote() != null && h.getNote().equals("Đơn hàng #[pending]")
+                        && h.getChangedBy().equals(username))
+                .forEach(h -> {
+                    h.setNote("Đơn hàng #" + savedOrder.getId());
+                    stockHistoryRepository.save(h);
+                });
+
         cartService.clearCart(username);
         return OrderResponse.from(savedOrder);
     }
@@ -103,17 +124,14 @@ public class OrderService {
         if (!order.getUser().getUsername().equals(username)) {
             throw new ForbiddenException("Bạn không có quyền hủy đơn hàng này!");
         }
-
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new RuntimeException("Chỉ có thể hủy đơn hàng đang ở trạng thái PENDING!");
         }
-
         order.setStatus(OrderStatus.CANCELLED);
         restoreStock(order);
         return OrderResponse.from(orderRepository.save(order));
     }
 
-    // Admin methods
     @Transactional(readOnly = true)
     public PageResponse<OrderResponse> getAllOrdersForAdmin(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -124,34 +142,41 @@ public class OrderService {
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order order = findOrder(orderId);
-        
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new RuntimeException("Đơn hàng đã hủy không thể đổi trạng thái khác!");
         }
-
         if (newStatus == OrderStatus.CANCELLED) {
             restoreStock(order);
         }
-
         order.setStatus(newStatus);
         return OrderResponse.from(orderRepository.save(order));
     }
+
+    //  Helpers
 
     private void restoreStock(Order order) {
         for (OrderItem item : order.getOrderItems()) {
             ProductVariant variant = variantRepository.findByIdForUpdate(item.getVariant().getId())
                     .orElse(null);
             if (variant != null) {
-                variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
-                
+                int stockBefore = variant.getStockQuantity();
+                variant.setStockQuantity(stockBefore + item.getQuantity());
+
                 com.example.backend.product.entity.Product product = variant.getProduct();
-                if (product.getSoldCount() >= item.getQuantity()) {
-                    product.setSoldCount(product.getSoldCount() - item.getQuantity());
-                } else {
-                    product.setSoldCount(0);
-                }
-                
+                product.setSoldCount(Math.max(0, product.getSoldCount() - item.getQuantity()));
+
                 variantRepository.save(variant);
+
+                // ── Ghi lịch sử hoàn kho
+                stockHistoryRepository.save(new StockHistory(
+                        variant,
+                        StockChangeType.ORDER_RESTORE,
+                        item.getQuantity(),
+                        stockBefore,
+                        variant.getStockQuantity(),
+                        "SYSTEM",
+                        "Hoàn kho do hủy đơn #" + order.getId()
+                ));
             }
         }
     }

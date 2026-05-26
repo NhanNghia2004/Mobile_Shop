@@ -1,4 +1,4 @@
-package com.example.backend.review.dto;
+package com.example.backend.admin.review.dto;
 
 import lombok.Data;
 
