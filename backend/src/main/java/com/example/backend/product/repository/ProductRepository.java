@@ -140,7 +140,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Pageable pageable
     );
 
-
     @Query("""
         SELECT
             MIN(COALESCE(v.discountPrice, v.price)),
@@ -169,10 +168,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Long id);
 
-// ══════════════════════════════════════════════════════════════════════
-// Admin product
-// ══════════════════════════════════════════════════════════════════════
-//1. Filter nâng cao dành cho admin
+    // ═══════════════════════════════════════════════════════════════════
+    // Admin product
+    // ═══════════════════════════════════════════════════════════════════
 
     @Query(value = """
         SELECT DISTINCT p FROM Product p
@@ -204,11 +202,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             Pageable pageable
     );
 
-    // 2. Đếm theo từng status
-
     long countByStatus(ProductStatus status);
-
-    // 3. Đếm sản phẩm hoàn toàn hết hàng
 
     @Query("""
         SELECT COUNT(DISTINCT p.id) FROM Product p
@@ -219,21 +213,17 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     """)
     long countCompletelyOutOfStock();
 
-    // 4. Tổng soldCount toàn hệ thống
-
     @Query("SELECT COALESCE(SUM(p.soldCount), 0) FROM Product p")
     long sumTotalSoldCount();
-
-    // 5. Tổng số variant
 
     @Query("SELECT COUNT(v.id) FROM ProductVariant v")
     long countTotalVariants();
 
-// ══════════════════════════════════════════════════════════════════════
-// Admin tồn kho
-// ══════════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════════
+    // Admin tồn kho
+    // ═══════════════════════════════════════════════════════════════════
 
-    // 1. Query tồn kho với filter đầy đủ (dùng cho trang quản lý tồn kho)
+    // 1a. Query tồn kho với filter + phân trang (dùng khi stockStatus = "all")
     @Query(value = """
     SELECT DISTINCT p FROM Product p
     LEFT JOIN FETCH p.variants v
@@ -258,6 +248,24 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
             @Param("brand")    String brand,
             @Param("category") String category,
             Pageable pageable
+    );
+
+    // FIX: 1b. Query không phân trang — dùng khi cần filter theo stockStatus (out/low/available)
+    // Trả về toàn bộ rồi filter + phân trang trong bộ nhớ để count chính xác.
+    @Query("""
+    SELECT DISTINCT p FROM Product p
+    LEFT JOIN FETCH p.variants v
+    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+      AND (:keyword  IS NULL
+           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""")
+    List<Product> findAllForInventoryNoPaging(
+            @Param("keyword")  String keyword,
+            @Param("brand")    String brand,
+            @Param("category") String category
     );
 
     // 2. Thống kê nhanh cho dashboard tồn kho

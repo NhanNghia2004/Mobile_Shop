@@ -31,7 +31,7 @@ public class InventoryService {
     private final ProductVariantRepository variantRepository;
     private final StockHistoryRepository   historyRepository;
 
-    //1. Thống kê tổng quan
+    // 1. Thống kê tổng quan
 
     @Transactional(readOnly = true)
     public InventoryStatsResponse getStats(int lowStockThreshold) {
@@ -40,7 +40,6 @@ public class InventoryService {
         long outOfStockVariants = productRepository.countOutOfStockVariants();
         long totalStockUnits    = productRepository.sumTotalStockUnits();
 
-        // Đếm sản phẩm sắp hết: tổng tồn kho của product <= ngưỡng
         long lowStockProducts = productRepository
                 .findByStatusWithVariants(ProductStatus.ACTIVE)
                 .stream()
@@ -54,42 +53,86 @@ public class InventoryService {
     }
 
     // 2. Danh sách tồn kho (có filter + phân trang)
+    //
+    // FIX: trước đây filter stockStatus SAU khi đã phân trang từ DB
+    //   → trang trả về bị thiếu item, totalElements sai.
+    //
+    // Cách sửa: với "out" / "low" / "available" ta dùng
+    //   findByStatusWithVariants() lấy toàn bộ ACTIVE products,
+    //   filter + sort trong bộ nhớ, rồi tự phân trang thủ công.
+    //   Với "all" (không filter stock) vẫn dùng query DB + Pageable
+    //   để tận dụng index.
+    //
+    // Trade-off: nếu catalog rất lớn (> vài nghìn sản phẩm) nên
+    //   chuyển sang native query có thêm điều kiện SUM(stock).
+    //   Với quy mô nhỏ-vừa cách này hoạt động tốt.
 
     @Transactional(readOnly = true)
     public PageResponse<ProductStockResponse> getInventory(InventoryFilterRequest filter) {
-        Pageable pageable = buildPageable(filter);
+        int threshold = filter.getLowStockThreshold();
+        String stockStatus = filter.getStockStatus() != null ? filter.getStockStatus() : "all";
 
-        Page<Product> page = productRepository.findForInventory(
+        if ("all".equalsIgnoreCase(stockStatus)) {
+            // Không cần filter theo stock → dùng query DB + phân trang chuẩn
+            Pageable pageable = buildPageable(filter);
+            Page<Product> page = productRepository.findForInventory(
+                    nullIfBlank(filter.getKeyword()),
+                    nullIfBlank(filter.getBrand()),
+                    nullIfBlank(filter.getCategory()),
+                    pageable
+            );
+
+            List<ProductStockResponse> content = page.getContent().stream()
+                    .map(p -> ProductStockResponse.from(p, threshold))
+                    .collect(Collectors.toList());
+
+            PageResponse<ProductStockResponse> response = new PageResponse<>();
+            response.setContent(content);
+            response.setPage(page.getNumber());
+            response.setSize(page.getSize());
+            response.setTotalElements(page.getTotalElements());
+            response.setTotalPages(page.getTotalPages());
+            response.setLast(page.isLast());
+            return response;
+        }
+
+        List<Product> allProducts = productRepository.findAllForInventoryNoPaging(
                 nullIfBlank(filter.getKeyword()),
                 nullIfBlank(filter.getBrand()),
-                nullIfBlank(filter.getCategory()),
-                pageable
+                nullIfBlank(filter.getCategory())
         );
 
-        int threshold = filter.getLowStockThreshold();
-
-        // Lọc theo stockStatus sau khi lấy từ DB
-        List<ProductStockResponse> content = page.getContent().stream()
+        List<ProductStockResponse> filtered = allProducts.stream()
                 .map(p -> ProductStockResponse.from(p, threshold))
-                .filter(dto -> switch (filter.getStockStatus()) {
+                .filter(dto -> switch (stockStatus.toLowerCase()) {
                     case "out"       -> dto.getTotalStock() == 0;
                     case "low"       -> dto.getTotalStock() > 0 && dto.getTotalStock() <= threshold;
                     case "available" -> dto.getTotalStock() > threshold;
                     default          -> true;
                 })
+                .sorted(buildComparator(filter.getSortBy()))
                 .collect(Collectors.toList());
 
+        // Phân trang thủ công
+        int page = Math.max(filter.getPage(), 0);
+        int size = (filter.getSize() > 0 && filter.getSize() <= 100) ? filter.getSize() : 20;
+        int totalElements = filtered.size();
+        int totalPages    = (int) Math.ceil((double) totalElements / size);
+        int fromIndex     = Math.min(page * size, totalElements);
+        int toIndex       = Math.min(fromIndex + size, totalElements);
+        List<ProductStockResponse> pageContent = filtered.subList(fromIndex, toIndex);
+
         PageResponse<ProductStockResponse> response = new PageResponse<>();
-        response.setContent(content);
-        response.setPage(page.getNumber());
-        response.setSize(page.getSize());
-        response.setTotalElements(page.getTotalElements());
-        response.setTotalPages(page.getTotalPages());
-        response.setLast(page.isLast());
+        response.setContent(pageContent);
+        response.setPage(page);
+        response.setSize(size);
+        response.setTotalElements(totalElements);
+        response.setTotalPages(totalPages);
+        response.setLast(page >= totalPages - 1);
         return response;
     }
 
-    //  3. Chi tiết tồn kho 1 sản phẩm
+    // 3. Chi tiết tồn kho 1 sản phẩm
 
     @Transactional(readOnly = true)
     public ProductStockResponse getProductStock(Long productId, int lowStockThreshold) {
@@ -99,7 +142,7 @@ public class InventoryService {
         return ProductStockResponse.from(product, lowStockThreshold);
     }
 
-    //  4. Nhập kho 1 variant
+    // 4. Nhập kho 1 variant
 
     @Transactional
     public StockHistoryResponse importStock(StockImportRequest request) {
@@ -131,7 +174,7 @@ public class InventoryService {
         return StockHistoryResponse.from(history);
     }
 
-    //  5. Nhập kho hàng loạt
+    // 5. Nhập kho hàng loạt
 
     @Transactional
     public List<StockHistoryResponse> bulkImportStock(StockBulkImportRequest request) {
@@ -167,7 +210,7 @@ public class InventoryService {
         }).collect(Collectors.toList());
     }
 
-    //  6. Điều chỉnh tồn kho (set về con số cụ thể)
+    // 6. Điều chỉnh tồn kho
 
     @Transactional
     public StockHistoryResponse adjustStock(Long variantId, StockAdjustRequest request) {
@@ -189,7 +232,7 @@ public class InventoryService {
         autoUpdateVariantStatus(variant);
         variantRepository.save(variant);
 
-        int changed = after - before; // âm = giảm, dương = tăng
+        int changed = after - before;
         String note = request.getNote() != null
                 ? request.getNote()
                 : "Điều chỉnh tồn kho: " + before + " → " + after;
@@ -206,12 +249,11 @@ public class InventoryService {
         return StockHistoryResponse.from(history);
     }
 
-    //7. Lịch sử tồn kho theo variant
+    // 7. Lịch sử tồn kho theo variant
 
     @Transactional(readOnly = true)
     public PageResponse<StockHistoryResponse> getHistoryByVariant(
             Long variantId, int page, int size) {
-        // Kiểm tra variant tồn tại
         if (!variantRepository.existsById(variantId)) {
             throw new ResourceNotFoundException("Không tìm thấy variant id: " + variantId);
         }
@@ -221,6 +263,7 @@ public class InventoryService {
     }
 
     // 8. Lịch sử tồn kho theo product
+
     @Transactional(readOnly = true)
     public PageResponse<StockHistoryResponse> getHistoryByProduct(
             Long productId, int page, int size) {
@@ -253,7 +296,7 @@ public class InventoryService {
         return PageResponse.from(result, StockHistoryResponse::from);
     }
 
-    // 10. Danh sách sản phẩm hết / sắp hết hàng (cảnh báo)
+    // 10. Danh sách sản phẩm hết / sắp hết hàng
 
     @Transactional(readOnly = true)
     public List<ProductStockResponse> getLowStockProducts(int threshold) {
@@ -266,8 +309,7 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
-    //Helpers
-
+    // Helpers
 
     private void autoUpdateVariantStatus(ProductVariant variant) {
         if (variant.getStockQuantity() == 0
@@ -290,16 +332,30 @@ public class InventoryService {
     }
 
     private Pageable buildPageable(InventoryFilterRequest filter) {
-        Sort sort = switch (filter.getSortBy() != null ? filter.getSortBy() : "stock_asc") {
-            case "stock_desc" -> Sort.by("name").ascending(); // sắp xếp sau khi map
-            case "name_asc"   -> Sort.by("name").ascending();
-            case "name_desc"  -> Sort.by("name").descending();
-            case "newest"     -> Sort.by("createdAt").descending();
-            default           -> Sort.by("name").ascending(); // stock_asc xử lý sau map
-        };
+        Sort sort = buildSort(filter.getSortBy());
         int page = Math.max(filter.getPage(), 0);
         int size = (filter.getSize() > 0 && filter.getSize() <= 100) ? filter.getSize() : 20;
         return PageRequest.of(page, size, sort);
+    }
+
+    // Sort dùng cho query DB (chỉ các field có cột trong DB)
+    private Sort buildSort(String sortBy) {
+        return switch (sortBy != null ? sortBy : "stock_asc") {
+            case "name_desc" -> Sort.by("name").descending();
+            case "newest"    -> Sort.by("createdAt").descending();
+            default          -> Sort.by("name").ascending();  // stock_asc / name_asc
+        };
+    }
+
+    // Comparator dùng cho sort trong bộ nhớ (khi filter theo stockStatus)
+    private java.util.Comparator<ProductStockResponse> buildComparator(String sortBy) {
+        return switch (sortBy != null ? sortBy : "stock_asc") {
+            case "stock_desc" -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock).reversed();
+            case "name_asc"   -> java.util.Comparator.comparing(ProductStockResponse::getProductName);
+            case "name_desc"  -> java.util.Comparator.comparing(ProductStockResponse::getProductName).reversed();
+            case "newest"     -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // fallback
+            default           -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // stock_asc
+        };
     }
 
     private String nullIfBlank(String s) {

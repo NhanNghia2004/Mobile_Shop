@@ -1,6 +1,5 @@
 package com.example.backend.review.service;
 
-import com.example.backend.admin.review.dto.AdminReplyRequest;
 import com.example.backend.product.dto.PageResponse;
 import com.example.backend.product.entity.Product;
 import com.example.backend.product.entity.ProductVariant;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,12 +41,12 @@ public class ReviewService {
 
     private static final int MAX_IMAGES_PER_REVIEW = 5;
 
-    //PUBLIC
+    // ─── PUBLIC ──────────────────────────────────────────────────────────────
+
     public PageResponse<ReviewResponse> getProductReviews(
             Long productId, Integer rating, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size,
-                Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Page<Review> result = (rating != null)
                 ? reviewRepository.findByProductIdAndStatusAndRating(
@@ -78,7 +76,7 @@ public class ReviewService {
         return summary;
     }
 
-    //USER
+    // ─── USER ─────────────────────────────────────────────────────────────────
 
     @Transactional
     public ReviewResponse createReview(String username,
@@ -129,6 +127,7 @@ public class ReviewService {
                 throw new RuntimeException("Lỗi khi tải ảnh lên: " + e.getMessage());
             }
         }
+
         updateProductRating(product);
         return ReviewResponse.from(saved);
     }
@@ -151,7 +150,6 @@ public class ReviewService {
         review.setComment(request.getComment());
 
         if (newImages != null && !newImages.isEmpty()) {
-
             int current = (review.getImages() != null) ? review.getImages().size() : 0;
             if (current + newImages.size() > MAX_IMAGES_PER_REVIEW) {
                 throw new RuntimeException(
@@ -197,35 +195,9 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    //ADMIN
-
-//    public PageResponse<ReviewResponse> getAllReviewsForAdmin(
-//            Long productId, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size,
-//                Sort.by("createdAt").descending());
-//        Page<Review> result = reviewRepository.findAllForAdmin(productId, pageable);
-//        return PageResponse.from(result, ReviewResponse::from);
-//    }
-
-    @Transactional
-    public ReviewResponse toggleVisibility(Long reviewId) {
-        Review review = findReviewOrThrow(reviewId);
-        review.setStatus(review.getStatus() == ReviewStatus.VISIBLE
-                ? ReviewStatus.HIDDEN
-                : ReviewStatus.VISIBLE);
-        return ReviewResponse.from(reviewRepository.save(review));
-    }
-
-    @Transactional
-    public ReviewResponse replyReview(Long reviewId, AdminReplyRequest request) {
-        if (request.getReply() == null || request.getReply().isBlank()) {
-            throw new RuntimeException("Nội dung reply không được để trống!");
-        }
-        Review review = findReviewOrThrow(reviewId);
-        review.setAdminReply(request.getReply().trim());
-        review.setAdminRepliedAt(LocalDateTime.now());
-        return ReviewResponse.from(reviewRepository.save(review));
-    }
+    // ─── ADMIN ────────────────────────────────────────────────────────────────
+    // Lưu ý: reply và toggle visibility đã được xử lý đầy đủ bởi AdminReviewService.
+    // ReviewService chỉ giữ adminDeleteReview để ReviewController có thể gọi khi cần.
 
     @Transactional
     public void adminDeleteReview(Long reviewId) {
@@ -235,7 +207,7 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    // HELPER
+    // ─── HELPER ───────────────────────────────────────────────────────────────
 
     private void validateCreateRequest(ReviewRequest request) {
         if (request.getVariantId() == null) {
@@ -243,7 +215,6 @@ public class ReviewService {
         }
         validateRatingAndComment(request);
     }
-
 
     private void validateUpdateRequest(ReviewRequest request) {
         validateRatingAndComment(request);
@@ -259,7 +230,6 @@ public class ReviewService {
     }
 
     private void attachImages(Review review, List<MultipartFile> files) {
-
         int order = (review.getImages() != null) ? review.getImages().size() : 0;
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) continue;
@@ -270,7 +240,8 @@ public class ReviewService {
 
     private void updateProductRating(Product product) {
         Product lockedProduct = productRepository.findByIdForUpdate(product.getId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với id: " + product.getId()));
+                .orElseThrow(() -> new RuntimeException(
+                        "Không tìm thấy sản phẩm với id: " + product.getId()));
 
         Double avg = reviewRepository.avgRatingByProductId(product.getId());
         long   cnt = reviewRepository.countByProductIdAndStatus(

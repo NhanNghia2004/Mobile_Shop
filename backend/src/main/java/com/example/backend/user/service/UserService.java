@@ -9,6 +9,7 @@ import com.example.backend.user.entity.Role;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
-    //  ĐĂNG KÝ
+    // ĐĂNG KÝ
     public UserResponse register(RegisterRequest request) {
 
         if (request.getUsername() == null || request.getUsername().trim().length() < 3) {
@@ -44,7 +45,7 @@ public class UserService {
         user.setUsername(request.getUsername().trim());
         user.setEmail(request.getEmail().trim());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER); // Mặc định là USER
+        user.setRole(Role.USER);
 
         User saved = userRepository.save(user);
         return toResponse(saved);
@@ -61,6 +62,13 @@ public class UserService {
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("Mật khẩu không chính xác!");
+        }
+
+        if (user.isLocked()) {
+            String reason = user.getLockReason() != null
+                    ? user.getLockReason()
+                    : "Tài khoản của bạn đã bị khóa!";
+            throw new LockedException("Tài khoản bị khóa: " + reason);
         }
 
         String token = tokenProvider.generateToken(user.getUsername(), user.getRole().name());

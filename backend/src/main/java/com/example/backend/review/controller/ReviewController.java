@@ -1,5 +1,7 @@
 package com.example.backend.review.controller;
 
+import com.example.backend.admin.review.dto.AdminReplyRequest;
+import com.example.backend.admin.review.service.AdminReviewService;
 import com.example.backend.product.dto.PageResponse;
 import com.example.backend.review.dto.ReviewRequest;
 import com.example.backend.review.dto.ReviewResponse;
@@ -21,9 +23,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final ReviewService      reviewService;
 
-    //PUBLIC: xem review
+    private final AdminReviewService adminReviewService;
 
     @GetMapping
     public ResponseEntity<PageResponse<ReviewResponse>> getReviews(
@@ -36,14 +38,11 @@ public class ReviewController {
                 reviewService.getProductReviews(productId, rating, page, size));
     }
 
-
     @GetMapping("/summary")
     public ResponseEntity<ReviewSummaryResponse> getSummary(
             @PathVariable Long productId) {
         return ResponseEntity.ok(reviewService.getReviewSummary(productId));
     }
-
-    //USER: tạo review
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewResponse> createReview(
@@ -64,7 +63,6 @@ public class ReviewController {
         return ResponseEntity.status(201).body(response);
     }
 
-    // USER: sửa review
     @PutMapping(value = "/{reviewId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable Long productId,
@@ -80,11 +78,9 @@ public class ReviewController {
         request.setComment(comment);
 
         return ResponseEntity.ok(
-                reviewService.updateReview(userDetails.getUsername(), productId, reviewId, request, images));
+                reviewService.updateReview(
+                        userDetails.getUsername(), productId, reviewId, request, images));
     }
-
-    // USER: xóa 1 ảnh trong review
-
 
     @DeleteMapping("/{reviewId}/images/{imageId}")
     public ResponseEntity<Map<String, String>> deleteImage(
@@ -93,11 +89,10 @@ public class ReviewController {
             @PathVariable Long imageId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        reviewService.deleteReviewImage(userDetails.getUsername(), productId, reviewId, imageId);
+        reviewService.deleteReviewImage(
+                userDetails.getUsername(), productId, reviewId, imageId);
         return ResponseEntity.ok(Map.of("message", "Đã xóa ảnh thành công!"));
     }
-
-    //USER: xóa review
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Map<String, String>> deleteReview(
@@ -105,7 +100,26 @@ public class ReviewController {
             @PathVariable Long reviewId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        reviewService.deleteReview(userDetails.getUsername(), productId, reviewId);
+        reviewService.deleteReview(
+                userDetails.getUsername(), productId, reviewId);
         return ResponseEntity.ok(Map.of("message", "Đã xóa review thành công!"));
+    }
+
+    @PatchMapping("/{reviewId}/toggle")
+    public ResponseEntity<com.example.backend.admin.review.dto.AdminReviewResponse> toggleVisibility(
+            @PathVariable Long productId,
+            @PathVariable Long reviewId
+    ) {
+        return ResponseEntity.ok(adminReviewService.toggleVisibility(reviewId));
+    }
+
+
+    @PostMapping("/{reviewId}/reply")
+    public ResponseEntity<com.example.backend.admin.review.dto.AdminReviewResponse> replyReview(
+            @PathVariable Long productId,
+            @PathVariable Long reviewId,
+            @RequestBody AdminReplyRequest request
+    ) {
+        return ResponseEntity.ok(adminReviewService.replyReview(reviewId, request));
     }
 }

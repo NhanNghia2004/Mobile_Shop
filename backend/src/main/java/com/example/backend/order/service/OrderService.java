@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class OrderService {
     private final UserRepository           userRepository;
     private final CartService              cartService;
     private final ProductVariantRepository variantRepository;
-    private final StockHistoryRepository   stockHistoryRepository; // ← MỚI
+    private final StockHistoryRepository   stockHistoryRepository;
 
     @Transactional
     public OrderResponse checkout(String username, OrderRequest request) {
@@ -49,6 +51,8 @@ public class OrderService {
         order.setShippingAddress(request.getShippingAddress());
         order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "COD");
         order.setTotalAmount(cart.getTotalAmount());
+
+        List<StockHistory> pendingHistories = new ArrayList<>();
 
         for (var cartItem : cart.getItems()) {
             ProductVariant variant = variantRepository.findByIdForUpdate(cartItem.getVariantId())
@@ -74,28 +78,25 @@ public class OrderService {
             orderItem.setPrice(cartItem.getPrice());
             order.getOrderItems().add(orderItem);
 
-            //Ghi lịch sử tồn kho
-            stockHistoryRepository.save(new StockHistory(
+            // Tạm giữ history chưa có orderId — chưa save vào DB
+            StockHistory history = new StockHistory(
                     variant,
                     StockChangeType.ORDER_DEDUCT,
                     -cartItem.getQuantity(),
                     stockBefore,
                     variant.getStockQuantity(),
                     username,
-                    "Đơn hàng #[pending]"
-            ));
+                    null
+            );
+            pendingHistories.add(history);
         }
 
         Order savedOrder = orderRepository.save(order);
 
-        // Cập nhật note lịch sử với orderId thực
-        stockHistoryRepository.findAll().stream()
-                .filter(h -> h.getNote() != null && h.getNote().equals("Đơn hàng #[pending]")
-                        && h.getChangedBy().equals(username))
-                .forEach(h -> {
-                    h.setNote("Đơn hàng #" + savedOrder.getId());
-                    stockHistoryRepository.save(h);
-                });
+
+        String orderNote = "Đơn hàng #" + savedOrder.getId();
+        pendingHistories.forEach(h -> h.setNote(orderNote));
+        stockHistoryRepository.saveAll(pendingHistories);
 
         cartService.clearCart(username);
         return OrderResponse.from(savedOrder);
@@ -152,7 +153,7 @@ public class OrderService {
         return OrderResponse.from(orderRepository.save(order));
     }
 
-    //  Helpers
+    // Helpers
 
     private void restoreStock(Order order) {
         for (OrderItem item : order.getOrderItems()) {
@@ -167,7 +168,6 @@ public class OrderService {
 
                 variantRepository.save(variant);
 
-                // ── Ghi lịch sử hoàn kho
                 stockHistoryRepository.save(new StockHistory(
                         variant,
                         StockChangeType.ORDER_RESTORE,
