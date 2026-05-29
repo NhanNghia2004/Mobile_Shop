@@ -230,14 +230,18 @@ public class InventoryService {
     }
 
     @Transactional
-    public void recordOrderDeduct(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter, String username, String note) {
-        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_DEDUCT, quantityChanged, stockBefore, stockAfter, username, note);
+    public void recordOrderDeduct(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter,
+            String username, String note) {
+        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_DEDUCT, quantityChanged, stockBefore,
+                stockAfter, username, note);
         historyRepository.save(history);
     }
 
     @Transactional
-    public void recordOrderRestore(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter, String username, String note) {
-        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_RESTORE, quantityChanged, stockBefore, stockAfter, username, note);
+    public void recordOrderRestore(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter,
+            String username, String note) {
+        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_RESTORE, quantityChanged, stockBefore,
+                stockAfter, username, note);
         historyRepository.save(history);
     }
 
