@@ -27,18 +27,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InventoryService {
 
-    private final ProductRepository        productRepository;
+    private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
-    private final StockHistoryRepository   historyRepository;
+    private final StockHistoryRepository historyRepository;
 
     // 1. Thống kê tổng quan
 
     @Transactional(readOnly = true)
     public InventoryStatsResponse getStats(int lowStockThreshold) {
-        long totalProducts      = productRepository.countActiveProducts();
-        long totalVariants      = productRepository.countAllVariants();
-        long outOfStockVariants = productRepository.countOutOfStockVariants();
-        long totalStockUnits    = productRepository.sumTotalStockUnits();
+        long totalProducts = productRepository.countActiveProducts();
+        long totalVariants = productRepository.countAllVariants();
+        long outOfStockProducts = productRepository.countCompletelyOutOfStock();
+        long totalStockUnits = productRepository.sumTotalStockUnits();
 
         long lowStockProducts = productRepository
                 .findByStatusWithVariants(ProductStatus.ACTIVE)
@@ -48,39 +48,23 @@ public class InventoryService {
 
         return new InventoryStatsResponse(
                 totalProducts, totalVariants,
-                outOfStockVariants, lowStockProducts, totalStockUnits
-        );
+                outOfStockProducts, lowStockProducts, totalStockUnits);
     }
-
-    // 2. Danh sách tồn kho (có filter + phân trang)
-    //
-    // FIX: trước đây filter stockStatus SAU khi đã phân trang từ DB
-    //   → trang trả về bị thiếu item, totalElements sai.
-    //
-    // Cách sửa: với "out" / "low" / "available" ta dùng
-    //   findByStatusWithVariants() lấy toàn bộ ACTIVE products,
-    //   filter + sort trong bộ nhớ, rồi tự phân trang thủ công.
-    //   Với "all" (không filter stock) vẫn dùng query DB + Pageable
-    //   để tận dụng index.
-    //
-    // Trade-off: nếu catalog rất lớn (> vài nghìn sản phẩm) nên
-    //   chuyển sang native query có thêm điều kiện SUM(stock).
-    //   Với quy mô nhỏ-vừa cách này hoạt động tốt.
 
     @Transactional(readOnly = true)
     public PageResponse<ProductStockResponse> getInventory(InventoryFilterRequest filter) {
         int threshold = filter.getLowStockThreshold();
         String stockStatus = filter.getStockStatus() != null ? filter.getStockStatus() : "all";
+        String sortBy = filter.getSortBy() != null ? filter.getSortBy() : "stock_asc";
 
-        if ("all".equalsIgnoreCase(stockStatus)) {
-            // Không cần filter theo stock → dùng query DB + phân trang chuẩn
+        if ("all".equalsIgnoreCase(stockStatus) && !sortBy.startsWith("stock_")) {
+
             Pageable pageable = buildPageable(filter);
             Page<Product> page = productRepository.findForInventory(
                     nullIfBlank(filter.getKeyword()),
                     nullIfBlank(filter.getBrand()),
                     nullIfBlank(filter.getCategory()),
-                    pageable
-            );
+                    pageable);
 
             List<ProductStockResponse> content = page.getContent().stream()
                     .map(p -> ProductStockResponse.from(p, threshold))
@@ -99,16 +83,15 @@ public class InventoryService {
         List<Product> allProducts = productRepository.findAllForInventoryNoPaging(
                 nullIfBlank(filter.getKeyword()),
                 nullIfBlank(filter.getBrand()),
-                nullIfBlank(filter.getCategory())
-        );
+                nullIfBlank(filter.getCategory()));
 
         List<ProductStockResponse> filtered = allProducts.stream()
                 .map(p -> ProductStockResponse.from(p, threshold))
                 .filter(dto -> switch (stockStatus.toLowerCase()) {
-                    case "out"       -> dto.getTotalStock() == 0;
-                    case "low"       -> dto.getTotalStock() > 0 && dto.getTotalStock() <= threshold;
+                    case "out" -> dto.getTotalStock() == 0;
+                    case "low" -> dto.getTotalStock() > 0 && dto.getTotalStock() <= threshold;
                     case "available" -> dto.getTotalStock() > threshold;
-                    default          -> true;
+                    default -> true;
                 })
                 .sorted(buildComparator(filter.getSortBy()))
                 .collect(Collectors.toList());
@@ -117,9 +100,9 @@ public class InventoryService {
         int page = Math.max(filter.getPage(), 0);
         int size = (filter.getSize() > 0 && filter.getSize() <= 100) ? filter.getSize() : 20;
         int totalElements = filtered.size();
-        int totalPages    = (int) Math.ceil((double) totalElements / size);
-        int fromIndex     = Math.min(page * size, totalElements);
-        int toIndex       = Math.min(fromIndex + size, totalElements);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        int fromIndex = Math.min(page * size, totalElements);
+        int toIndex = Math.min(fromIndex + size, totalElements);
         List<ProductStockResponse> pageContent = filtered.subList(fromIndex, toIndex);
 
         PageResponse<ProductStockResponse> response = new PageResponse<>();
@@ -154,7 +137,7 @@ public class InventoryService {
         String adminName = getCurrentAdminName();
 
         int before = variant.getStockQuantity();
-        int after  = before + request.getQuantity();
+        int after = before + request.getQuantity();
 
         variant.setStockQuantity(after);
         autoUpdateVariantStatus(variant);
@@ -164,8 +147,7 @@ public class InventoryService {
                 variant, StockChangeType.IMPORT,
                 request.getQuantity(), before, after,
                 adminName,
-                request.getNote() != null ? request.getNote() : "Nhập kho"
-        );
+                request.getNote() != null ? request.getNote() : "Nhập kho");
         historyRepository.save(history);
 
         log.info("[Inventory] Nhập kho variantId={} +{} ({} → {}) by {}",
@@ -182,7 +164,7 @@ public class InventoryService {
             throw new RuntimeException("Danh sách nhập kho không được để trống!");
         }
 
-        String adminName  = getCurrentAdminName();
+        String adminName = getCurrentAdminName();
         String commonNote = request.getNote();
 
         return request.getItems().stream().map(item -> {
@@ -193,7 +175,7 @@ public class InventoryService {
 
             ProductVariant variant = findVariantForUpdate(item.getVariantId());
             int before = variant.getStockQuantity();
-            int after  = before + item.getQuantity();
+            int after = before + item.getQuantity();
 
             variant.setStockQuantity(after);
             autoUpdateVariantStatus(variant);
@@ -204,8 +186,7 @@ public class InventoryService {
 
             StockHistory history = new StockHistory(
                     variant, StockChangeType.IMPORT,
-                    item.getQuantity(), before, after, adminName, note
-            );
+                    item.getQuantity(), before, after, adminName, note);
             return StockHistoryResponse.from(historyRepository.save(history));
         }).collect(Collectors.toList());
     }
@@ -222,7 +203,7 @@ public class InventoryService {
         String adminName = getCurrentAdminName();
 
         int before = variant.getStockQuantity();
-        int after  = request.getNewQuantity();
+        int after = request.getNewQuantity();
 
         if (before == after) {
             throw new RuntimeException("Số lượng mới bằng với số lượng hiện tại (" + before + ")!");
@@ -239,14 +220,25 @@ public class InventoryService {
 
         StockHistory history = new StockHistory(
                 variant, StockChangeType.ADJUSTMENT,
-                changed, before, after, adminName, note
-        );
+                changed, before, after, adminName, note);
         historyRepository.save(history);
 
         log.info("[Inventory] Điều chỉnh kho variantId={} {} → {} by {}",
                 variantId, before, after, adminName);
 
         return StockHistoryResponse.from(history);
+    }
+
+    @Transactional
+    public void recordOrderDeduct(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter, String username, String note) {
+        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_DEDUCT, quantityChanged, stockBefore, stockAfter, username, note);
+        historyRepository.save(history);
+    }
+
+    @Transactional
+    public void recordOrderRestore(ProductVariant variant, int quantityChanged, int stockBefore, int stockAfter, String username, String note) {
+        StockHistory history = new StockHistory(variant, StockChangeType.ORDER_RESTORE, quantityChanged, stockBefore, stockAfter, username, note);
+        historyRepository.save(history);
     }
 
     // 7. Lịch sử tồn kho theo variant
@@ -342,8 +334,8 @@ public class InventoryService {
     private Sort buildSort(String sortBy) {
         return switch (sortBy != null ? sortBy : "stock_asc") {
             case "name_desc" -> Sort.by("name").descending();
-            case "newest"    -> Sort.by("createdAt").descending();
-            default          -> Sort.by("name").ascending();  // stock_asc / name_asc
+            case "newest" -> Sort.by("createdAt").descending();
+            default -> Sort.by("name").ascending(); // stock_asc / name_asc
         };
     }
 
@@ -351,10 +343,10 @@ public class InventoryService {
     private java.util.Comparator<ProductStockResponse> buildComparator(String sortBy) {
         return switch (sortBy != null ? sortBy : "stock_asc") {
             case "stock_desc" -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock).reversed();
-            case "name_asc"   -> java.util.Comparator.comparing(ProductStockResponse::getProductName);
-            case "name_desc"  -> java.util.Comparator.comparing(ProductStockResponse::getProductName).reversed();
-            case "newest"     -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // fallback
-            default           -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // stock_asc
+            case "name_asc" -> java.util.Comparator.comparing(ProductStockResponse::getProductName);
+            case "name_desc" -> java.util.Comparator.comparing(ProductStockResponse::getProductName).reversed();
+            case "newest" -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // fallback
+            default -> java.util.Comparator.comparingInt(ProductStockResponse::getTotalStock); // stock_asc
         };
     }
 

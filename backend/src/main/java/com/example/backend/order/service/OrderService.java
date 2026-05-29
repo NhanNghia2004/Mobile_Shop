@@ -1,8 +1,5 @@
 package com.example.backend.order.service;
 
-import com.example.backend.admin.inventory.entity.StockChangeType;
-import com.example.backend.admin.inventory.entity.StockHistory;
-import com.example.backend.admin.inventory.repository.StockHistoryRepository;
 import com.example.backend.cart.dto.CartResponse;
 import com.example.backend.cart.service.CartService;
 import com.example.backend.exception.ForbiddenException;
@@ -25,15 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.backend.admin.inventory.service.InventoryService;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository          orderRepository;
-    private final UserRepository           userRepository;
-    private final CartService              cartService;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final CartService cartService;
     private final ProductVariantRepository variantRepository;
-    private final StockHistoryRepository   stockHistoryRepository;
+    private final InventoryService inventoryService;
 
     @Transactional
     public OrderResponse checkout(String username, OrderRequest request) {
@@ -52,7 +51,11 @@ public class OrderService {
         order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "COD");
         order.setTotalAmount(cart.getTotalAmount());
 
-        List<StockHistory> pendingHistories = new ArrayList<>();
+        record PendingStockChange(ProductVariant variant, int change, int before, int after) {
+        }
+        List<PendingStockChange> pendingChanges = new ArrayList<>();
+
+        cart.getItems().sort((a, b) -> a.getVariantId().compareTo(b.getVariantId()));
 
         for (var cartItem : cart.getItems()) {
             ProductVariant variant = variantRepository.findByIdForUpdate(cartItem.getVariantId())
@@ -78,25 +81,16 @@ public class OrderService {
             orderItem.setPrice(cartItem.getPrice());
             order.getOrderItems().add(orderItem);
 
-            // Tạm giữ history chưa có orderId — chưa save vào DB
-            StockHistory history = new StockHistory(
-                    variant,
-                    StockChangeType.ORDER_DEDUCT,
-                    -cartItem.getQuantity(),
-                    stockBefore,
-                    variant.getStockQuantity(),
-                    username,
-                    null
-            );
-            pendingHistories.add(history);
+            pendingChanges.add(
+                    new PendingStockChange(variant, -cartItem.getQuantity(), stockBefore, variant.getStockQuantity()));
         }
 
         Order savedOrder = orderRepository.save(order);
 
-
         String orderNote = "Đơn hàng #" + savedOrder.getId();
-        pendingHistories.forEach(h -> h.setNote(orderNote));
-        stockHistoryRepository.saveAll(pendingHistories);
+        for (PendingStockChange pc : pendingChanges) {
+            inventoryService.recordOrderDeduct(pc.variant(), pc.change(), pc.before(), pc.after(), username, orderNote);
+        }
 
         cartService.clearCart(username);
         return OrderResponse.from(savedOrder);
@@ -134,9 +128,17 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OrderResponse> getAllOrdersForAdmin(int page, int size) {
+    public PageResponse<OrderResponse> getAllOrdersForAdmin(Long userId, String statusStr, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Order> orders = orderRepository.findAll(pageable);
+        OrderStatus status = null;
+        if (statusStr != null && !statusStr.isBlank()) {
+            try {
+                status = OrderStatus.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+
+            }
+        }
+        Page<Order> orders = orderRepository.findAllWithFilter(userId, status, pageable);
         return PageResponse.from(orders, OrderResponse::from);
     }
 
@@ -168,15 +170,13 @@ public class OrderService {
 
                 variantRepository.save(variant);
 
-                stockHistoryRepository.save(new StockHistory(
+                inventoryService.recordOrderRestore(
                         variant,
-                        StockChangeType.ORDER_RESTORE,
                         item.getQuantity(),
                         stockBefore,
                         variant.getStockQuantity(),
                         "SYSTEM",
-                        "Hoàn kho do hủy đơn #" + order.getId()
-                ));
+                        "Hoàn kho do hủy đơn #" + order.getId());
             }
         }
     }

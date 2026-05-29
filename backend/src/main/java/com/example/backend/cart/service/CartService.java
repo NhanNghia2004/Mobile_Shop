@@ -125,15 +125,9 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponse clearCart(String username) {
+    public void clearCart(String username) {
         User user = findUser(username);
         cartItemRepository.deleteByUserId(user.getId());
-        
-        CartResponse response = new CartResponse();
-        response.setItems(List.of());
-        response.setTotalAmount(0.0);
-        response.setTotalQuantity(0);
-        return response;
     }
 
     private User findUser(String username) {

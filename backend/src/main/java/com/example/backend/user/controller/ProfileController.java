@@ -40,7 +40,7 @@ public class ProfileController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(consumes = {"multipart/form-data"})
+    @PutMapping(value = "/avatar", consumes = {"multipart/form-data"})
     public ResponseEntity<UserResponse> updateProfileMultipart(
             @AuthenticationPrincipal UserDetails userDetails,
             @ModelAttribute UpdateProfileRequest request) {

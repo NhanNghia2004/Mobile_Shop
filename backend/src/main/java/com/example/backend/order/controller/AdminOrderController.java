@@ -19,9 +19,11 @@ public class AdminOrderController {
 
     @GetMapping
     public ResponseEntity<PageResponse<OrderResponse>> getAllOrders(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(orderService.getAllOrdersForAdmin(page, size));
+        return ResponseEntity.ok(orderService.getAllOrdersForAdmin(userId, status, page, size));
     }
 
     @PutMapping("/{id}/status")

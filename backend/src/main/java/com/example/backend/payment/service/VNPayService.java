@@ -27,20 +27,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class VNPayService {
 
-    private final VNPayConfig       vnPayConfig;
+    private final VNPayConfig vnPayConfig;
     private final PaymentRepository paymentRepository;
-    private final OrderRepository   orderRepository;
+    private final OrderRepository orderRepository;
 
-    // ─── TẠO URL THANH TOÁN ─────────────────────────────────────────────────
-
-    /**
-     * Tạo URL redirect đến cổng thanh toán VNPay.
-     *
-     * @param orderId   ID đơn hàng trong DB
-     * @param clientIp  IP của người dùng
-     * @param orderInfo Mô tả ngắn về đơn hàng
-     * @return VNPayResponse chứa paymentUrl
-     */
     @Transactional
     public VNPayResponse createPaymentUrl(Long orderId, String clientIp, String orderInfo) {
         Order order = orderRepository.findById(orderId)
@@ -60,38 +50,41 @@ public class VNPayService {
         }
 
         // Tạo hoặc cập nhật bản ghi Payment (PENDING)
-        String txnRef = buildTxnRef(orderId);
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseGet(Payment::new);
 
+        String txnRef = payment.getTxnRef();
+        if (txnRef == null || txnRef.isBlank()) {
+            txnRef = buildTxnRef(orderId);
+            payment.setTxnRef(txnRef);
+        }
+
         payment.setOrder(order);
-        payment.setTxnRef(txnRef);
         payment.setAmount(Math.round(order.getTotalAmount()));
         payment.setStatus(PaymentStatus.PENDING);
         payment.setOrderInfo(
                 orderInfo != null && !orderInfo.isBlank()
                         ? orderInfo
-                        : "Thanh toan don hang " + orderId
-        );
+                        : "Thanh toan don hang " + orderId);
         paymentRepository.save(payment);
 
         // Xây dựng params gửi VNPay
-        String vnpAmount   = String.valueOf(Math.round(order.getTotalAmount()) * 100L);
-        String createDate  = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String expireDate  = buildExpireDate(15);  // hết hạn sau 15 phút
+        String vnpAmount = String.valueOf(Math.round(order.getTotalAmount()) * 100L);
+        String createDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String expireDate = buildExpireDate(15); // hết hạn sau 15 phút
 
         Map<String, String> params = new TreeMap<>();
-        params.put("vnp_Version",    vnPayConfig.getVersion());
-        params.put("vnp_Command",    vnPayConfig.getCommand());
-        params.put("vnp_TmnCode",    vnPayConfig.getTmnCode());
-        params.put("vnp_Amount",     vnpAmount);
-        params.put("vnp_CurrCode",   vnPayConfig.getCurrencyCode());
-        params.put("vnp_TxnRef",     txnRef);
-        params.put("vnp_OrderInfo",  payment.getOrderInfo());
-        params.put("vnp_OrderType",  "other");
-        params.put("vnp_Locale",     vnPayConfig.getLocale());
-        params.put("vnp_ReturnUrl",  vnPayConfig.getReturnUrl());
-        params.put("vnp_IpAddr",     clientIp != null ? clientIp : "127.0.0.1");
+        params.put("vnp_Version", vnPayConfig.getVersion());
+        params.put("vnp_Command", vnPayConfig.getCommand());
+        params.put("vnp_TmnCode", vnPayConfig.getTmnCode());
+        params.put("vnp_Amount", vnpAmount);
+        params.put("vnp_CurrCode", vnPayConfig.getCurrencyCode());
+        params.put("vnp_TxnRef", txnRef);
+        params.put("vnp_OrderInfo", payment.getOrderInfo());
+        params.put("vnp_OrderType", "other");
+        params.put("vnp_Locale", vnPayConfig.getLocale());
+        params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        params.put("vnp_IpAddr", clientIp != null ? clientIp : "127.0.0.1");
         params.put("vnp_CreateDate", createDate);
         params.put("vnp_ExpireDate", expireDate);
 
@@ -101,19 +94,13 @@ public class VNPayService {
         }
 
         String queryString = buildQueryString(params);
-        String secureHash  = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
-        String paymentUrl  = vnPayConfig.getPayUrl() + "?" + queryString + "&vnp_SecureHash=" + secureHash;
+        String secureHash = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
+        String paymentUrl = vnPayConfig.getPayUrl() + "?" + queryString + "&vnp_SecureHash=" + secureHash;
 
         log.info("[VNPay] Tạo URL thanh toán | orderId={} txnRef={}", orderId, txnRef);
         return new VNPayResponse("00", "Tạo URL thanh toán thành công!", paymentUrl);
     }
 
-    // ─── XỬ LÝ RETURN URL (sau khi user thanh toán xong) ───────────────────
-
-    /**
-     * Xử lý kết quả VNPay trả về qua returnUrl (hiển thị cho user).
-     * Trả về map kết quả để controller redirect về frontend.
-     */
     @Transactional
     public Map<String, String> processReturnUrl(Map<String, String> vnpParams) {
         Map<String, String> result = new HashMap<>();
@@ -133,36 +120,30 @@ public class VNPayService {
         }
 
         String responseCode = vnpParams.get("vnp_ResponseCode");
-        String txnRef       = vnpParams.get("vnp_TxnRef");
+        String txnRef = vnpParams.get("vnp_TxnRef");
 
         updatePaymentFromVNPay(txnRef, responseCode, vnpParams);
 
         if ("00".equals(responseCode)) {
-            result.put("status",  "SUCCESS");
+            result.put("status", "SUCCESS");
             result.put("message", "Thanh toán thành công!");
         } else {
-            result.put("status",  "FAILED");
+            result.put("status", "FAILED");
             result.put("message", "Thanh toán thất bại! Mã lỗi: " + responseCode);
         }
 
-        result.put("txnRef",       txnRef);
+        result.put("txnRef", txnRef);
         result.put("responseCode", responseCode);
-        result.put("orderId",      extractOrderId(txnRef));
+        result.put("orderId", extractOrderId(txnRef));
         return result;
     }
 
-    // ─── IPN (VNPay gọi server-to-server) ───────────────────────────────────
-
-    /**
-     * VNPay gọi IPN URL để xác nhận thanh toán (server-to-server, không qua browser).
-     * Phải trả về JSON { RspCode, Message } trong vòng 5 giây.
-     */
     @Transactional
     public VNPayIpnResponse processIpn(Map<String, String> vnpParams) {
         String receivedHash = vnpParams.remove("vnp_SecureHash");
         vnpParams.remove("vnp_SecureHashType");
 
-        String queryString  = buildQueryString(new TreeMap<>(vnpParams));
+        String queryString = buildQueryString(new TreeMap<>(vnpParams));
         String computedHash = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
 
         if (!computedHash.equalsIgnoreCase(receivedHash)) {
@@ -170,8 +151,8 @@ public class VNPayService {
             return new VNPayIpnResponse("97", "Invalid Signature");
         }
 
-        String txnRef      = vnpParams.get("vnp_TxnRef");
-        String vnpAmount   = vnpParams.get("vnp_Amount");
+        String txnRef = vnpParams.get("vnp_TxnRef");
+        String vnpAmount = vnpParams.get("vnp_Amount");
         String responseCode = vnpParams.get("vnp_ResponseCode");
 
         Optional<Payment> paymentOpt = paymentRepository.findByTxnRef(txnRef);
@@ -204,8 +185,6 @@ public class VNPayService {
         return new VNPayIpnResponse("00", "Confirm Success");
     }
 
-    // ─── QUERY TRẠNG THÁI PAYMENT THEO ORDER ────────────────────────────────
-
     @Transactional(readOnly = true)
     public Map<String, Object> getPaymentStatus(Long orderId) {
         Payment payment = paymentRepository.findByOrderId(orderId)
@@ -213,28 +192,23 @@ public class VNPayService {
                         "Không tìm thấy thông tin thanh toán cho đơn hàng id: " + orderId));
 
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("orderId",           orderId);
-        result.put("txnRef",            payment.getTxnRef());
-        result.put("amount",            payment.getAmount());
-        result.put("status",            payment.getStatus().name());
-        result.put("responseCode",      payment.getVnpResponseCode());
-        result.put("transactionNo",     payment.getVnpTransactionNo());
-        result.put("bankCode",          payment.getBankCode());
-        result.put("cardType",          payment.getCardType());
-        result.put("payDate",           payment.getPayDate());
-        result.put("orderInfo",         payment.getOrderInfo());
-        result.put("createdAt",         payment.getCreatedAt());
-        result.put("updatedAt",         payment.getUpdatedAt());
+        result.put("orderId", orderId);
+        result.put("txnRef", payment.getTxnRef());
+        result.put("amount", payment.getAmount());
+        result.put("status", payment.getStatus().name());
+        result.put("responseCode", payment.getVnpResponseCode());
+        result.put("transactionNo", payment.getVnpTransactionNo());
+        result.put("bankCode", payment.getBankCode());
+        result.put("cardType", payment.getCardType());
+        result.put("payDate", payment.getPayDate());
+        result.put("orderInfo", payment.getOrderInfo());
+        result.put("createdAt", payment.getCreatedAt());
+        result.put("updatedAt", payment.getUpdatedAt());
         return result;
     }
 
-    // ─── PRIVATE HELPERS ────────────────────────────────────────────────────
-
-    /**
-     * Cập nhật Payment + OrderStatus sau khi nhận kết quả từ VNPay.
-     */
     private void updatePaymentFromVNPay(String txnRef, String responseCode,
-                                        Map<String, String> params) {
+            Map<String, String> params) {
         paymentRepository.findByTxnRef(txnRef).ifPresent(payment -> {
             payment.setVnpResponseCode(responseCode);
             payment.setVnpTransactionNo(params.get("vnp_TransactionNo"));
@@ -260,30 +234,23 @@ public class VNPayService {
         });
     }
 
-    /**
-     * Xây dựng txnRef: "{orderId}_{timestamp}" để đảm bảo duy nhất khi thử lại.
-     */
     private String buildTxnRef(Long orderId) {
         return orderId + "_" + System.currentTimeMillis();
     }
 
-    /**
-     * Tách orderId từ txnRef (định dạng: "orderId_timestamp").
-     */
     private String extractOrderId(String txnRef) {
-        if (txnRef == null) return "";
+        if (txnRef == null)
+            return "";
         int idx = txnRef.indexOf('_');
         return idx > 0 ? txnRef.substring(0, idx) : txnRef;
     }
 
-    /**
-     * Tạo chuỗi query string đã URL-encode (key=value&key=value).
-     */
     private String buildQueryString(Map<String, String> params) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (entry.getValue() != null && !entry.getValue().isBlank()) {
-                if (sb.length() > 0) sb.append('&');
+                if (sb.length() > 0)
+                    sb.append('&');
                 sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII));
                 sb.append('=');
                 sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII));
@@ -292,9 +259,6 @@ public class VNPayService {
         return sb.toString();
     }
 
-    /**
-     * Tính HMAC-SHA512.
-     */
     private String hmacSHA512(String key, String data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512");
@@ -310,9 +274,6 @@ public class VNPayService {
         }
     }
 
-    /**
-     * Tạo thời gian hết hạn (yyyyMMddHHmmss), cộng thêm `minutes` phút.
-     */
     private String buildExpireDate(int minutes) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         cal.add(Calendar.MINUTE, minutes);

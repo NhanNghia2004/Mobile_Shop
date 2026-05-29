@@ -18,136 +18,126 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
         JpaSpecificationExecutor<Product> {
 
     @Query("""
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-        WHERE p.status = :status
-    """)
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.status = :status
+            """)
     List<Product> findByStatusWithVariants(@Param("status") ProductStatus status);
 
     @Query(value = """
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-    """,
-            countQuery = "SELECT COUNT(p) FROM Product p")
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+            """, countQuery = "SELECT COUNT(p) FROM Product p")
     Page<Product> findAllWithVariants(Pageable pageable);
 
-    @Query(
-            value = """
-            SELECT DISTINCT p FROM Product p
-            LEFT JOIN FETCH p.variants
-            WHERE p.status = :status
-              AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-              AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-              AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
-              AND (:keyword  IS NULL
-                   OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (
-                    (:minPrice IS NULL AND :maxPrice IS NULL)
-                    OR EXISTS (
-                        SELECT 1 FROM ProductVariant v
-                        WHERE v.product = p
-                          AND v.status = :status
-                          AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
-                          AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
-                    )
-              )
-        """,
-            countQuery = """
-            SELECT COUNT(DISTINCT p.id) FROM Product p
-            WHERE p.status = :status
-              AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-              AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-              AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
-              AND (:keyword  IS NULL
-                   OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (
-                    (:minPrice IS NULL AND :maxPrice IS NULL)
-                    OR EXISTS (
-                        SELECT 1 FROM ProductVariant v
-                        WHERE v.product = p
-                          AND v.status = :status
-                          AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
-                          AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
-                    )
-              )
-        """
-    )
+    @Query(value = """
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.status = :status
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                  AND (
+                        (:minPrice IS NULL AND :maxPrice IS NULL)
+                        OR EXISTS (
+                            SELECT 1 FROM ProductVariant v
+                            WHERE v.product = p
+                              AND v.status = :status
+                              AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
+                              AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
+                        )
+                  )
+            """, countQuery = """
+                SELECT COUNT(DISTINCT p.id) FROM Product p
+                WHERE p.status = :status
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                  AND (
+                        (:minPrice IS NULL AND :maxPrice IS NULL)
+                        OR EXISTS (
+                            SELECT 1 FROM ProductVariant v
+                            WHERE v.product = p
+                              AND v.status = :status
+                              AND (:minPrice IS NULL OR COALESCE(v.discountPrice, v.price) >= :minPrice)
+                              AND (:maxPrice IS NULL OR COALESCE(v.discountPrice, v.price) <= :maxPrice)
+                        )
+                  )
+            """)
     Page<Product> filterProducts(
-            @Param("status")   ProductStatus status,
-            @Param("brand")    String brand,
+            @Param("status") ProductStatus status,
+            @Param("brand") String brand,
             @Param("category") String category,
-            @Param("os")       String os,
+            @Param("os") String os,
             @Param("minPrice") Double minPrice,
             @Param("maxPrice") Double maxPrice,
-            @Param("keyword")  String keyword,
-            Pageable pageable
-    );
+            @Param("keyword") String keyword,
+            Pageable pageable);
 
-    @Query(
-            value = """
-            SELECT DISTINCT p FROM Product p
-            LEFT JOIN FETCH p.variants
-            WHERE p.status = :status
-              AND EXISTS (
-                  SELECT 1 FROM ProductVariant v
-                  WHERE v.product = p
-                    AND v.status = :status
-                    AND v.discountPrice IS NOT NULL
-              )
-            ORDER BY (
-                SELECT MIN(v2.discountPrice) FROM ProductVariant v2
-                WHERE v2.product = p AND v2.discountPrice IS NOT NULL
-            ) ASC
-        """,
-            countQuery = """
-            SELECT COUNT(DISTINCT p.id) FROM Product p
-            JOIN p.variants v
-            WHERE p.status = :status
-              AND v.status = :status
-              AND v.discountPrice IS NOT NULL
-        """
-    )
+    @Query(value = """
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.status = :status
+                  AND EXISTS (
+                      SELECT 1 FROM ProductVariant v
+                      WHERE v.product = p
+                        AND v.status = :status
+                        AND v.discountPrice IS NOT NULL
+                  )
+                ORDER BY (
+                    SELECT MIN(v2.discountPrice) FROM ProductVariant v2
+                    WHERE v2.product = p AND v2.discountPrice IS NOT NULL
+                ) ASC
+            """, countQuery = """
+                SELECT COUNT(DISTINCT p.id) FROM Product p
+                JOIN p.variants v
+                WHERE p.status = :status
+                  AND v.status = :status
+                  AND v.discountPrice IS NOT NULL
+            """)
     Page<Product> findDiscountedProducts(@Param("status") ProductStatus status, Pageable pageable);
 
     @Query("""
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-        WHERE p.id = :id
-    """)
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.id = :id
+            """)
     Optional<Product> findByIdWithVariants(@Param("id") Long id);
 
     @Query("""
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-        WHERE p.status = :status
-        ORDER BY p.soldCount DESC
-    """)
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.status = :status
+                ORDER BY p.soldCount DESC
+            """)
     List<Product> findTop10ByStatusOrderBySoldCountDescWithVariants(
             @Param("status") ProductStatus status,
-            Pageable pageable
-    );
+            Pageable pageable);
 
     @Query("""
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-        WHERE p.status = :status
-        ORDER BY p.createdAt DESC
-    """)
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE p.status = :status
+                ORDER BY p.createdAt DESC
+            """)
     List<Product> findTop8ByStatusOrderByCreatedAtDescWithVariants(
             @Param("status") ProductStatus status,
-            Pageable pageable
-    );
+            Pageable pageable);
 
     @Query("""
-        SELECT
-            MIN(COALESCE(v.discountPrice, v.price)),
-            MAX(COALESCE(v.discountPrice, v.price))
-        FROM ProductVariant v
-        WHERE v.product.status = :status
-          AND v.status = :status
-    """)
+                SELECT
+                    MIN(COALESCE(v.discountPrice, v.price)),
+                    MAX(COALESCE(v.discountPrice, v.price))
+                FROM ProductVariant v
+                WHERE v.product.status = :status
+                  AND v.status = :status
+            """)
     Object[] findPriceRange(@Param("status") ProductStatus status);
 
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.status = :status ORDER BY p.brand")
@@ -156,61 +146,50 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     boolean existsByNameIgnoreCase(String name);
 
     @Query("""
-        SELECT COUNT(p) > 0 FROM Product p
-        WHERE LOWER(p.name) = LOWER(:name) AND p.id <> :excludeId
-    """)
+                SELECT COUNT(p) > 0 FROM Product p
+                WHERE LOWER(p.name) = LOWER(:name) AND p.id <> :excludeId
+            """)
     boolean existsByNameIgnoreCaseAndIdNot(
-            @Param("name")      String name,
-            @Param("excludeId") Long excludeId
-    );
+            @Param("name") String name,
+            @Param("excludeId") Long excludeId);
 
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Long id);
 
-    // ═══════════════════════════════════════════════════════════════════
     // Admin product
-    // ═══════════════════════════════════════════════════════════════════
 
     @Query(value = """
-        SELECT DISTINCT p FROM Product p
-        LEFT JOIN FETCH p.variants
-        WHERE (:status   IS NULL OR p.status   = :status)
-          AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-          AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
-          AND (:keyword  IS NULL
-               OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    """,
-            countQuery = """
-        SELECT COUNT(DISTINCT p.id) FROM Product p
-        WHERE (:status   IS NULL OR p.status   = :status)
-          AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-          AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-          AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
-          AND (:keyword  IS NULL
-               OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-               OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    """)
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants
+                WHERE (:status   IS NULL OR p.status   = :status)
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """, countQuery = """
+                SELECT COUNT(DISTINCT p.id) FROM Product p
+                WHERE (:status   IS NULL OR p.status   = :status)
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:os       IS NULL OR LOWER(p.os)       = LOWER(:os))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """)
     Page<Product> filterProductsForAdmin(
-            @Param("status")   ProductStatus status,
-            @Param("brand")    String brand,
+            @Param("status") ProductStatus status,
+            @Param("brand") String brand,
             @Param("category") String category,
-            @Param("os")       String os,
-            @Param("keyword")  String keyword,
-            Pageable pageable
-    );
+            @Param("os") String os,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 
     long countByStatus(ProductStatus status);
 
-    @Query("""
-        SELECT COUNT(DISTINCT p.id) FROM Product p
-        JOIN p.variants v
-        WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-        GROUP BY p.id
-        HAVING SUM(v.stockQuantity) = 0
-    """)
+    @Query("SELECT COUNT(*) FROM Product p WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE AND (SELECT COALESCE(SUM(v.stockQuantity),0) FROM ProductVariant v WHERE v.product = p) = 0")
     long countCompletelyOutOfStock();
 
     @Query("SELECT COALESCE(SUM(p.soldCount), 0) FROM Product p")
@@ -219,82 +198,75 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
     @Query("SELECT COUNT(v.id) FROM ProductVariant v")
     long countTotalVariants();
 
-    // ═══════════════════════════════════════════════════════════════════
     // Admin tồn kho
-    // ═══════════════════════════════════════════════════════════════════
 
-    // 1a. Query tồn kho với filter + phân trang (dùng khi stockStatus = "all")
     @Query(value = """
-    SELECT DISTINCT p FROM Product p
-    LEFT JOIN FETCH p.variants v
-    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
-      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-      AND (:keyword  IS NULL
-           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-""",
-            countQuery = """
-    SELECT COUNT(DISTINCT p.id) FROM Product p
-    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
-      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-      AND (:keyword  IS NULL
-           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-""")
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants v
+                WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """, countQuery = """
+                SELECT COUNT(DISTINCT p.id) FROM Product p
+                WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """)
     Page<Product> findForInventory(
-            @Param("keyword")  String keyword,
-            @Param("brand")    String brand,
+            @Param("keyword") String keyword,
+            @Param("brand") String brand,
             @Param("category") String category,
-            Pageable pageable
-    );
+            Pageable pageable);
 
-    // FIX: 1b. Query không phân trang — dùng khi cần filter theo stockStatus (out/low/available)
     // Trả về toàn bộ rồi filter + phân trang trong bộ nhớ để count chính xác.
     @Query("""
-    SELECT DISTINCT p FROM Product p
-    LEFT JOIN FETCH p.variants v
-    WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
-      AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
-      AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
-      AND (:keyword  IS NULL
-           OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
-           OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
-""")
+                SELECT DISTINCT p FROM Product p
+                LEFT JOIN FETCH p.variants v
+                WHERE p.status <> com.example.backend.product.entity.ProductStatus.INACTIVE
+                  AND (:brand    IS NULL OR LOWER(p.brand)    = LOWER(:brand))
+                  AND (:category IS NULL OR LOWER(p.category) = LOWER(:category))
+                  AND (:keyword  IS NULL
+                       OR LOWER(p.name)  LIKE LOWER(CONCAT('%', :keyword, '%'))
+                       OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """)
     List<Product> findAllForInventoryNoPaging(
-            @Param("keyword")  String keyword,
-            @Param("brand")    String brand,
-            @Param("category") String category
-    );
+            @Param("keyword") String keyword,
+            @Param("brand") String brand,
+            @Param("category") String category);
 
     // 2. Thống kê nhanh cho dashboard tồn kho
     @Query("""
-    SELECT COUNT(DISTINCT p.id)
-    FROM Product p
-    WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-""")
+                SELECT COUNT(DISTINCT p.id)
+                FROM Product p
+                WHERE p.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+            """)
     long countActiveProducts();
 
     @Query("""
-    SELECT COUNT(v.id)
-    FROM ProductVariant v
-    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-""")
+                SELECT COUNT(v.id)
+                FROM ProductVariant v
+                WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+            """)
     long countAllVariants();
 
     @Query("""
-    SELECT COUNT(v.id)
-    FROM ProductVariant v
-    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-      AND v.stockQuantity = 0
-""")
+                SELECT COUNT(v.id)
+                FROM ProductVariant v
+                WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+                  AND v.stockQuantity = 0
+            """)
     long countOutOfStockVariants();
 
     @Query("""
-    SELECT COALESCE(SUM(v.stockQuantity), 0)
-    FROM ProductVariant v
-    WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
-""")
+                SELECT COALESCE(SUM(v.stockQuantity), 0)
+                FROM ProductVariant v
+                WHERE v.product.status = com.example.backend.product.entity.ProductStatus.ACTIVE
+            """)
     long sumTotalStockUnits();
 }

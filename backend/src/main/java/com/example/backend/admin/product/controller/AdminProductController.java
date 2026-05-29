@@ -32,15 +32,14 @@ public class AdminProductController {
 
     @GetMapping
     public ResponseEntity<PageResponse<AdminProductResponse>> getProducts(
-            @RequestParam(required = false)           String keyword,
-            @RequestParam(required = false)           String brand,
-            @RequestParam(required = false)           String category,
-            @RequestParam(required = false)           String os,
-            @RequestParam(defaultValue = "all")       String status,
-            @RequestParam(defaultValue = "newest")    String sortBy,
-            @RequestParam(defaultValue = "0")         int    page,
-            @RequestParam(defaultValue = "20")        int    size
-    ) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String os,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(defaultValue = "newest") String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         AdminProductFilterRequest filter = new AdminProductFilterRequest();
         filter.setKeyword(keyword);
         filter.setBrand(brand);
@@ -63,26 +62,21 @@ public class AdminProductController {
 
     @PostMapping
     public ResponseEntity<AdminProductResponse> createProduct(
-            @RequestBody ProductRequest request
-    ) {
+            @RequestBody ProductRequest request) {
         return ResponseEntity.status(201).body(adminProductService.createProduct(request));
     }
-    // Cập nhật toàn bộ sản phẩm (bao gồm replace variants nếu có truyền)
 
     @PutMapping("/{id}")
     public ResponseEntity<AdminProductResponse> updateProduct(
             @PathVariable Long id,
-            @RequestBody ProductRequest request
-    ) {
+            @RequestBody ProductRequest request) {
         return ResponseEntity.ok(adminProductService.updateProduct(id, request));
     }
-    // Cập nhật 1 phần thông tin sản phẩm (không đụng variants)
 
     @PatchMapping("/{id}")
     public ResponseEntity<AdminProductResponse> patchProduct(
             @PathVariable Long id,
-            @RequestBody ProductRequest request
-    ) {
+            @RequestBody ProductRequest request) {
         return ResponseEntity.ok(adminProductService.updateProductBasicInfo(id, request));
     }
     // Kích hoạt lại sản phẩm (INACTIVE → ACTIVE)
@@ -115,8 +109,7 @@ public class AdminProductController {
 
     @PostMapping("/bulk-action")
     public ResponseEntity<BulkActionResponse> bulkAction(
-            @RequestBody BulkActionRequest request
-    ) {
+            @RequestBody BulkActionRequest request) {
         return ResponseEntity.ok(adminProductService.bulkAction(request));
     }
     // Danh sách variant của 1 sản phẩm
@@ -130,8 +123,7 @@ public class AdminProductController {
     @PostMapping("/{productId}/variants")
     public ResponseEntity<VariantResponse> addVariant(
             @PathVariable Long productId,
-            @RequestBody VariantRequest request
-    ) {
+            @RequestBody VariantRequest request) {
         return ResponseEntity.status(201).body(adminProductService.addVariant(productId, request));
     }
     // Cập nhật variant
@@ -140,8 +132,7 @@ public class AdminProductController {
     public ResponseEntity<VariantResponse> updateVariant(
             @PathVariable Long productId,
             @PathVariable Long variantId,
-            @RequestBody VariantRequest request
-    ) {
+            @RequestBody VariantRequest request) {
         return ResponseEntity.ok(adminProductService.updateVariant(productId, variantId, request));
     }
     // Xóa variant
@@ -149,24 +140,18 @@ public class AdminProductController {
     @DeleteMapping("/{productId}/variants/{variantId}")
     public ResponseEntity<Map<String, String>> deleteVariant(
             @PathVariable Long productId,
-            @PathVariable Long variantId
-    ) {
+            @PathVariable Long variantId) {
         adminProductService.deleteVariant(productId, variantId);
         return ResponseEntity.ok(Map.of("message", "Đã xóa variant thành công!"));
     }
 
-
     // Upload ảnh variant (multipart, tối đa 6 ảnh/variant)
 
-    @PostMapping(
-            value  = "/{productId}/variants/{variantId}/images/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/{productId}/variants/{variantId}/images/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<VariantResponse> uploadVariantImages(
             @PathVariable Long productId,
             @PathVariable Long variantId,
-            @RequestPart("files") List<MultipartFile> files
-    ) {
+            @RequestPart("files") List<MultipartFile> files) {
         return ResponseEntity.ok(
                 adminProductService.uploadVariantImages(productId, variantId, files));
     }
@@ -177,8 +162,7 @@ public class AdminProductController {
     public ResponseEntity<VariantResponse> addVariantImageByUrl(
             @PathVariable Long productId,
             @PathVariable Long variantId,
-            @RequestBody VariantImageRequest request
-    ) {
+            @RequestBody VariantImageRequest request) {
         return ResponseEntity.ok(
                 adminProductService.addVariantImageByUrl(productId, variantId, request));
     }
@@ -188,21 +172,18 @@ public class AdminProductController {
     public ResponseEntity<VariantResponse> deleteVariantImage(
             @PathVariable Long productId,
             @PathVariable Long variantId,
-            @PathVariable Long imageId
-    ) {
+            @PathVariable Long imageId) {
         return ResponseEntity.ok(
                 adminProductService.deleteVariantImage(productId, variantId, imageId));
     }
 
     // Sắp xếp lại thứ tự ảnh
 
-
     @PutMapping("/{productId}/variants/{variantId}/images/reorder")
     public ResponseEntity<VariantResponse> reorderVariantImages(
             @PathVariable Long productId,
             @PathVariable Long variantId,
-            @RequestBody List<Long> imageIdOrders
-    ) {
+            @RequestBody List<Long> imageIdOrders) {
         return ResponseEntity.ok(
                 adminProductService.reorderVariantImages(productId, variantId, imageIdOrders));
     }

@@ -30,15 +30,20 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Xem sản phẩm & đánh giá (chỉ cho phép GET công khai)
+                        // Xem đánh giá (chỉ cho phép GET công khai)
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/*/reviews/**").permitAll()
+                        // Thêm, sửa, xóa đánh giá (yêu cầu quyền USER hoặc ADMIN)
+                        .requestMatchers("/api/products/*/reviews/**").hasAnyAuthority("USER", "ADMIN")
+                        // Xem sản phẩm (chỉ cho phép GET công khai)
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
                         // File ảnh upload công khai
                         .requestMatchers("/uploads/**").permitAll()
                         // Admin
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        // Giỏ hàng & viết/sửa/xóa đánh giá (yêu cầu quyền USER hoặc ADMIN)
+                        // Giỏ hàng
                         .requestMatchers("/api/cart/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/products/*/reviews/**").hasAnyAuthority("USER", "ADMIN")
+                        // Yêu thích
+                        .requestMatchers("/api/favorites/**").hasAnyAuthority("USER", "ADMIN")
                        //payment
                         .requestMatchers("/api/payment/vnpay/return").permitAll()
                         .requestMatchers("/api/payment/vnpay/ipn").permitAll()

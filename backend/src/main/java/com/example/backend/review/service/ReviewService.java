@@ -33,15 +33,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository         reviewRepository;
-    private final ProductRepository        productRepository;
+    private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
-    private final UserRepository           userRepository;
-    private final FileStorageService       fileStorageService;
+    private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     private static final int MAX_IMAGES_PER_REVIEW = 5;
 
-    // ─── PUBLIC ──────────────────────────────────────────────────────────────
+    // PUBLIC
 
     public PageResponse<ReviewResponse> getProductReviews(
             Long productId, Integer rating, int page, int size) {
@@ -50,45 +50,46 @@ public class ReviewService {
 
         Page<Review> result = (rating != null)
                 ? reviewRepository.findByProductIdAndStatusAndRating(
-                productId, ReviewStatus.VISIBLE, rating, pageable)
+                        productId, ReviewStatus.VISIBLE, rating, pageable)
                 : reviewRepository.findByProductIdAndStatus(
-                productId, ReviewStatus.VISIBLE, pageable);
+                        productId, ReviewStatus.VISIBLE, pageable);
 
         return PageResponse.from(result, ReviewResponse::from);
     }
 
     public ReviewSummaryResponse getReviewSummary(Long productId) {
-        Double avg   = reviewRepository.avgRatingByProductId(productId);
-        long   total = reviewRepository.countByProductIdAndStatus(
+        Double avg = reviewRepository.avgRatingByProductId(productId);
+        long total = reviewRepository.countByProductIdAndStatus(
                 productId, ReviewStatus.VISIBLE);
 
-        List<Object[]> rows      = reviewRepository.countByRatingForProduct(productId);
+        List<Object[]> rows = reviewRepository.countByRatingForProduct(productId);
         Map<Integer, Long> breakdown = new HashMap<>();
-        for (int i = 1; i <= 5; i++) breakdown.put(i, 0L);
+        for (int i = 1; i <= 5; i++)
+            breakdown.put(i, 0L);
         for (Object[] row : rows) {
             breakdown.put((Integer) row[0], (Long) row[1]);
         }
 
         ReviewSummaryResponse summary = new ReviewSummaryResponse();
-        summary.setAvgRating(Math.round(avg * 10.0) / 10.0);
+        summary.setAvgRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
         summary.setTotalReviews(total);
         summary.setBreakdown(breakdown);
         return summary;
     }
 
-    // ─── USER ─────────────────────────────────────────────────────────────────
+    // USER
 
     @Transactional
     public ReviewResponse createReview(String username,
-                                       Long productId,
-                                       ReviewRequest request,
-                                       List<MultipartFile> images) {
+            Long productId,
+            ReviewRequest request,
+            List<MultipartFile> images) {
         User user = findUser(username);
 
         validateCreateRequest(request);
 
         ProductVariant variant = findVariant(request.getVariantId());
-        Product        product = variant.getProduct();
+        Product product = variant.getProduct();
 
         if (!product.getId().equals(productId)) {
             throw new RuntimeException("Biến thể sản phẩm không thuộc về sản phẩm này!");
@@ -134,10 +135,10 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse updateReview(String username,
-                                       Long productId,
-                                       Long reviewId,
-                                       ReviewRequest request,
-                                       List<MultipartFile> newImages) {
+            Long productId,
+            Long reviewId,
+            ReviewRequest request,
+            List<MultipartFile> newImages) {
         Review review = findReviewAndCheckOwner(reviewId, username);
 
         if (!review.getProduct().getId().equals(productId)) {
@@ -195,9 +196,7 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    // ─── ADMIN ────────────────────────────────────────────────────────────────
-    // Lưu ý: reply và toggle visibility đã được xử lý đầy đủ bởi AdminReviewService.
-    // ReviewService chỉ giữ adminDeleteReview để ReviewController có thể gọi khi cần.
+    // ADMIN
 
     @Transactional
     public void adminDeleteReview(Long reviewId) {
@@ -207,7 +206,7 @@ public class ReviewService {
         updateProductRating(review.getProduct());
     }
 
-    // ─── HELPER ───────────────────────────────────────────────────────────────
+    // HELPER
 
     private void validateCreateRequest(ReviewRequest request) {
         if (request.getVariantId() == null) {
@@ -232,7 +231,8 @@ public class ReviewService {
     private void attachImages(Review review, List<MultipartFile> files) {
         int order = (review.getImages() != null) ? review.getImages().size() : 0;
         for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) continue;
+            if (file == null || file.isEmpty())
+                continue;
             String[] stored = fileStorageService.storeReviewImage(file);
             review.getImages().add(new ReviewImage(review, stored[0], stored[1], order++));
         }
@@ -244,7 +244,7 @@ public class ReviewService {
                         "Không tìm thấy sản phẩm với id: " + product.getId()));
 
         Double avg = reviewRepository.avgRatingByProductId(product.getId());
-        long   cnt = reviewRepository.countByProductIdAndStatus(
+        long cnt = reviewRepository.countByProductIdAndStatus(
                 product.getId(), ReviewStatus.VISIBLE);
 
         lockedProduct.setRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);

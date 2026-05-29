@@ -20,32 +20,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminReviewService {
 
-    private final ReviewRepository   reviewRepository;
-    private final ProductRepository  productRepository;
+    private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
     private final FileStorageService fileStorageService;
 
-    //1. Thống kê tổng quan
+    // 1. Thống kê tổng quan
 
     @Transactional(readOnly = true)
     public AdminReviewStatsResponse getStats() {
-        long total      = reviewRepository.count();
-        long visible    = reviewRepository.countByStatus(ReviewStatus.VISIBLE);
-        long hidden     = reviewRepository.countByStatus(ReviewStatus.HIDDEN);
+        long total = reviewRepository.count();
+        long visible = reviewRepository.countByStatus(ReviewStatus.VISIBLE);
+        long hidden = reviewRepository.countByStatus(ReviewStatus.HIDDEN);
         long withImages = reviewRepository.countReviewsWithImages();
-        long withReply  = reviewRepository.countReviewsWithReply();
-        long noReply    = reviewRepository.countVisibleReviewsWithNoReply();
-        Double avg      = reviewRepository.avgRatingAllProducts();
+        long withReply = reviewRepository.countReviewsWithReply();
+        long noReply = reviewRepository.countVisibleReviewsWithNoReply();
+        Double avg = reviewRepository.avgRatingAllProducts();
 
         // Phân bố sao toàn hệ thống
         Map<Integer, Long> breakdown = new HashMap<>();
-        for (int i = 1; i <= 5; i++) breakdown.put(i, 0L);
+        for (int i = 1; i <= 5; i++)
+            breakdown.put(i, 0L);
         reviewRepository.countAllByRating()
                 .forEach(row -> breakdown.put((Integer) row[0], (Long) row[1]));
 
@@ -63,10 +63,10 @@ public class AdminReviewService {
 
     @Transactional(readOnly = true)
     public PageResponse<AdminReviewResponse> getReviews(AdminReviewFilterRequest filter) {
-        Pageable     pageable = buildPageable(filter);
-        ReviewStatus status   = parseStatus(filter.getStatus());
-        Boolean      hasImages = parseType(filter.getType(), "with_image");
-        Boolean      hasReply  = parseType(filter.getType(), "with_reply");
+        Pageable pageable = buildPageable(filter);
+        ReviewStatus status = parseStatus(filter.getStatus());
+        Boolean hasImages = parseType(filter.getType(), "with_image");
+        Boolean hasReply = parseType(filter.getType(), "with_reply");
 
         if ("no_reply".equalsIgnoreCase(filter.getType())) {
             hasReply = false;
@@ -79,8 +79,7 @@ public class AdminReviewService {
                 nullIfBlank(filter.getKeyword()),
                 hasImages,
                 hasReply,
-                pageable
-        );
+                pageable);
 
         return PageResponse.from(page, AdminReviewResponse::from);
     }
@@ -202,14 +201,14 @@ public class AdminReviewService {
         }
 
         int success = 0;
-        int fail    = 0;
+        int fail = 0;
         List<String> errors = new ArrayList<>();
 
         for (Long reviewId : request.getReviewIds()) {
             try {
                 switch (request.getAction().toUpperCase()) {
-                    case "HIDE"   -> hideReview(reviewId);
-                    case "SHOW"   -> showReview(reviewId);
+                    case "HIDE" -> hideReview(reviewId);
+                    case "SHOW" -> showReview(reviewId);
                     case "DELETE" -> deleteReview(reviewId);
                     default -> throw new RuntimeException(
                             "Action không hợp lệ: " + request.getAction()
@@ -252,7 +251,7 @@ public class AdminReviewService {
 
     private void updateProductRating(Product product) {
         Double avg = reviewRepository.avgRatingByProductId(product.getId());
-        long   cnt = reviewRepository.countByProductIdAndStatus(
+        long cnt = reviewRepository.countByProductIdAndStatus(
                 product.getId(), ReviewStatus.VISIBLE);
         product.setRating(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0);
         product.setReviewCount((int) cnt);
@@ -271,17 +270,19 @@ public class AdminReviewService {
     }
 
     private Boolean parseType(String type, String targetType) {
-        if (type == null || type.equalsIgnoreCase("all")) return null;
-        if (type.equalsIgnoreCase(targetType)) return true;
+        if (type == null || type.equalsIgnoreCase("all"))
+            return null;
+        if (type.equalsIgnoreCase(targetType))
+            return true;
         return null;
     }
 
     private Pageable buildPageable(AdminReviewFilterRequest filter) {
         Sort sort = switch (filter.getSortBy() != null ? filter.getSortBy() : "newest") {
-            case "oldest"      -> Sort.by("createdAt").ascending();
-            case "rating_asc"  -> Sort.by("rating").ascending();
+            case "oldest" -> Sort.by("createdAt").ascending();
+            case "rating_asc" -> Sort.by("rating").ascending();
             case "rating_desc" -> Sort.by("rating").descending();
-            default            -> Sort.by("createdAt").descending();
+            default -> Sort.by("createdAt").descending();
         };
         int page = Math.max(filter.getPage(), 0);
         int size = (filter.getSize() > 0 && filter.getSize() <= 100) ? filter.getSize() : 20;
