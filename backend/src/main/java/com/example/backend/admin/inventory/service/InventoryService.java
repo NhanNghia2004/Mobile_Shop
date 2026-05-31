@@ -7,7 +7,6 @@ import com.example.backend.admin.inventory.repository.StockHistoryRepository;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.product.dto.PageResponse;
 import com.example.backend.product.entity.Product;
-import com.example.backend.product.entity.ProductCategory;
 import com.example.backend.product.entity.ProductStatus;
 import com.example.backend.product.entity.ProductVariant;
 import com.example.backend.product.repository.ProductRepository;
