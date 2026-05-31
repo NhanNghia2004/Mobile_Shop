@@ -1,14 +1,30 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Star, ShoppingCart, ArrowRight } from 'lucide-react';
-
-const PRODUCTS = [
-    { id: 1, name: 'iPhone 15 Pro Max', price: '29.990.000đ', image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=500&auto=format&fit=crop', tag: 'Hot' },
-    { id: 2, name: 'Samsung Galaxy S24 Ultra', price: '26.490.000đ', image: 'https://images.unsplash.com/photo-1707231456903-88cc63493774?q=80&w=500&auto=format&fit=crop', tag: 'Sale' },
-    { id: 3, name: 'Google Pixel 8 Pro', price: '18.500.000đ', image: 'https://images.unsplash.com/photo-1697520023027-3199859f518e?q=80&w=500&auto=format&fit=crop', tag: 'Mới' },
-    { id: 4, name: 'Xiaomi 14 Ultra', price: '21.990.000đ', image: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=500&auto=format&fit=crop', tag: 'Hot' },
-];
+import { Link } from 'react-router-dom';
+import { productApi } from '../../api/productApi';
+import type { ProductResponse } from '../../types/product';
 
 export default function Home() {
+    const [products, setProducts] = useState<ProductResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                // Lấy tất cả sản phẩm nổi bật
+                const data = await productApi.getProducts({ size: 100 });
+                setProducts(data.content);
+            } catch (error) {
+                console.error("Failed to fetch products", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
     return (
         <div className="bg-gray-50 min-h-screen font-sans">
 
@@ -42,16 +58,16 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* 2. Featured Categories */}
+            {/* 2. Featured Categories (Brands) */}
             <section className="max-w-7xl mx-auto px-6 py-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['iPhone', 'Samsung', 'Oppo', 'Phụ kiện'].map((item) => (
-                        <div key={item} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:shadow-md transition-all cursor-pointer group">
+                    {['Apple', 'Samsung', 'Oppo', 'Xiaomi'].map((brand) => (
+                        <Link to={`/products?brand=${brand}`} key={brand} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center hover:shadow-md transition-all cursor-pointer group">
                             <div className="w-16 h-16 bg-gray-50 rounded-full mb-3 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
-                                <img src={`https://ui-avatars.com/api/?name=${item}&background=random`} alt={item} className="w-10 h-10 rounded-full opacity-70" />
+                                <img src={`https://ui-avatars.com/api/?name=${brand}&background=random`} alt={brand} className="w-10 h-10 rounded-full opacity-70" />
                             </div>
-                            <span className="font-bold text-gray-800">{item}</span>
-                        </div>
+                            <span className="font-bold text-gray-800">{brand}</span>
+                        </Link>
                     ))}
                 </div>
             </section>
@@ -63,42 +79,59 @@ export default function Home() {
                         <h2 className="text-3xl font-black text-gray-900">Sản phẩm nổi bật</h2>
                         <div className="h-1.5 w-20 bg-indigo-600 mt-2 rounded-full"></div>
                     </div>
-                    <a href="#" className="text-indigo-600 font-bold flex items-center gap-1 hover:underline">
+                    <Link to="/products" className="text-indigo-600 font-bold flex items-center gap-1 hover:underline">
                         Xem tất cả <ArrowRight size={18} />
-                    </a>
+                    </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {PRODUCTS.map((product) => (
-                        <motion.div
-                            key={product.id}
-                            whileHover={{ y: -10 }}
-                            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group"
-                        >
-                            <div className="relative h-64 overflow-hidden bg-gray-100">
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                <span className="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-                                    {product.tag}
-                                </span>
-                            </div>
-                            <div className="p-5">
-                                <div className="flex text-yellow-400 mb-2">
-                                    <Star size={14} fill="currentColor" />
-                                    <Star size={14} fill="currentColor" />
-                                    <Star size={14} fill="currentColor" />
-                                    <Star size={14} fill="currentColor" />
-                                    <Star size={14} fill="currentColor" />
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {products.map((product) => (
+                            <motion.div
+                                key={product.id}
+                                whileHover={{ y: -10 }}
+                                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group flex flex-col"
+                            >
+                                <Link to={`/product/${product.id}`} className="flex-1">
+                                    <div className="relative h-64 overflow-hidden bg-gray-100">
+                                        <img 
+                                            src={product.imageUrl || 'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=500&auto=format&fit=crop'} 
+                                            alt={product.name} 
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                        />
+                                        {/* Hiển thị tag New nếu là sản phẩm mới, ở đây mockup dùng text "Hot" */}
+                                        <span className="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+                                            Hot
+                                        </span>
+                                    </div>
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <div className="flex text-yellow-400 mb-2">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} size={14} fill={i < (product.rating || 5) ? "currentColor" : "none"} className={i >= (product.rating || 5) ? "text-gray-300" : ""} />
+                                            ))}
+                                            <span className="text-gray-400 text-xs ml-1">({product.reviewCount || 0})</span>
+                                        </div>
+                                        <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-2">{product.name}</h3>
+                                        <p className="text-indigo-600 font-black text-lg mt-auto">
+                                            {product.minPrice && product.minPrice > 0 
+                                                ? `${product.minPrice.toLocaleString('vi-VN')}đ` 
+                                                : 'Đang cập nhật'}
+                                        </p>
+                                    </div>
+                                </Link>
+                                <div className="p-5 pt-0 mt-auto">
+                                    <button className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all">
+                                        <ShoppingCart size={18} /> Thêm vào giỏ
+                                    </button>
                                 </div>
-                                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">{product.name}</h3>
-                                <p className="text-indigo-600 font-black text-lg">{product.price}</p>
-
-                                <button className="w-full mt-4 bg-gray-900 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all">
-                                    <ShoppingCart size={18} /> Thêm vào giỏ
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </section>
 
         </div>

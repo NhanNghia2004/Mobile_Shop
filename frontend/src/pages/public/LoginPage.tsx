@@ -2,7 +2,6 @@ import { Mail, Lock, Apple, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Thêm import
 import { GoogleLogin } from '@react-oauth/google';
 
 import api from "../../api/axios";
@@ -46,28 +45,9 @@ export default function Login() {
             setIsLoading(false);
         }
     };
-    // const handleGoogleLogin = useGoogleLogin({
-    //     flow: 'implicit',  // flow này trả về id_token
-    //     onSuccess: async (tokenResponse) => {
-    //         try {
-    //             const res = await api.post('/auth/google', {
-    //                 idToken: tokenResponse.id_token
-    //             });
-    //             const { token, user } = res.data;
-    //             localStorage.setItem('token', token);
-    //             localStorage.setItem('user', JSON.stringify(user));
-    //             window.dispatchEvent(new Event("storage"));
-    //             alert("Đăng nhập Google thành công!");
-    //             if (user.role === 'ADMIN') navigate('/admin/dashboard');
-    //             else navigate('/');
-    //         } catch (error: any) {
-    //             alert(error.response?.data?.message || "Đăng nhập Google thất bại!");
-    //         }
-    //     },
-    //     onError: () => alert("Đăng nhập Google thất bại!"),
-    // });
+
     return (
-        // Nền xám - Giữ nguyên p-6
+
         <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6 font-sans selection:bg-indigo-100">
 
             {/* Container chính - Giữ nguyên min-h-[550px] */}
@@ -108,7 +88,7 @@ export default function Login() {
                     <form className="space-y-4" onSubmit={handleLogin}>
                         {/* Email */}
                         <div className="space-y-1">
-                            {/* Tăng từ text-[10px] lên text-xs */}
+
                             <label className="text-xs font-bold text-gray-700 uppercase tracking-wider ml-1" htmlFor="email">
                                 Địa chỉ Email
                             </label>
@@ -145,7 +125,7 @@ export default function Login() {
                             </div>
                         </div>
 
-                        {/* Row tùy chọn */}
+
                         <div className="flex items-center justify-between py-1">
                             <label
                                 className="flex items-center gap-2 cursor-pointer group"
@@ -156,10 +136,10 @@ export default function Login() {
                                 >
                                     {rememberMe && <Check size={12} className="text-white" strokeWidth={4} />}
                                 </div>
-                                {/* Tăng từ text-xs lên text-sm */}
+
                                 <span className="text-sm font-medium text-gray-600 select-none group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
                             </label>
-                            {/* Tăng từ text-xs lên text-sm */}
+
                             <Link to="/forgot-password" className="text-sm font-bold text-indigo-600 hover:underline">
                                 Quên mật khẩu?
                             </Link>
@@ -176,7 +156,6 @@ export default function Login() {
                         </motion.button>
                     </form>
 
-                    {/* Dấu phân cách */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
                         <div className="relative flex justify-center text-xs uppercase tracking-widest font-bold">
@@ -184,8 +163,6 @@ export default function Login() {
                         </div>
                     </div>
 
-                    {/* Social Logins */}
-                    {/* Social Logins */}
                     <div className="grid grid-cols-2 gap-3">
                         <GoogleLogin
                             onSuccess={async (credentialResponse) => {

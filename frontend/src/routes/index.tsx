@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../pages/public/MainLayout";
 import Home from "../pages/public/Home";
+import Products from "../pages/public/Products";
 import LoginPage from "../pages/public/LoginPage";
 import Register from "../pages/public/Register";
 import ProductDetail from "../pages/public/ProductDetail";
@@ -16,7 +17,8 @@ const AppRoutes = () => {
         <Routes>
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/product" element={<ProductDetail />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
 
 
                 {/* Private Routes - Phải đăng nhập (USER hoặc ADMIN đều được) */}
