@@ -12,6 +12,15 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    
+    // State quản lý thông báo nội bộ
+    const [alertMsg, setAlertMsg] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+
+    const showAlert = (text: string, type: 'success' | 'error') => {
+        setAlertMsg({ text, type });
+        setTimeout(() => setAlertMsg(null), 5000);
+    };
+
     const navigate = useNavigate();
 
 
@@ -27,20 +36,22 @@ export default function Login() {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
 
-            alert("Đăng nhập thành công!");
+            showAlert("Đăng nhập thành công!", "success");
 
-            // Dùng navigate thay cho window.location.href
-            if (user.role === 'ADMIN') {
-                navigate('/admin/dashboard');
-            } else {
-                navigate('/');
-            }
-
-            // Kích hoạt Header cập nhật lại (Xem giải thích ở dưới)
+            // Kích hoạt Header cập nhật lại
             window.dispatchEvent(new Event("storage"));
 
+            // Đợi một chút để người dùng thấy thông báo thành công rồi chuyển hướng
+            setTimeout(() => {
+                if (user.role === 'ADMIN') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/');
+                }
+            }, 1000);
+
         } catch (error: any) {
-            alert(error.response?.data?.message || "Lỗi đăng nhập");
+            showAlert(error.response?.data?.message || "Lỗi đăng nhập", "error");
         } finally {
             setIsLoading(false);
         }
@@ -76,7 +87,16 @@ export default function Login() {
                 </div>
 
                 {/* Cột phải: Form - Giữ nguyên p-8 và space-y-4 */}
-                <div className="w-full md:w-3/5 p-8 md:p-10 flex flex-col justify-center">
+                <div className="w-full md:w-3/5 p-8 md:p-10 flex flex-col justify-center relative">
+
+                    {/* Thông báo cập nhật */}
+                    {alertMsg && (
+                        <div className={`mb-4 p-4 rounded-lg flex items-center gap-3 text-sm font-medium ${
+                            alertMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+                        }`}>
+                            <span>{alertMsg.text}</span>
+                        </div>
+                    )}
 
                     <div className="mb-8 text-center">
                         {/* Tăng từ text-2xl lên text-3xl */}
@@ -174,14 +194,18 @@ export default function Login() {
                                     localStorage.setItem('token', token);
                                     localStorage.setItem('user', JSON.stringify(user));
                                     window.dispatchEvent(new Event("storage"));
-                                    alert("Đăng nhập Google thành công!");
-                                    if (user.role === 'ADMIN') navigate('/admin/dashboard');
-                                    else navigate('/');
+                                    
+                                    showAlert("Đăng nhập Google thành công!", "success");
+                                    
+                                    setTimeout(() => {
+                                        if (user.role === 'ADMIN') navigate('/admin/dashboard');
+                                        else navigate('/');
+                                    }, 1000);
                                 } catch (error: any) {
-                                    alert(error.response?.data?.message || "Đăng nhập Google thất bại!");
+                                    showAlert(error.response?.data?.message || "Đăng nhập Google thất bại!", "error");
                                 }
                             }}
-                            onError={() => alert("Đăng nhập Google thất bại!")}
+                            onError={() => showAlert("Đăng nhập Google thất bại!", "error")}
                             width="100%"
                             text="signin_with"
                             shape="rectangular"

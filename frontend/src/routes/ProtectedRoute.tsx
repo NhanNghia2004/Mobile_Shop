@@ -9,16 +9,20 @@ const ProtectedRoute = ({ allowedRoles }: Props) => {
     const userRaw = localStorage.getItem("user");
 
     // 1. Kiểm tra đăng nhập
-    if (!token || !userRaw) {
+    if (!token || !userRaw || userRaw === "undefined") {
         return <Navigate to="/login" replace />;
     }
 
-    const user = JSON.parse(userRaw);
+    try {
+        const user = JSON.parse(userRaw);
 
-    // 2. Kiểm tra quyền truy cập (Nếu Route đó yêu cầu role cụ thể)
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // Nếu không đủ quyền, đá về trang chủ hoặc trang 403
-        return <Navigate to="/" replace />;
+        // 2. Kiểm tra quyền truy cập (Nếu Route đó yêu cầu role cụ thể)
+        if (allowedRoles && !allowedRoles.includes(user.role)) {
+            // Nếu không đủ quyền, đá về trang chủ hoặc trang 403
+            return <Navigate to="/" replace />;
+        }
+    } catch (e) {
+        return <Navigate to="/login" replace />;
     }
 
     return <Outlet />;

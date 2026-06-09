@@ -2,6 +2,7 @@ import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings } from 'lu
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '../api/axios';
 
 // 1. Định nghĩa kiểu dữ liệu cho User để hết lỗi đỏ
 interface UserType {
@@ -14,6 +15,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     // 2. Khởi tạo state với kiểu UserType hoặc null
     const [user, setUser] = useState<UserType | null>(null);
+    const [cartCount, setCartCount] = useState(0);
     const navigate = useNavigate();
 
     // Hàm lấy dữ liệu user từ local
@@ -29,14 +31,32 @@ export default function Header() {
             setUser(null);
         }
     };
+
+    const fetchCartCount = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setCartCount(0);
+            return;
+        }
+        try {
+            const { data } = await axiosInstance.get('/cart');
+            setCartCount(data.totalQuantity || 0);
+        } catch (error) {
+            setCartCount(0);
+        }
+    };
+
     useEffect(() => {
         fetchUser(); // Lấy user khi mount component
+        fetchCartCount(); // Lấy số lượng giỏ hàng khi mount component
 
         // Lắng nghe sự kiện thay đổi storage để cập nhật UI ngay lập tức
         window.addEventListener('storage', fetchUser);
+        window.addEventListener('cartUpdated', fetchCartCount);
 
         return () => {
             window.removeEventListener('storage', fetchUser);
+            window.removeEventListener('cartUpdated', fetchCartCount);
         };
     }, []);
 
@@ -44,6 +64,7 @@ export default function Header() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
+        setCartCount(0);
         alert("Bạn đã đăng xuất!");
         navigate('/login'); // Dùng navigate mượt mà
     };
@@ -92,10 +113,12 @@ export default function Header() {
 
                     {/* Icons Actions */}
                     <div className="flex items-center gap-2 sm:gap-4">
-                        <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all relative">
+                        <Link to="/cart" className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all relative">
                             <ShoppingCart size={22} />
-                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
-                        </button>
+                            {cartCount > 0 && (
+                                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{cartCount}</span>
+                            )}
+                        </Link>
 
                         {/* Logic hiển thị User / Login */}
                         {user ? (

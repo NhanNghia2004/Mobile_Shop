@@ -7,7 +7,12 @@ import LoginPage from "../pages/public/LoginPage";
 import Register from "../pages/public/Register";
 import ProductDetail from "../pages/public/ProductDetail";
 import Profile from "../pages/public/Profile";
-import AdminDashboard from "../pages/admin/AdminDashboard.tsx";
+import CartPage from "../pages/public/Cartpage";
+import CheckoutPage from "../pages/public/CheckoutPage";
+import PaymentResultPage from "../pages/public/PaymentResultPage";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminUsers from "../pages/admin/AdminUsers";
+import AdminLayout from "../pages/admin/AdminLayout";
 import ForgotPassword from '../pages/public/ForgotPassword';
 import ResetPassword from '../pages/public/ResetPassword';
 import PublicRoute from "./PublicRoute";
@@ -24,14 +29,18 @@ const AppRoutes = () => {
                 {/* Private Routes - Phải đăng nhập (USER hoặc ADMIN đều được) */}
                 <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/payment/result" element={<PaymentResultPage />} />
                 </Route>
+            </Route>
 
-                {/* Admin Routes - CHỈ ADMIN mới vào được */}
-                <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-                    {/* Giả sử bạn có trang Dashboard trong thư mục pages/admin */}
+            {/* Admin Routes - CHỈ ADMIN mới vào được, sử dụng AdminLayout */}
+            <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                <Route element={<AdminLayout />}>
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<AdminUsers />} />
                 </Route>
-
             </Route>
 
             {/* Các trang CHỈ dành cho người CHƯA đăng nhập */}
