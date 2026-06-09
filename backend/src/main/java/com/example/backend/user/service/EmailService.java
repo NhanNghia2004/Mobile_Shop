@@ -37,4 +37,21 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendOtpEmail(String toEmail, String otpCode) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Mã xác thực đăng ký tài khoản - Mobile Shop");
+        message.setText(
+                "Xin chào,\n\n" +
+                        "Mã OTP xác thực tài khoản của bạn là:\n\n" +
+                        "    " + otpCode + "\n\n" +
+                        "Mã này có hiệu lực trong 3 phút.\n" +
+                        "Nếu bạn không yêu cầu đăng ký, hãy bỏ qua email này.\n\n" +
+                        "Trân trọng,\nMobile Shop"
+        );
+
+        mailSender.send(message);
+    }
 }

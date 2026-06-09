@@ -130,6 +130,14 @@ public class CartService {
         cartItemRepository.deleteByUserId(user.getId());
     }
 
+    @Transactional
+    public void deleteCartItems(String username, List<Long> variantIds) {
+        User user = findUser(username);
+        for (Long variantId : variantIds) {
+            cartItemRepository.deleteByUserIdAndVariantId(user.getId(), variantId);
+        }
+    }
+
     private User findUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại!"));

@@ -23,11 +23,25 @@ public class AuthController {
     private final GoogleAuthService googleAuthService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    //  ĐĂNG KÝ
+    //  ĐĂNG KÝ - Bước 1: Validate + Gửi OTP
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
-        UserResponse response = userService.register(request);
+    public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request) {
+        Map<String, String> response = userService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
+    //  ĐĂNG KÝ - Bước 2: Xác thực OTP -> Lưu DB
+    @PostMapping("/verify-otp")
+    public ResponseEntity<UserResponse> verifyOtp(@RequestBody VerifyOtpRequest request) {
+        UserResponse response = userService.verifyOtpAndRegister(request.getEmail(), request.getOtpCode());
         return ResponseEntity.status(201).body(response);
+    }
+
+    //  GỬI LẠI OTP
+    @PostMapping("/resend-otp")
+    public ResponseEntity<Map<String, String>> resendOtp(@RequestBody ResendOtpRequest request) {
+        Map<String, String> response = userService.resendOtp(request.getEmail());
+        return ResponseEntity.ok(response);
     }
 
     //  ĐĂNG NHẬP

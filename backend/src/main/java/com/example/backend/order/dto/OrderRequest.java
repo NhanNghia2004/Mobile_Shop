@@ -1,6 +1,7 @@
 package com.example.backend.order.dto;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class OrderRequest {
@@ -8,4 +9,5 @@ public class OrderRequest {
     private String phone;
     private String shippingAddress;
     private String paymentMethod;
+    private List<Long> variantIds;
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.backend.admin.inventory.service.InventoryService;
 
@@ -43,21 +44,35 @@ public class OrderService {
             throw new RuntimeException("Giỏ hàng đang trống!");
         }
 
+        List<com.example.backend.cart.dto.CartItemResponse> itemsToProcess = cart.getItems();
+        if (request.getVariantIds() != null && !request.getVariantIds().isEmpty()) {
+            itemsToProcess = cart.getItems().stream()
+                    .filter(item -> request.getVariantIds().contains(item.getVariantId()))
+                    .collect(Collectors.toList());
+            if (itemsToProcess.isEmpty()) {
+                throw new RuntimeException("Không tìm thấy sản phẩm được chọn trong giỏ hàng!");
+            }
+        }
+
         Order order = new Order();
         order.setUser(user);
         order.setRecipientName(request.getRecipientName());
         order.setPhone(request.getPhone());
         order.setShippingAddress(request.getShippingAddress());
         order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "COD");
-        order.setTotalAmount(cart.getTotalAmount());
+
+        double totalAmount = itemsToProcess.stream()
+                .mapToDouble(item -> item.getSubTotal() != null ? item.getSubTotal() : 0.0)
+                .sum();
+        order.setTotalAmount(totalAmount);
 
         record PendingStockChange(ProductVariant variant, int change, int before, int after) {
         }
         List<PendingStockChange> pendingChanges = new ArrayList<>();
 
-        cart.getItems().sort((a, b) -> a.getVariantId().compareTo(b.getVariantId()));
+        itemsToProcess.sort((a, b) -> a.getVariantId().compareTo(b.getVariantId()));
 
-        for (var cartItem : cart.getItems()) {
+        for (var cartItem : itemsToProcess) {
             ProductVariant variant = variantRepository.findByIdForUpdate(cartItem.getVariantId())
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
 
@@ -92,7 +107,11 @@ public class OrderService {
             inventoryService.recordOrderDeduct(pc.variant(), pc.change(), pc.before(), pc.after(), username, orderNote);
         }
 
-        cartService.clearCart(username);
+        List<Long> processedVariantIds = itemsToProcess.stream()
+                .map(item -> item.getVariantId())
+                .collect(Collectors.toList());
+        cartService.deleteCartItems(username, processedVariantIds);
+
         return OrderResponse.from(savedOrder);
     }
 

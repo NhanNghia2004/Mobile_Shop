@@ -13,6 +13,8 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -20,9 +22,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final OtpService otpService;
+    private final EmailService emailService;
 
-    // ĐĂNG KÝ
-    public UserResponse register(RegisterRequest request) {
+    // ĐĂNG KÝ - Bước 1: Validate + Gửi OTP (KHÔNG lưu DB)
+    public Map<String, String> register(RegisterRequest request) {
 
         if (request.getUsername() == null || request.getUsername().trim().length() < 3) {
             throw new RuntimeException("Username phải có ít nhất 3 ký tự!");
@@ -41,14 +45,42 @@ public class UserService {
             throw new RuntimeException("Email đã được sử dụng!");
         }
 
+        // Tạo OTP và lưu tạm (KHÔNG lưu user vào DB)
+        String otpCode = otpService.createOtp(request);
+
+        // Gửi email OTP
+        emailService.sendOtpEmail(request.getEmail(), otpCode);
+
+        return Map.of("message", "Mã OTP đã được gửi đến email " + request.getEmail());
+    }
+
+    // ĐĂNG KÝ - Bước 2: Xác thực OTP -> Lưu user vào DB
+    public UserResponse verifyOtpAndRegister(String email, String otpCode) {
+        OtpService.PendingRegistration pending = otpService.verifyOtp(email, otpCode);
+
+        // Kiểm tra lại lần cuối trước khi lưu
+        if (userRepository.findByUsername(pending.getUsername()).isPresent()) {
+            throw new RuntimeException("Username đã tồn tại!");
+        }
+        if (userRepository.findByEmail(pending.getEmail()).isPresent()) {
+            throw new RuntimeException("Email đã được sử dụng!");
+        }
+
         User user = new User();
-        user.setUsername(request.getUsername().trim());
-        user.setEmail(request.getEmail().trim());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUsername(pending.getUsername().trim());
+        user.setEmail(pending.getEmail().trim());
+        user.setPassword(passwordEncoder.encode(pending.getPassword()));
         user.setRole(Role.USER);
 
         User saved = userRepository.save(user);
         return toResponse(saved);
+    }
+
+    // GỬI LẠI OTP
+    public Map<String, String> resendOtp(String email) {
+        String newOtp = otpService.resendOtp(email);
+        emailService.sendOtpEmail(email, newOtp);
+        return Map.of("message", "Mã OTP mới đã được gửi đến email " + email);
     }
 
     // ĐĂNG NHẬP bằng Email

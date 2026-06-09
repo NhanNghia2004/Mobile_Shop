@@ -70,7 +70,9 @@ public class VNPayService {
 
         // Xây dựng params gửi VNPay
         String vnpAmount = String.valueOf(Math.round(order.getTotalAmount()) * 100L);
-        String createDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        formatter.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        String createDate = formatter.format(new Date());
         String expireDate = buildExpireDate(15); // hết hạn sau 15 phút
 
         Map<String, String> params = new TreeMap<>();
@@ -112,7 +114,7 @@ public class VNPayService {
         String queryString = buildQueryString(new TreeMap<>(vnpParams));
         String computedHash = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
 
-        if (!computedHash.equalsIgnoreCase(secureHash)) {
+        if (secureHash == null || secureHash.isBlank() || !computedHash.equalsIgnoreCase(secureHash)) {
             log.warn("[VNPay] Return URL - Chữ ký không hợp lệ!");
             result.put("status", "INVALID_SIGNATURE");
             result.put("message", "Chữ ký không hợp lệ!");
@@ -251,9 +253,9 @@ public class VNPayService {
             if (entry.getValue() != null && !entry.getValue().isBlank()) {
                 if (sb.length() > 0)
                     sb.append('&');
-                sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII));
+                sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8).replace("+", "%20"));
                 sb.append('=');
-                sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII));
+                sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8).replace("+", "%20"));
             }
         }
         return sb.toString();
@@ -277,6 +279,8 @@ public class VNPayService {
     private String buildExpireDate(int minutes) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         cal.add(Calendar.MINUTE, minutes);
-        return new SimpleDateFormat("yyyyMMddHHmmss").format(cal.getTime());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        return sdf.format(cal.getTime());
     }
 }

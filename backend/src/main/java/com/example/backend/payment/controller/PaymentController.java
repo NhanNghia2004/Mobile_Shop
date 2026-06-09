@@ -60,7 +60,12 @@ public class PaymentController {
             @RequestParam Map<String, String> allParams,
             HttpServletRequest request
     ) {
-        Map<String, String> params = new HashMap<>(allParams);
+        Map<String, String> params = new HashMap<>();
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            if (entry.getKey().startsWith("vnp_")) {
+                params.put(entry.getKey(), entry.getValue());
+            }
+        }
         Map<String, String> result = vnPayService.processReturnUrl(params);
 
         String status  = result.getOrDefault("status", "FAILED");
