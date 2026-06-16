@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
 interface CartItem {
     id: number; variantId: number; productId: number;
     productName: string; color: string; storage: number;
@@ -30,7 +29,6 @@ interface FormData {
 
 const fmtPrice = (n: number) => n.toLocaleString('vi-VN') + 'đ';
 
-// ── Step Bar ───────────────────────────────────────────────────────────────────
 function StepBar({ step }: { step: 1 | 2 | 3 }) {
     const steps = [
         { label: 'Giỏ hàng' },
@@ -69,7 +67,6 @@ function StepBar({ step }: { step: 1 | 2 | 3 }) {
     );
 }
 
-// ── Field wrapper ──────────────────────────────────────────────────────────────
 function Field({
                    label, icon: Icon, children, hint,
                }: {
@@ -89,7 +86,6 @@ function Field({
     );
 }
 
-// ── Payment method card ────────────────────────────────────────────────────────
 function PaymentCard({
                          method, selected, onSelect,
                      }: {
@@ -151,7 +147,6 @@ function PaymentCard({
     );
 }
 
-// ── Main CheckoutPage ──────────────────────────────────────────────────────────
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);

@@ -2,13 +2,13 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ChevronRight, Star, ShoppingCart, ArrowRight, Search,
-    TrendingUp, Sparkles, Tag, X, Loader2, Heart
+    TrendingUp, Sparkles, Tag, X, Loader2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axios';
 import type { ProductResponse } from '../../types/product';
+import WishlistButton from '../../components/WishlistButton'; // Thêm dòng import này
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 const fmtPrice = (n: number) => n.toLocaleString('vi-VN') + 'đ';
 
 const StarRow = ({ rating, count }: { rating: number; count: number }) => (
@@ -25,9 +25,7 @@ const StarRow = ({ rating, count }: { rating: number; count: number }) => (
     </div>
 );
 
-// ── ProductCard ──────────────────────────────────────────────────────────────
 function ProductCard({ product, badge }: { product: ProductResponse; badge?: string }) {
-    const [wished, setWished] = useState(false);
     const navigate = useNavigate();
 
     const handleAddToCart = async (e: React.MouseEvent) => {
@@ -42,20 +40,6 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
         } catch (err: any) {
             alert(err.response?.data?.message || 'Không thể thêm vào giỏ');
         }
-    };
-
-    const handleWishlist = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        if (!token) { navigate('/login'); return; }
-        try {
-            if (wished) {
-                await axiosInstance.delete(`/favorites/${product.id}`);
-            } else {
-                await axiosInstance.post(`/favorites/${product.id}`);
-            }
-            setWished(!wished);
-        } catch { }
     };
 
     const img = product.imageUrl ||
@@ -90,13 +74,11 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
                             -{maxDiscount}%
                         </span>
                     )}
-                    <button
-                        onClick={handleWishlist}
-                        className="absolute bottom-3 right-3 p-2 bg-white/90 rounded-full shadow transition-all hover:scale-110"
-                        title="Yêu thích"
-                    >
-                        <Heart size={16} fill={wished ? '#EF4444' : 'none'} className={wished ? 'text-red-500' : 'text-gray-400'} />
-                    </button>
+
+                    {/* Nút Wishlist mới thay thế cho button cũ ở đây */}
+                    <div className="absolute bottom-3 right-3">
+                        <WishlistButton productId={product.id} variant="icon" />
+                    </div>
                 </div>
                 <div className="p-4 flex flex-col flex-1">
                     <span className="text-xs text-indigo-500 font-semibold uppercase tracking-wide mb-1">{product.brand}</span>
@@ -137,7 +119,6 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
     );
 }
 
-// ── SearchBar ──────────────────────────────────────────────────────────────
 function SearchBar() {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -232,7 +213,6 @@ function SearchBar() {
     );
 }
 
-// ── BrandBar ─────────────────────────────────────────────────────────────
 function BrandBar() {
     const [brands, setBrands] = useState<string[]>([]);
 
@@ -260,7 +240,6 @@ function BrandBar() {
     );
 }
 
-// ── PriceRangeBanner ──────────────────────────────────────────────────────
 function PriceRangeBanner() {
     const [priceRange, setPriceRange] = useState<{ minPrice: number; maxPrice: number } | null>(null);
 
@@ -300,7 +279,6 @@ function PriceRangeBanner() {
     );
 }
 
-// ── DealsSection ─────────────────────────────────────────────────────────
 function DealsSection() {
     const [deals, setDeals] = useState<ProductResponse[]>([]);
     const [loading, setLoading] = useState(true);
@@ -340,7 +318,6 @@ function DealsSection() {
     );
 }
 
-// ── Main Home ─────────────────────────────────────────────────────────────
 export default function Home() {
     const [bestsellers, setBestsellers] = useState<ProductResponse[]>([]);
     const [newArrivals, setNewArrivals] = useState<ProductResponse[]>([]);
