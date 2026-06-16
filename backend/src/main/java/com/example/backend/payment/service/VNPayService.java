@@ -36,20 +36,16 @@ public class VNPayService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng id: " + orderId));
 
-        // Kiểm tra đơn hàng hợp lệ để thanh toán
         if (order.getStatus() == OrderStatus.CANCELLED) {
             return new VNPayResponse("01", "Đơn hàng đã bị hủy, không thể thanh toán!", null);
         }
         if (order.getStatus() == OrderStatus.DELIVERED) {
             return new VNPayResponse("02", "Đơn hàng đã hoàn thành!", null);
         }
-
-        // Kiểm tra đã thanh toán thành công chưa
         if (paymentRepository.existsByOrderIdAndStatus(orderId, PaymentStatus.SUCCESS)) {
             return new VNPayResponse("03", "Đơn hàng đã được thanh toán thành công!", null);
         }
 
-        // Tạo hoặc cập nhật bản ghi Payment (PENDING)
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseGet(Payment::new);
 
@@ -68,12 +64,11 @@ public class VNPayService {
                         : "Thanh toan don hang " + orderId);
         paymentRepository.save(payment);
 
-        // Xây dựng params gửi VNPay
         String vnpAmount = String.valueOf(Math.round(order.getTotalAmount()) * 100L);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         formatter.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         String createDate = formatter.format(new Date());
-        String expireDate = buildExpireDate(15); // hết hạn sau 15 phút
+        String expireDate = buildExpireDate(15);
 
         Map<String, String> params = new TreeMap<>();
         params.put("vnp_Version", vnPayConfig.getVersion());
@@ -86,11 +81,14 @@ public class VNPayService {
         params.put("vnp_OrderType", "other");
         params.put("vnp_Locale", vnPayConfig.getLocale());
         params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
-        params.put("vnp_IpAddr", clientIp != null ? clientIp : "127.0.0.1");
+        String ipAddr = clientIp != null ? clientIp : "127.0.0.1";
+        if ("0:0:0:0:0:0:0:1".equals(ipAddr) || "::1".equals(ipAddr)) {
+            ipAddr = "127.0.0.1";
+        }
+        params.put("vnp_IpAddr", ipAddr);
         params.put("vnp_CreateDate", createDate);
         params.put("vnp_ExpireDate", expireDate);
 
-        // Thêm IPN URL nếu có cấu hình
         if (vnPayConfig.getIpnUrl() != null && !vnPayConfig.getIpnUrl().isBlank()) {
             params.put("vnp_NotifyUrl", vnPayConfig.getIpnUrl());
         }
@@ -100,6 +98,8 @@ public class VNPayService {
         String paymentUrl = vnPayConfig.getPayUrl() + "?" + queryString + "&vnp_SecureHash=" + secureHash;
 
         log.info("[VNPay] Tạo URL thanh toán | orderId={} txnRef={}", orderId, txnRef);
+        log.info("[VNPay] ReturnUrl được dùng: {}", vnPayConfig.getReturnUrl());
+        log.info("[VNPay] PaymentUrl: {}", paymentUrl);
         return new VNPayResponse("00", "Tạo URL thanh toán thành công!", paymentUrl);
     }
 
@@ -107,24 +107,24 @@ public class VNPayService {
     public Map<String, String> processReturnUrl(Map<String, String> vnpParams) {
         Map<String, String> result = new HashMap<>();
 
-        String secureHash = vnpParams.remove("vnp_SecureHash");
-        vnpParams.remove("vnp_SecureHashType");
+        TreeMap<String, String> params = new TreeMap<>(vnpParams);
+        String secureHash = params.remove("vnp_SecureHash");
+        params.remove("vnp_SecureHashType");
 
-        // Xác minh chữ ký
-        String queryString = buildQueryString(new TreeMap<>(vnpParams));
+        String queryString = buildQueryString(params);
         String computedHash = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
 
         if (secureHash == null || secureHash.isBlank() || !computedHash.equalsIgnoreCase(secureHash)) {
-            log.warn("[VNPay] Return URL - Chữ ký không hợp lệ!");
+            log.warn("[VNPay] Return URL - Chữ ký không hợp lệ! computed={} received={}", computedHash, secureHash);
             result.put("status", "INVALID_SIGNATURE");
             result.put("message", "Chữ ký không hợp lệ!");
             return result;
         }
 
-        String responseCode = vnpParams.get("vnp_ResponseCode");
-        String txnRef = vnpParams.get("vnp_TxnRef");
+        String responseCode = params.get("vnp_ResponseCode");
+        String txnRef = params.get("vnp_TxnRef");
 
-        updatePaymentFromVNPay(txnRef, responseCode, vnpParams);
+        updatePaymentFromVNPay(txnRef, responseCode, params);
 
         if ("00".equals(responseCode)) {
             result.put("status", "SUCCESS");
@@ -142,20 +142,21 @@ public class VNPayService {
 
     @Transactional
     public VNPayIpnResponse processIpn(Map<String, String> vnpParams) {
-        String receivedHash = vnpParams.remove("vnp_SecureHash");
-        vnpParams.remove("vnp_SecureHashType");
+        TreeMap<String, String> params = new TreeMap<>(vnpParams);
+        String receivedHash = params.remove("vnp_SecureHash");
+        params.remove("vnp_SecureHashType");
 
-        String queryString = buildQueryString(new TreeMap<>(vnpParams));
+        String queryString = buildQueryString(params);
         String computedHash = hmacSHA512(vnPayConfig.getHashSecret(), queryString);
 
-        if (!computedHash.equalsIgnoreCase(receivedHash)) {
+        if (receivedHash == null || !computedHash.equalsIgnoreCase(receivedHash)) {
             log.warn("[VNPay] IPN - Chữ ký không hợp lệ!");
             return new VNPayIpnResponse("97", "Invalid Signature");
         }
 
-        String txnRef = vnpParams.get("vnp_TxnRef");
-        String vnpAmount = vnpParams.get("vnp_Amount");
-        String responseCode = vnpParams.get("vnp_ResponseCode");
+        String txnRef = params.get("vnp_TxnRef");
+        String vnpAmount = params.get("vnp_Amount");
+        String responseCode = params.get("vnp_ResponseCode");
 
         Optional<Payment> paymentOpt = paymentRepository.findByTxnRef(txnRef);
         if (paymentOpt.isEmpty()) {
@@ -165,7 +166,6 @@ public class VNPayService {
 
         Payment payment = paymentOpt.get();
 
-        // Kiểm tra số tiền khớp
         long expectedAmount = payment.getAmount() * 100L;
         try {
             long receivedAmount = Long.parseLong(vnpAmount);
@@ -177,12 +177,11 @@ public class VNPayService {
             return new VNPayIpnResponse("04", "Invalid Amount");
         }
 
-        // Đã xử lý rồi thì bỏ qua
         if (payment.getStatus() == PaymentStatus.SUCCESS) {
             return new VNPayIpnResponse("02", "Order Already Confirmed");
         }
 
-        updatePaymentFromVNPay(txnRef, responseCode, vnpParams);
+        updatePaymentFromVNPay(txnRef, responseCode, params);
         log.info("[VNPay] IPN xử lý thành công | txnRef={} responseCode={}", txnRef, responseCode);
         return new VNPayIpnResponse("00", "Confirm Success");
     }
@@ -210,7 +209,7 @@ public class VNPayService {
     }
 
     private void updatePaymentFromVNPay(String txnRef, String responseCode,
-            Map<String, String> params) {
+                                        Map<String, String> params) {
         paymentRepository.findByTxnRef(txnRef).ifPresent(payment -> {
             payment.setVnpResponseCode(responseCode);
             payment.setVnpTransactionNo(params.get("vnp_TransactionNo"));
@@ -220,8 +219,6 @@ public class VNPayService {
 
             if ("00".equals(responseCode)) {
                 payment.setStatus(PaymentStatus.SUCCESS);
-
-                // Cập nhật trạng thái đơn hàng → PROCESSING
                 Order order = payment.getOrder();
                 if (order.getStatus() == OrderStatus.PENDING) {
                     order.setStatus(OrderStatus.PROCESSING);
@@ -241,22 +238,24 @@ public class VNPayService {
     }
 
     private String extractOrderId(String txnRef) {
-        if (txnRef == null)
-            return "";
+        if (txnRef == null) return "";
         int idx = txnRef.indexOf('_');
         return idx > 0 ? txnRef.substring(0, idx) : txnRef;
     }
 
     private String buildQueryString(Map<String, String> params) {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (entry.getValue() != null && !entry.getValue().isBlank()) {
-                if (sb.length() > 0)
-                    sb.append('&');
-                sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8).replace("+", "%20"));
-                sb.append('=');
-                sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8).replace("+", "%20"));
+        try {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (entry.getValue() != null && !entry.getValue().isBlank()) {
+                    if (sb.length() > 0) sb.append('&');
+                    sb.append(entry.getKey());
+                    sb.append('=');
+                    sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
+                }
             }
+        } catch (Exception e) {
+            log.error("Lỗi encode query string", e);
         }
         return sb.toString();
     }
@@ -266,9 +265,9 @@ public class VNPayService {
             Mac mac = Mac.getInstance("HmacSHA512");
             mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512"));
             byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex = new StringBuilder();
+            StringBuilder hex = new StringBuilder(2 * hash.length);
             for (byte b : hash) {
-                hex.append(String.format("%02x", b));
+                hex.append(String.format("%02x", b & 0xff));
             }
             return hex.toString();
         } catch (Exception e) {
