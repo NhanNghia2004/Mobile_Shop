@@ -5,9 +5,10 @@ import {
     ArrowLeft, MapPin, Phone, User as UserIcon, CreditCard,
     Truck, CheckCircle2, Loader2, Edit2, ShieldCheck,
     Package, AlertCircle, Lock, Wallet, QrCode, ChevronRight,
-    Tag, RefreshCw
+    Tag, RefreshCw, List
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
+import CouponSelectionModal from './CouponSelectionModal';
 
 interface CartItem {
     id: number; variantId: number; productId: number;
@@ -25,6 +26,7 @@ interface FormData {
     phone: string;
     shippingAddress: string;
     paymentMethod: 'COD' | 'VNPAY';
+    couponCode?: string;
 }
 
 const fmtPrice = (n: number) => n.toLocaleString('vi-VN') + 'đ';
@@ -67,24 +69,6 @@ function StepBar({ step }: { step: 1 | 2 | 3 }) {
     );
 }
 
-function Field({
-                   label, icon: Icon, children, hint,
-               }: {
-    label: string; icon: any; children: React.ReactNode; hint?: React.ReactNode;
-}) {
-    return (
-        <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                {label}
-            </label>
-            <div className="relative">
-                <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                {children}
-            </div>
-            {hint && <div className="mt-1.5">{hint}</div>}
-        </div>
-    );
-}
 
 function PaymentCard({
                          method, selected, onSelect,
@@ -155,6 +139,12 @@ export default function CheckoutPage() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [fieldErrors, setFieldErrors] = useState<Partial<FormData>>({});
+
+    const [couponInput, setCouponInput] = useState('');
+    const [couponError, setCouponError] = useState('');
+    const [couponSuccess, setCouponSuccess] = useState('');
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
 
     const [form, setForm] = useState<FormData>({
         recipientName: '',
@@ -236,6 +226,7 @@ export default function CheckoutPage() {
             shippingAddress: form.shippingAddress.trim(),
             paymentMethod: form.paymentMethod,
             variantIds: cartItems.map(item => item.variantId),
+            couponCode: form.couponCode,
         };
 
         try {
@@ -539,15 +530,96 @@ export default function CheckoutPage() {
                     </span>
                                         <span className="font-semibold text-green-600">Miễn phí</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 flex items-center gap-1.5">
-                      <Tag size={13} className="text-gray-400" /> Giảm giá
-                    </span>
-                                        <span className="font-semibold text-gray-400">—</span>
+                                    
+                                    {/* Coupon Input */}
+                                    <div className="pt-2 pb-2">
+                                        <div className="flex gap-2">
+                                            <div className="relative flex-1">
+                                                <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    value={couponInput}
+                                                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                                    placeholder="Mã giảm giá"
+                                                    disabled={!!form.couponCode}
+                                                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 font-mono uppercase disabled:bg-gray-50 disabled:text-gray-500"
+                                                />
+                                            </div>
+                                            {form.couponCode ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setForm(f => ({ ...f, couponCode: undefined }));
+                                                        setDiscountAmount(0);
+                                                        setCouponInput('');
+                                                        setCouponSuccess('');
+                                                        setCouponError('');
+                                                    }}
+                                                    className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors"
+                                                >
+                                                    Hủy
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        if (!couponInput.trim()) return;
+                                                        setCouponError('');
+                                                        setCouponSuccess('');
+                                                        try {
+                                                            const res = await axiosInstance.get('/coupons/validate', {
+                                                                params: { code: couponInput, total: totalAmount }
+                                                            });
+                                                            const coupon = res.data;
+                                                            let discount = 0;
+                                                            if (coupon.discountType === 'FIXED') {
+                                                                discount = coupon.discountValue;
+                                                            } else {
+                                                                discount = totalAmount * (coupon.discountValue / 100.0);
+                                                            }
+                                                            if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
+                                                                discount = coupon.maxDiscountAmount;
+                                                            }
+                                                            setDiscountAmount(discount);
+                                                            setForm(f => ({ ...f, couponCode: coupon.code }));
+                                                            setCouponSuccess(`Áp dụng thành công mã ${coupon.code}`);
+                                                        } catch (err: any) {
+                                                            setCouponError(err.response?.data?.message || err.response?.data || 'Mã không hợp lệ');
+                                                        }
+                                                    }}
+                                                    className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors disabled:opacity-50"
+                                                    disabled={!couponInput.trim()}
+                                                >
+                                                    Áp dụng
+                                                </button>
+                                            )}
+                                            {!form.couponCode && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsCouponModalOpen(true)}
+                                                    className="px-3 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 rounded-xl transition-colors flex items-center gap-1.5"
+                                                >
+                                                    <List size={16} />
+                                                    Chọn mã
+                                                </button>
+                                            )}
+                                        </div>
+                                        {couponError && <p className="text-xs text-red-500 mt-1.5 ml-1">{couponError}</p>}
+                                        {couponSuccess && <p className="text-xs text-green-600 mt-1.5 ml-1">{couponSuccess}</p>}
                                     </div>
+
+                                    {discountAmount > 0 && (
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-green-600 flex items-center gap-1.5 font-medium">
+                                                <Tag size={13} /> Mã giảm giá ({form.couponCode})
+                                            </span>
+                                            <span className="font-bold text-green-600">-{fmtPrice(discountAmount)}</span>
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                         <span className="font-black text-gray-900">Tổng thanh toán</span>
-                                        <span className="text-2xl font-black text-indigo-700">{fmtPrice(totalAmount)}</span>
+                                        <span className="text-2xl font-black text-indigo-700">{fmtPrice(Math.max(0, totalAmount - discountAmount))}</span>
                                     </div>
                                     <p className="text-xs text-gray-400 text-right">Đã bao gồm VAT (nếu có)</p>
                                 </div>
@@ -597,6 +669,29 @@ export default function CheckoutPage() {
                     </div>
                 </form>
             </div>
+
+            <CouponSelectionModal 
+                isOpen={isCouponModalOpen}
+                onClose={() => setIsCouponModalOpen(false)}
+                cartTotal={totalAmount}
+                onApply={(coupon) => {
+                    setCouponInput(coupon.code);
+                    let discount = 0;
+                    if (coupon.discountType === 'FIXED') {
+                        discount = coupon.discountValue;
+                    } else {
+                        discount = totalAmount * (coupon.discountValue / 100.0);
+                    }
+                    if (coupon.maxDiscountAmount && discount > coupon.maxDiscountAmount) {
+                        discount = coupon.maxDiscountAmount;
+                    }
+                    setDiscountAmount(discount);
+                    setForm(f => ({ ...f, couponCode: coupon.code }));
+                    setCouponSuccess(`Áp dụng thành công mã ${coupon.code}`);
+                    setCouponError('');
+                    setIsCouponModalOpen(false);
+                }}
+            />
         </div>
     );
 }

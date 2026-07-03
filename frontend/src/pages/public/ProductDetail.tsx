@@ -3,11 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Star, ShoppingCart, ShieldCheck, Truck, ArrowLeft,
-    Heart, Package, ChevronRight, Loader2, MessageCircle,
+    Package, ChevronRight, Loader2, MessageCircle,
     ThumbsUp, Share2, RefreshCw, ZoomIn
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
 import type { ProductResponse, VariantResponse } from '../../types/product';
+import WishlistButton from '../../components/WishlistButton';
 
 
 interface ReviewData {
@@ -169,7 +170,6 @@ export default function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
     const [addingCart, setAddingCart] = useState(false);
     const [addedCart, setAddedCart] = useState(false);
-    const [wished, setWished] = useState(false);
 
     // Reviews
     const [reviews, setReviews] = useState<ReviewData[]>([]);
@@ -231,6 +231,17 @@ export default function ProductDetail() {
     // Reset image when color changes
     useEffect(() => { setActiveImage(null); }, [selectedColor]);
 
+// Nếu màu mới không có dung lượng đang chọn -> chuyển sang dung lượng đầu tiên có sẵn của màu đó
+    useEffect(() => {
+        if (!product || !selectedColor) return;
+        const storagesForColor = product.variants
+            ?.filter(v => v.color === selectedColor)
+            .map(v => v.storage) || [];
+        if (selectedStorage !== null && !storagesForColor.includes(selectedStorage)) {
+            setSelectedStorage(storagesForColor[0] ?? null);
+        }
+    }, [selectedColor, product]);
+
     const displayPrice = currentVariant?.discountPrice ?? currentVariant?.price ?? product?.minPrice ?? 0;
     const originalPrice = currentVariant?.price ?? product?.maxPrice ?? 0;
     const discountPercent = currentVariant?.discountPercent ?? 0;
@@ -261,19 +272,6 @@ export default function ProductDetail() {
         if (success) {
             navigate('/cart');
         }
-    };
-
-    const handleWishlist = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) { navigate('/login'); return; }
-        try {
-            if (wished) {
-                await axiosInstance.delete(`/favorites/${id}`);
-            } else {
-                await axiosInstance.post(`/favorites/${id}`);
-            }
-            setWished(!wished);
-        } catch { }
     };
 
     if (loading) return (
@@ -405,6 +403,7 @@ export default function ProductDetail() {
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {product.variants
+                                            ?.filter(v => v.color === selectedColor)
                                             ?.filter((v, idx, arr) => arr.findIndex(x => x.storage === v.storage) === idx)
                                             .map(v => (
                                                 <button
@@ -504,13 +503,7 @@ export default function ProductDetail() {
                                     {addingCart ? <Loader2 size={18} className="animate-spin" /> : addedCart ? null : <ShoppingCart size={18} />}
                                     {addedCart ? '✓ Đã thêm vào giỏ!' : product.inStock ? 'Thêm vào giỏ hàng' : 'Hết hàng'}
                                 </button>
-                                <button
-                                    onClick={handleWishlist}
-                                    className="p-3.5 rounded-2xl border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all"
-                                    title="Yêu thích"
-                                >
-                                    <Heart size={20} fill={wished ? '#EF4444' : 'none'} className={wished ? 'text-red-500' : 'text-gray-400'} />
-                                </button>
+                                <WishlistButton productId={product.id} variant="full" />
                                 <button
                                     onClick={() => navigator.clipboard.writeText(window.location.href)}
                                     className="p-3.5 rounded-2xl border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all"

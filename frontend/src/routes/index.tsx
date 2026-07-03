@@ -10,8 +10,14 @@ import Profile from "../pages/public/Profile";
 import CartPage from "../pages/public/Cartpage";
 import CheckoutPage from "../pages/public/CheckoutPage";
 import PaymentResultPage from "../pages/public/PaymentResultPage";
+import OrderDetailPage from "../pages/public/OrderDetailPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminUsers from "../pages/admin/AdminUsers";
+import AdminCoupons from "../pages/admin/AdminCoupons";
+import AdminProducts from "../pages/admin/AdminProducts";
+import AdminInventory from "../pages/admin/AdminInventory";
+import AdminOrders from "../pages/admin/AdminOrders";
+import AdminReviews from '../pages/admin/AdminReviews';
 import AdminLayout from "../pages/admin/AdminLayout";
 import ForgotPassword from '../pages/public/ForgotPassword';
 import ResetPassword from '../pages/public/ResetPassword';
@@ -32,6 +38,7 @@ const AppRoutes = () => {
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/payment/result" element={<PaymentResultPage />} />
+                    <Route path="/orders/:id" element={<OrderDetailPage />} />
                 </Route>
             </Route>
 
@@ -40,6 +47,11 @@ const AppRoutes = () => {
                 <Route element={<AdminLayout />}>
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
+                    <Route path="/admin/coupons" element={<AdminCoupons />} />
+                    <Route path="/admin/products" element={<AdminProducts />} />
+                    <Route path="/admin/inventory" element={<AdminInventory />} />
+                    <Route path="/admin/orders" element={<AdminOrders />} />
+                    <Route path="/admin/reviews" element={<AdminReviews />} />
                 </Route>
             </Route>
 

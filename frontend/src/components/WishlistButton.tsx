@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Heart, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 // SỬA: Thay "../../" bằng "../"
-import { favoritesApi, dispatchFavoriteChange, onFavoriteChange } from "../api/favoritesApi";
+import { favoritesApi, dispatchFavoriteChange, onFavoriteChange, favoriteManager } from "../api/favoritesApi";
 
 interface WishlistButtonProps {
     productId: number;
@@ -15,12 +15,24 @@ interface WishlistButtonProps {
 export default function WishlistButton({
                                            productId,
                                            variant = 'icon',
-                                           initialWished = false,
+                                           initialWished,
                                            className = '',
                                        }: WishlistButtonProps) {
-    const [wished, setWished] = useState(initialWished);
+    const [wished, setWished] = useState(initialWished || false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (initialWished === undefined) {
+            favoriteManager.getFavoriteIds().then(ids => {
+                if (ids.has(productId)) {
+                    setWished(true);
+                }
+            });
+        } else {
+            setWished(initialWished);
+        }
+    }, [productId, initialWished]);
 
     // Đồng bộ khi component khác thay đổi cùng productId
     useEffect(() => {

@@ -4,12 +4,12 @@ import {
     X, Star, Send, Loader2, CheckCircle2, AlertCircle,
     Camera, Trash2, ImagePlus, ShieldCheck, ChevronRight,
 } from 'lucide-react';
-import { reviewApi, type ReviewResponse } from '../../api/Reviewapi.ts';
-import api from '../../api/axios';
+import { reviewApi, type ReviewResponse } from '../../api/Reviewapi';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface ReviewItem {
     productId: number;
+    variantId: number;
     productName: string;
     imageUrl?: string;
     color: string;
@@ -126,41 +126,36 @@ function ImageUpload({
 // ── Single Product Review Form ─────────────────────────────────────────────────
 function SingleReviewForm({
                               item,
-                              orderId,
                               onDone,
                           }: {
     item: ReviewItem;
-    orderId: number;
-    onDone: (productId: number, review: ReviewResponse) => void;
+    onDone: (productId: number) => void;
 }) {
-    const [rating, setRating]     = useState(0);
-    const [comment, setComment]   = useState('');
-    const [images, setImages]     = useState<File[]>([]);
+    const [rating, setRating]         = useState(0);
+    const [comment, setComment]       = useState('');
+    const [images, setImages]         = useState<File[]>([]);
     const [submitting, setSubmitting] = useState(false);
-    const [error, setError]       = useState('');
-    const [existing, setExisting] = useState<ReviewResponse | null>(null);
-    const [checking, setChecking] = useState(true);
-    const [canReview, setCanReview] = useState(true);
+    const [error, setError]           = useState('');
+    const [existing, setExisting]     = useState<ReviewResponse | null>(null);
+    const [checking, setChecking]     = useState(true);
 
     useEffect(() => {
         (async () => {
             setChecking(true);
             try {
-                const check = await reviewApi.checkCanReview(item.productId, orderId);
-                setCanReview(check.canReview);
+                const check = await reviewApi.checkExistingReview(item.productId, item.variantId);
                 if (check.alreadyReviewed && check.existingReview) {
                     setExisting(check.existingReview);
                     setRating(check.existingReview.rating);
-                    setComment(check.existingReview.comment);
+                    setComment(check.existingReview.comment || '');
                 }
             } catch {
-                // Nếu backend chưa có endpoint check → cho phép review
-                setCanReview(true);
+                // cho phép review nếu check lỗi
             } finally {
                 setChecking(false);
             }
         })();
-    }, [item.productId, orderId]);
+    }, [item.productId, item.variantId]);
 
     const handleSubmit = async () => {
         if (rating === 0) { setError('Vui lòng chọn số sao đánh giá'); return; }
@@ -169,36 +164,26 @@ function SingleReviewForm({
         setSubmitting(true);
 
         try {
-            // Upload ảnh nếu có
-            let imageUrls: string[] = [];
-            if (images.length > 0) {
-                const formData = new FormData();
-                images.forEach(f => formData.append('files', f));
-                try {
-                    const { data } = await api.post('/upload/images', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' },
-                    });
-                    imageUrls = data.urls || [];
-                } catch {
-                    // Nếu upload ảnh lỗi → tiếp tục không ảnh
-                }
-            }
-
-            let result: ReviewResponse;
             if (existing) {
-                result = await reviewApi.updateReview(existing.id, { rating, comment, imageUrls });
-            } else {
-                result = await reviewApi.submitReview({
-                    productId: item.productId,
-                    orderId,
+                await reviewApi.updateReview(
+                    item.productId,
+                    existing.id,
                     rating,
                     comment,
-                    imageUrls,
-                });
+                    images
+                );
+            } else {
+                await reviewApi.submitReview(
+                    item.productId,
+                    item.variantId,
+                    rating,
+                    comment,
+                    images
+                );
             }
-            onDone(item.productId, result);
+            onDone(item.productId);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Gửi đánh giá thất bại, vui lòng thử lại');
+            setError(err.response?.data?.message || err.response?.data || 'Gửi đánh giá thất bại, vui lòng thử lại');
         } finally {
             setSubmitting(false);
         }
@@ -332,16 +317,15 @@ function SuccessScreen({ count, onClose }: { count: number; onClose: () => void 
 }
 
 // ── Main ReviewModal ───────────────────────────────────────────────────────────
-export default function ReviewModal({ orderId, items, onClose, onSuccess }: ReviewModalProps) {
-    const [currentIdx, setCurrentIdx]     = useState(0);
-    const [doneIds, setDoneIds]           = useState<Set<number>>(new Set());
-    const [allDone, setAllDone]           = useState(false);
+export default function ReviewModal({ items, onClose, onSuccess }: ReviewModalProps) {
+    const [currentIdx, setCurrentIdx] = useState(0);
+    const [doneIds, setDoneIds]       = useState<Set<number>>(new Set());
+    const [allDone, setAllDone]       = useState(false);
 
-    const handleDone = (productId: number, _review: ReviewResponse) => {
+    const handleDone = (productId: number) => {
         const next = new Set(doneIds).add(productId);
         setDoneIds(next);
         if (currentIdx < items.length - 1) {
-            // Có sản phẩm tiếp theo → hỏi có muốn tiếp không
             setCurrentIdx(i => i + 1);
         } else {
             setAllDone(true);
@@ -350,7 +334,6 @@ export default function ReviewModal({ orderId, items, onClose, onSuccess }: Revi
     };
 
     const currentItem = items[currentIdx];
-    const progress = doneIds.size / items.length;
 
     return (
         <AnimatePresence>
@@ -388,7 +371,7 @@ export default function ReviewModal({ orderId, items, onClose, onSuccess }: Revi
                         </button>
                     </div>
 
-                    {/* Progress bar — khi có nhiều sp */}
+                    {/* Progress bar */}
                     {items.length > 1 && !allDone && (
                         <div className="h-1 bg-gray-100">
                             <motion.div
@@ -405,12 +388,12 @@ export default function ReviewModal({ orderId, items, onClose, onSuccess }: Revi
                             <SuccessScreen count={doneIds.size} onClose={onClose} />
                         ) : (
                             <>
-                                {/* Product tabs — khi có nhiều sp */}
+                                {/* Product tabs */}
                                 {items.length > 1 && (
                                     <div className="flex gap-2 mb-5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
                                         {items.map((item, idx) => (
                                             <button
-                                                key={item.productId}
+                                                key={item.variantId}
                                                 onClick={() => setCurrentIdx(idx)}
                                                 className={`flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                                                     idx === currentIdx
@@ -428,9 +411,8 @@ export default function ReviewModal({ orderId, items, onClose, onSuccess }: Revi
                                 )}
 
                                 <SingleReviewForm
-                                    key={currentItem.productId}
+                                    key={currentItem.variantId}
                                     item={currentItem}
-                                    orderId={orderId}
                                     onDone={handleDone}
                                 />
 

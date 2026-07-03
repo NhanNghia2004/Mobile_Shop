@@ -26,14 +26,14 @@ const fmtDate  = (s: string) =>
 type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPING' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED';
 
 interface OrderItem {
-    id: number; productId: number; productName: string;
+    id: number; productId: number; variantId: number; productName: string;
     color: string; storage: number; imageUrl?: string;
     price: number; quantity: number;
 }
 interface Order {
     id: number; createdAt: string; status: OrderStatus;
     paymentMethod: string; province?: string;
-    shippingFee?: number; totalAmount: number; items: OrderItem[];
+    shippingFee?: number; totalAmount: number; discountAmount?: number; couponCode?: string; items: OrderItem[];
 }
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; icon: React.ElementType; textColor: string; bgColor: string; borderColor: string }> = {
@@ -108,7 +108,7 @@ function TrackBar({ status }: { status: OrderStatus }) {
     );
 }
 
-function OrderCard({ order, defaultExpanded = false }: { order: Order; defaultExpanded?: boolean }) {
+function OrderCard({ order, defaultExpanded = false, onCancelOrder }: { order: Order; defaultExpanded?: boolean; onCancelOrder?: (id: number) => void; }) {
     const [expanded, setExpanded]         = useState(defaultExpanded);
     const [showReview, setShowReview]     = useState(false);
     const [reviewedIds, setReviewedIds]   = useState<Set<number>>(new Set());
@@ -120,6 +120,7 @@ function OrderCard({ order, defaultExpanded = false }: { order: Order; defaultEx
 
     const reviewItems = order.items.map(i => ({
         productId:   i.productId,
+        variantId:   i.variantId,
         productName: i.productName,
         imageUrl:    i.imageUrl,
         color:       i.color,
@@ -137,7 +138,14 @@ function OrderCard({ order, defaultExpanded = false }: { order: Order; defaultEx
                         <Receipt size={14} className="text-gray-500" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-900">#{order.id}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold text-gray-900">#{order.id}</p>
+                            {order.couponCode && (
+                                <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase border border-green-200">
+                                    {order.couponCode}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                             <Calendar size={10} />{fmtDate(order.createdAt)}
                         </p>
@@ -227,7 +235,9 @@ function OrderCard({ order, defaultExpanded = false }: { order: Order; defaultEx
                             </button>
                         )}
                         {order.status === 'PENDING' && (
-                            <button className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                            <button 
+                                onClick={() => onCancelOrder && onCancelOrder(order.id)}
+                                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
                                 <XCircle size={12} />Hủy đơn
                             </button>
                         )}
@@ -289,15 +299,28 @@ function OrdersTab() {
     const [search, setSearch]           = useState('');
     const [sortBy, setSortBy]           = useState<'newest' | 'oldest' | 'highest'>('newest');
     const [showFilters, setShowFilters] = useState(false);
+    const [page, setPage]               = useState(1);
+    const ITEMS_PER_PAGE = 5;
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const { data } = await api.get('/orders');
+            const { data } = await api.get('/orders?size=1000');
             setOrders(data.content || data || []);
         } catch { setOrders([]); }
         finally { setLoading(false); }
     }, []);
+
+    const handleCancelOrder = async (orderId: number) => {
+        if (!window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) return;
+        try {
+            await api.put(`/orders/${orderId}/cancel`);
+            fetchOrders();
+        } catch (err: any) {
+            console.error(err);
+            alert("Lỗi khi hủy đơn hàng: " + (err.response?.data?.message || ""));
+        }
+    };
 
     useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
@@ -313,6 +336,13 @@ function OrdersTab() {
             if (sortBy === 'oldest')  return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return b.totalAmount - a.totalAmount;
         });
+
+    useEffect(() => {
+        setPage(1);
+    }, [activeTab, search, sortBy]);
+
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+    const paginatedOrders = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
     const tabCount = (key: OrderStatus | 'ALL') =>
         key === 'ALL' ? orders.length : orders.filter(o => o.status === key).length;
@@ -420,10 +450,43 @@ function OrdersTab() {
                 </div>
             ) : (
                 <motion.div layout className="space-y-4">
-                    {filtered.map((order, idx) => (
-                        <OrderCard key={order.id} order={order} defaultExpanded={idx === 0 && filtered.length === 1} />
+                    {paginatedOrders.map(order => (
+                        <OrderCard key={order.id} order={order} defaultExpanded={paginatedOrders.length === 1} onCancelOrder={handleCancelOrder} />
                     ))}
                 </motion.div>
+            )}
+
+            {/* Pagination UI */}
+            {!loading && totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                    <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setPage(i + 1)}
+                            className={`w-9 h-9 rounded-xl text-sm font-semibold transition-all ${
+                                page === i + 1
+                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                            }`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="p-2 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
             )}
 
             {!loading && filtered.length > 0 && (

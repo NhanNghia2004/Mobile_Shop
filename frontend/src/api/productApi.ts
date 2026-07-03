@@ -21,5 +21,10 @@ export const productApi = {
     getNewArrivals: async (): Promise<ProductResponse[]> => {
         const response = await axiosInstance.get('/products/new-arrivals');
         return response.data;
+    },
+
+    getSuggestions: async (q: string): Promise<any> => {
+        const response = await axiosInstance.get('/products/search/suggestions', { params: { q } });
+        return response.data;
     }
 };

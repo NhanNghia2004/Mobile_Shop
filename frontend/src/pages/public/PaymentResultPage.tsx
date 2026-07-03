@@ -131,7 +131,6 @@ export default function PaymentResultPage() {
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
     const [loadingOrder, setLoadingOrder] = useState(!stateData?.order && !!finalOrderId);
     const [retrying, setRetrying] = useState(false);
-    const [retryUrl, setRetryUrl] = useState<string | null>(null);
 
     // Load order + payment status if not from state
     useEffect(() => {

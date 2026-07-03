@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Package, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Package, LogOut, Ticket, Warehouse, ShoppingBag, Star } from 'lucide-react';
 
 export default function AdminLayout() {
     const navigate = useNavigate();
@@ -23,20 +23,46 @@ export default function AdminLayout() {
                             <span>Dashboard</span>
                         </div>
                     </Link>
-                    <div className="flex items-center gap-3 p-3 hover:bg-slate-800 rounded-lg cursor-pointer transition-all">
-                        <Package size={20} />
-                        <span>Quản lý sản phẩm</span>
-                    </div>
+                    <Link to="/admin/products">
+                        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/products' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
+                            <Package size={20} />
+                            <span>Quản lý sản phẩm</span>
+                        </div>
+                    </Link>
                     <Link to="/admin/users">
                         <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/users' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
                             <Users size={20} />
                             <span>Khách hàng</span>
                         </div>
                     </Link>
+                    <Link to="/admin/coupons">
+                        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/coupons' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
+                            <Ticket size={20} />
+                            <span>Mã giảm giá</span>
+                        </div>
+                    </Link>
+                    <Link to="/admin/inventory">
+                        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/inventory' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
+                            <Warehouse size={20} />
+                            <span>Tồn kho</span>
+                        </div>
+                    </Link>
+                    <Link to="/admin/orders">
+                        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/orders' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
+                            <ShoppingBag size={20} />
+                            <span>Đơn hàng</span>
+                        </div>
+                    </Link>
+                    <Link to="/admin/reviews">
+                        <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${location.pathname === '/admin/reviews' ? 'bg-indigo-600 font-bold' : 'hover:bg-slate-800'}`}>
+                            <Star size={20} />
+                            <span>Đánh giá</span>
+                        </div>
+                    </Link>
                 </nav>
             </div>
 
-            {/* Main Content Area */}
+
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
                 <header className="flex justify-end items-center bg-white p-4 shadow-sm z-10 border-b">
                     <button

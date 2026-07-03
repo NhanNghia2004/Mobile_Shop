@@ -3,10 +3,14 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Star, ShoppingCart } from 'lucide-react';
 import { productApi } from '../../api/productApi';
 import type { ProductResponse } from '../../types/product';
+import WishlistButton from '../../components/WishlistButton';
 
 export default function Products() {
     const [searchParams, setSearchParams] = useSearchParams();
     const brand = searchParams.get('brand') || '';
+    const keyword = searchParams.get('keyword') || '';
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
     const page = parseInt(searchParams.get('page') || '0', 10);
     const size = 12; // 12 products per page
 
@@ -20,9 +24,10 @@ export default function Products() {
             try {
                 // Pass page, size, and optionally brand to the API
                 const params: any = { page, size };
-                if (brand) {
-                    params.brand = brand;
-                }
+                if (brand) params.brand = brand;
+                if (keyword) params.keyword = keyword;
+                if (minPrice) params.minPrice = minPrice;
+                if (maxPrice) params.maxPrice = maxPrice;
                 const data = await productApi.getProducts(params);
                 setProducts(data.content);
                 setTotalPages(data.totalPages);
@@ -34,11 +39,16 @@ export default function Products() {
         };
 
         fetchProducts();
-    }, [page, brand]);
+    }, [page, brand, keyword, minPrice, maxPrice]);
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 0 && newPage < totalPages) {
-            setSearchParams({ brand, page: newPage.toString() });
+            const newParams: Record<string, string> = { page: newPage.toString() };
+            if (brand) newParams.brand = brand;
+            if (keyword) newParams.keyword = keyword;
+            if (minPrice) newParams.minPrice = minPrice;
+            if (maxPrice) newParams.maxPrice = maxPrice;
+            setSearchParams(newParams);
             window.scrollTo(0, 0);
         }
     };
@@ -48,7 +58,7 @@ export default function Products() {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="mb-8">
                     <h1 className="text-3xl font-black text-gray-900">
-                        {brand ? `Điện thoại ${brand}` : 'Tất cả Sản phẩm'}
+                        {keyword ? `Kết quả tìm kiếm cho "${keyword}"` : brand ? `Điện thoại ${brand}` : minPrice || maxPrice ? 'Kết quả lọc giá' : 'Tất cả Sản phẩm'}
                     </h1>
                     <div className="h-1.5 w-20 bg-indigo-600 mt-2 rounded-full"></div>
                 </div>
@@ -81,6 +91,9 @@ export default function Products() {
                                                     Nhiều phiên bản
                                                 </span>
                                             )}
+                                            <div className="absolute bottom-3 right-3">
+                                                <WishlistButton productId={product.id} variant="icon" />
+                                            </div>
                                         </div>
                                         <div className="p-5 flex flex-col flex-1">
                                             <div className="flex text-yellow-400 mb-2">
