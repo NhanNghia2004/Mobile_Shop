@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.backend.admin.inventory.service.InventoryService;
+import com.example.backend.coupon.service.CouponService;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class OrderService {
     private final CartService cartService;
     private final ProductVariantRepository variantRepository;
     private final InventoryService inventoryService;
+    private final CouponService couponService;
 
     @Transactional
     public OrderResponse checkout(String username, OrderRequest request) {
@@ -64,7 +66,19 @@ public class OrderService {
         double totalAmount = itemsToProcess.stream()
                 .mapToDouble(item -> item.getSubTotal() != null ? item.getSubTotal() : 0.0)
                 .sum();
+
+        // Apply coupon if provided
+        double discountAmount = 0.0;
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            com.example.backend.coupon.dto.CouponResponse validCoupon = couponService.validateCoupon(request.getCouponCode(), totalAmount);
+            com.example.backend.coupon.entity.Coupon coupon = couponService.getCouponEntity(validCoupon.getId());
+            discountAmount = couponService.calculateDiscount(coupon, totalAmount);
+            order.setCouponCode(coupon.getCode());
+            couponService.incrementUsedCount(coupon.getCode());
+        }
+
         order.setTotalAmount(totalAmount);
+        order.setDiscountAmount(discountAmount);
 
         record PendingStockChange(ProductVariant variant, int change, int before, int after) {
         }

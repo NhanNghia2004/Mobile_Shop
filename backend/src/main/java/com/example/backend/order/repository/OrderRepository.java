@@ -21,4 +21,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Page<Order> findAllWithFilter(@org.springframework.data.repository.query.Param("userId") Long userId,
             @org.springframework.data.repository.query.Param("status") com.example.backend.order.entity.OrderStatus status,
             Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT o FROM Order o WHERE o.status = :status AND o.createdAt >= :startDate")
+    java.util.List<Order> findByStatusAndCreatedAtAfter(
+            @org.springframework.data.repository.query.Param("status") com.example.backend.order.entity.OrderStatus status, 
+            @org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate);
+
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = :status")
+    Double sumTotalPriceByStatus(@org.springframework.data.repository.query.Param("status") com.example.backend.order.entity.OrderStatus status);
 }

@@ -10,4 +10,5 @@ public class OrderRequest {
     private String shippingAddress;
     private String paymentMethod;
     private List<Long> variantIds;
+    private String couponCode;
 }

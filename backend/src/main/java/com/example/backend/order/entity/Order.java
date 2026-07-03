@@ -28,6 +28,9 @@ public class Order {
     @Column(nullable = false)
     private Double totalAmount;
 
+    private Double discountAmount = 0.0;
+    private String couponCode;
+
     private String paymentMethod; // e.g. "COD"
 
     @Enumerated(EnumType.STRING)

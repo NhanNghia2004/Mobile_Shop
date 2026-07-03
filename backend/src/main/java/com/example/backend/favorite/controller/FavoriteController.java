@@ -26,6 +26,11 @@ public class FavoriteController {
         return ResponseEntity.ok(favoriteService.getFavorites(userDetails.getUsername(), page, size));
     }
 
+    @GetMapping("/ids")
+    public ResponseEntity<java.util.List<Long>> getFavoriteIds(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(favoriteService.getFavoriteProductIds(userDetails.getUsername()));
+    }
+
     @PostMapping("/{productId}")
     public ResponseEntity<Map<String, String>> addFavorite(
             @AuthenticationPrincipal UserDetails userDetails,

@@ -56,6 +56,12 @@ public class FavoriteService {
         favoriteRepository.deleteByUserIdAndProductId(user.getId(), productId);
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<Long> getFavoriteProductIds(String username) {
+        User user = findUser(username);
+        return favoriteRepository.findProductIdsByUserId(user.getId());
+    }
+
     private User findUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại!"));

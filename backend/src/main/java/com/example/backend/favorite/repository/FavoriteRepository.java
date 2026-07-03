@@ -19,6 +19,9 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     boolean existsByUserIdAndProductId(Long userId, Long productId);
     
+    @org.springframework.data.jpa.repository.Query("SELECT f.product.id FROM Favorite f WHERE f.user.id = :userId")
+    java.util.List<Long> findProductIdsByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
+
     @org.springframework.transaction.annotation.Transactional
     void deleteByUserIdAndProductId(Long userId, Long productId);
 }

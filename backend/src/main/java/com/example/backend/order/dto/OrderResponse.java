@@ -14,6 +14,8 @@ public class OrderResponse {
     private String phone;
     private String shippingAddress;
     private Double totalAmount;
+    private Double discountAmount;
+    private String couponCode;
     private String paymentMethod;
     private String status;
     private LocalDateTime createdAt;
@@ -26,6 +28,8 @@ public class OrderResponse {
         response.setPhone(order.getPhone());
         response.setShippingAddress(order.getShippingAddress());
         response.setTotalAmount(order.getTotalAmount());
+        response.setDiscountAmount(order.getDiscountAmount());
+        response.setCouponCode(order.getCouponCode());
         response.setPaymentMethod(order.getPaymentMethod());
         response.setStatus(order.getStatus().name());
         response.setCreatedAt(order.getCreatedAt());
