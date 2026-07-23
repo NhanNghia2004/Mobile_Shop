@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Star, ShoppingCart, ShieldCheck, Truck, ArrowLeft,
     Package, ChevronRight, Loader2, MessageCircle,
-    ThumbsUp, Share2, RefreshCw, ZoomIn
+    ThumbsUp, Share2, RefreshCw, ZoomIn, GitCompare
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
 import type { ProductResponse, VariantResponse } from '../../types/product';
 import WishlistButton from '../../components/WishlistButton';
+import { useCompare } from '../../hooks/useCompare';
 
 
 interface ReviewData {
@@ -155,6 +156,7 @@ function RelatedProducts({ productId }: { productId: number }) {
 export default function ProductDetail() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { addToCompare, isInCompareList } = useCompare();
 
     const [product, setProduct] = useState<ProductResponse | null>(null);
     const [loading, setLoading] = useState(true);
@@ -505,6 +507,21 @@ export default function ProductDetail() {
                                 </button>
                                 <WishlistButton productId={product.id} variant="full" />
                                 <button
+                                    onClick={() => {
+                                        const res = addToCompare({
+                                            id: product.id,
+                                            name: product.name,
+                                            imageUrl: product.imageUrl,
+                                            price: product.minPrice
+                                        });
+                                        if (!res.success) alert(res.message);
+                                    }}
+                                    className={`p-3.5 rounded-2xl border-2 transition-all flex items-center justify-center ${isInCompareList(product.id) ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50'}`}
+                                    title={isInCompareList(product.id) ? "Đã thêm vào so sánh" : "Thêm vào so sánh"}
+                                >
+                                    <GitCompare size={20} />
+                                </button>
+                                <button
                                     onClick={() => navigator.clipboard.writeText(window.location.href)}
                                     className="p-3.5 rounded-2xl border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all"
                                     title="Chia sẻ"
@@ -635,26 +652,7 @@ export default function ProductDetail() {
                                 })}
                             </div>
 
-                            <div className="flex flex-col gap-2 flex-shrink-0">
-                                <button
-                                    onClick={() => setFilterRating(null)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
-                                        !filterRating
-                                            ? 'bg-indigo-600 text-white border-indigo-600'
-                                            : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                                    }`}
-                                >Tất cả</button>
-                                {[5, 4, 3, 2, 1].map(s => (
-                                    <button key={s}
-                                            onClick={() => setFilterRating(filterRating === s ? null : s)}
-                                            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
-                                                filterRating === s
-                                                    ? 'bg-indigo-600 text-white border-indigo-600'
-                                                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                                            }`}
-                                    >{s} sao</button>
-                                ))}
-                            </div>
+
                         </div>
                     ) : (
                         <div className="text-center py-8 text-gray-400">

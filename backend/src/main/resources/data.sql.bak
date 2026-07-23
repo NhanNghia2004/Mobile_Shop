@@ -1,0 +1,509 @@
+-- SET FOREIGN_KEY_CHECKS = 0;
+--
+-- -- Xoá dữ liệu cũ
+-- DELETE FROM product_variant_images;
+-- DELETE FROM product_variants;
+-- DELETE FROM products;
+--
+-- -- Đặt lại bộ đếm ID về 1
+-- ALTER TABLE product_variant_images AUTO_INCREMENT = 1;
+-- ALTER TABLE product_variants AUTO_INCREMENT = 1;
+-- ALTER TABLE products AUTO_INCREMENT = 1;
+--
+-- -- =========================================================================
+-- -- I. 35 SẢN PHẨM (7 THƯƠNG HIỆU x 5 SẢN PHẨM) - ID TỪ 1 -> 35
+-- -- =========================================================================
+--  INSERT INTO products (name, brand, description, image_url, category, os, screen_size, battery_capacity, ram, status, sold_count, rating, review_count, created_at, updated_at) VALUES
+-- -- === 1. APPLE (ID: 1 -> 23) ===
+--     ('iPhone 17 Pro Max', 'Apple', 'Chip A19 Pro thế hệ mới, khung titan siêu nhẹ, camera ẩn dưới màn hình và RAM 12GB.', 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max.jpg', 'SMARTPHONE', 'IOS', 6.9, 4800, 12, 'ACTIVE', 150, 4.9, 25, NOW(), NOW()),
+--      ('iPhone 17 Pro', 'Apple', 'Thiết kế đột phá mỏng nhẹ, chip A19 Pro mạnh mẽ, camera zoom quang học 10x.', 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-cam.jpg', 'SMARTPHONE', 'IOS', 6.3, 3600, 12, 'ACTIVE', 120, 4.8, 18, NOW(), NOW()),
+--      ('iPhone 17', 'Apple', 'Trang bị Dynamic Island thế hệ mới, tần số quét 120Hz mượt mà, chip A19.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3500, 8, 'ACTIVE', 200, 4.8, 30, NOW(), NOW()),
+--      ('iPhone 16 Pro Max', 'Apple', 'Chip A18 Pro, màn hình 6.9 inch viền siêu mỏng, nút Capture Button chuyên nghiệp.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg', 'SMARTPHONE', 'IOS', 6.9, 4676, 8, 'ACTIVE', 1800, 4.9, 210, DATE_SUB(NOW(), INTERVAL 1 MONTH), DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+--      ('iPhone 16 Pro', 'Apple', 'Chip A18 Pro, màn hình 6.3 inch, hệ thống camera nâng cấp toàn diện.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg', 'SMARTPHONE', 'IOS', 6.3, 3577, 8, 'ACTIVE', 1400, 4.8, 160, DATE_SUB(NOW(), INTERVAL 1 MONTH), DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+--      ('iPhone 16', 'Apple', 'Chip A18, camera dọc hỗ trợ quay video không gian, nút Action Button mới.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3561, 8, 'ACTIVE', 2500, 4.8, 290, DATE_SUB(NOW(), INTERVAL 1 MONTH), DATE_SUB(NOW(), INTERVAL 1 MONTH)),
+--      ('iPhone 15 Pro Max', 'Apple', 'Chip A17 Pro mạnh nhất từ trước đến nay, titan siêu bền, camera 48MP zoom quang 5x.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg', 'SMARTPHONE', 'IOS', 6.7, 4422, 8, 'ACTIVE', 2800, 4.9, 320, DATE_SUB(NOW(), INTERVAL 5 MINUTE), DATE_SUB(NOW(), INTERVAL 5 MINUTE)),
+--      ('iPhone 15 Pro', 'Apple', 'Thiết kế titan nhỏ gọn, chip A17 Pro, màn hình ProMotion 120Hz.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3274, 8, 'ACTIVE', 2100, 4.8, 280, DATE_SUB(NOW(), INTERVAL 10 MINUTE), DATE_SUB(NOW(), INTERVAL 10 MINUTE)),
+--      ('iPhone 15', 'Apple', 'Trang bị Dynamic Island đột phá, cổng sạc USB-C mới, camera 48MP sắc nét.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3349, 6, 'ACTIVE', 3000, 4.8, 400, DATE_SUB(NOW(), INTERVAL 15 MINUTE), DATE_SUB(NOW(), INTERVAL 15 MINUTE)),
+--      ('iPhone 14 Pro Max', 'Apple', 'Đỉnh cao công nghệ 2022, Dynamic Island xuất hiện lần đầu, camera 48MP.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-max-1.jpg', 'SMARTPHONE', 'IOS', 6.7, 4323, 6, 'ACTIVE', 4500, 4.9, 580, DATE_SUB(NOW(), INTERVAL 18 MINUTE), DATE_SUB(NOW(), INTERVAL 18 MINUTE)),
+--      ('iPhone 14 Pro', 'Apple', 'Kích thước chuẩn 6.1 inch, Dynamic Island tiện lợi, chip A16 Bionic.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3200, 6, 'ACTIVE', 3200, 4.8, 410, DATE_SUB(NOW(), INTERVAL 19 MINUTE), DATE_SUB(NOW(), INTERVAL 19 MINUTE)),
+--      ('iPhone 14', 'Apple', 'Thiết kế quen thuộc, hiệu năng ổn định, camera cải tiến chụp đêm.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3279, 6, 'ACTIVE', 3800, 4.6, 320, DATE_SUB(NOW(), INTERVAL 22 MINUTE), DATE_SUB(NOW(), INTERVAL 22 MINUTE)),
+--      ('iPhone 13 Pro Max', 'Apple', 'Huyền thoại pin trâu, màn hình 120Hz đầu tiên của Apple, chip A15 cực mượt.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-max-1.jpg', 'SMARTPHONE', 'IOS', 6.7, 4352, 6, 'ACTIVE', 7000, 4.9, 900, DATE_SUB(NOW(), INTERVAL 24 MINUTE), DATE_SUB(NOW(), INTERVAL 24 MINUTE)),
+--      ('iPhone 13 Pro', 'Apple', 'Màn hình 120Hz, hệ thống 3 camera đỉnh cao, kích thước gọn gàng.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3095, 6, 'ACTIVE', 4200, 4.7, 510, DATE_SUB(NOW(), INTERVAL 24 MINUTE), DATE_SUB(NOW(), INTERVAL 24 MINUTE)),
+--      ('iPhone 13', 'Apple', 'Chip A15 Bionic mạnh mẽ ổn định, cụm camera chéo độc đáo, pin tối ưu tốt.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 3227, 4, 'ACTIVE', 6000, 4.6, 700, DATE_SUB(NOW(), INTERVAL 25 MINUTE), DATE_SUB(NOW(), INTERVAL 25 MINUTE)),
+--      ('iPhone 13 mini', 'Apple', 'Nhỏ gọn trong lòng bàn tay, cấu hình flagship, phù hợp người thích máy nhỏ.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-mini-1.jpg', 'SMARTPHONE', 'IOS', 5.4, 2438, 4, 'ACTIVE', 1100, 4.5, 140, DATE_SUB(NOW(), INTERVAL 26 MINUTE), DATE_SUB(NOW(), INTERVAL 26 MINUTE)),
+--      ('iPhone 12 Pro Max', 'Apple', 'Thiết kế vuông vức lột xác, hỗ trợ 5G đầu tiên, camera zoom chất lượng.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-pro-max-1.jpg', 'SMARTPHONE', 'IOS', 6.7, 3687, 6, 'ACTIVE', 8000, 4.8, 1100, DATE_SUB(NOW(), INTERVAL 30 MINUTE), DATE_SUB(NOW(), INTERVAL 30 MINUTE)),
+--      ('iPhone 12', 'Apple', 'Màn hình OLED sắc nét, chip A14 Bionic ổn định, thiết kế mỏng nhẹ.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-1.jpg', 'SMARTPHONE', 'IOS', 6.1, 2815, 4, 'ACTIVE', 9500, 4.6, 1300, DATE_SUB(NOW(), INTERVAL 32 MINUTE), DATE_SUB(NOW(), INTERVAL 32 MINUTE)),
+--      ('iPhone SE 2022', 'Apple', 'Thiết kế cổ điển với nút Home, chip A15 Bionic mạnh mẽ ẩn bên trong.', 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-se-2022-1.jpg', 'SMARTPHONE', 'IOS', 4.7, 2018, 4, 'ACTIVE', 2100, 4.4, 250, DATE_SUB(NOW(), INTERVAL 35 MINUTE), DATE_SUB(NOW(), INTERVAL 35 MINUTE)),
+--
+-- -- === 2. SAMSUNG (ID: 24 -> 45) ===
+--      ('Samsung Galaxy S26 Ultra', 'Samsung', 'Flagship đỉnh cao tương lai, camera AI 300MP, chip Snapdragon thế hệ mới.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5500, 16, 'ACTIVE', 50, 4.9, 5, NOW(), NOW()),
+--      ('Samsung Galaxy S25 Ultra', 'Samsung', 'Thiết kế bo cong công thái học mới, chip Snapdragon 8 Gen 4 cực khủng, AI toàn năng.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5000, 16, 'ACTIVE', 500, 4.8, 60, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Samsung Galaxy S25+', 'Samsung', 'Đột phá thiết kế mỏng nhẹ thời thượng, màn hình tràn viền vô cực 120Hz.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4900, 12, 'ACTIVE', 350, 4.7, 42, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Samsung Galaxy S25', 'Samsung', 'Flagship nhỏ gọn lý tưởng, hiệu năng vượt trội, camera mắt thần bóng đêm.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-1.jpg', 'SMARTPHONE', 'ANDROID', 6.2, 4000, 12, 'ACTIVE', 600, 4.6, 55, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Samsung Galaxy S24 Ultra', 'Samsung', 'Tích hợp bút S Pen, chip Snapdragon 8 Gen 3, camera 200MP đột phá công nghệ AI.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5000, 12, 'ACTIVE', 1900, 4.8, 240, DATE_SUB(NOW(), INTERVAL 30 MINUTE), DATE_SUB(NOW(), INTERVAL 30 MINUTE)),
+--      ('Samsung Galaxy S24+', 'Samsung', 'Chip hiệu năng cao, màn hình 6.7 inch QHD+, công nghệ sạc siêu tốc 45W.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4900, 12, 'ACTIVE', 1400, 4.7, 185, DATE_SUB(NOW(), INTERVAL 35 MINUTE), DATE_SUB(NOW(), INTERVAL 35 MINUTE)),
+--      ('Samsung Galaxy S24', 'Samsung', 'Nhỏ gọn sang trọng, tích hợp Galaxy AI thông minh hỗ trợ dịch thuật trực tiếp.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s24-1.jpg', 'SMARTPHONE', 'ANDROID', 6.2, 4000, 8, 'ACTIVE', 1800, 4.6, 195, DATE_SUB(NOW(), INTERVAL 36 MINUTE), DATE_SUB(NOW(), INTERVAL 36 MINUTE)),
+--      ('Samsung Galaxy Z Fold 6', 'Samsung', 'Màn hình gập thiết kế vuông vức, độ bền bản lề cải tiến mạnh mẽ, mỏng nhẹ hơn.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-z-fold5-1.jpg', 'SMARTPHONE', 'ANDROID', 7.6, 4400, 12, 'ACTIVE', 800, 4.7, 95, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Samsung Galaxy Z Flip 6', 'Samsung', 'Camera 50MP nâng cấp lớn, dung lượng pin tăng cường, thiết kế gập không nếp gấp.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-z-flip5-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4000, 12, 'ACTIVE', 1500, 4.6, 160, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Samsung Galaxy Z Fold 5', 'Samsung', 'Màn hình gập 7.6 inch cao cấp, bản lề Flex mới giúp gập không kẽ hở.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-z-fold5-1.jpg', 'SMARTPHONE', 'ANDROID', 7.6, 4400, 12, 'ACTIVE', 650, 4.7, 88, DATE_SUB(NOW(), INTERVAL 40 MINUTE), DATE_SUB(NOW(), INTERVAL 40 MINUTE)),
+--      ('Samsung Galaxy Z Flip 5', 'Samsung', 'Màn hình ngoài Flex Window cực lớn, thiết kế gập vỏ sò thời thượng.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-z-flip5-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 3700, 8, 'ACTIVE', 1200, 4.6, 145, DATE_SUB(NOW(), INTERVAL 45 MINUTE), DATE_SUB(NOW(), INTERVAL 45 MINUTE)),
+--      ('Samsung Galaxy S23 Ultra', 'Samsung', 'Mắt thần bóng đêm 200MP, chip Snapdragon 8 Gen 2 For Galaxy tối ưu cực tốt.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s23-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5000, 8, 'ACTIVE', 5200, 4.8, 680, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Samsung Galaxy S23+', 'Samsung', 'Cân bằng hoàn hảo giữa kích thước và dung lượng pin, thiết kế tối giản sang trọng.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s23-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.6, 4700, 8, 'ACTIVE', 2300, 4.7, 290, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Samsung Galaxy S23 FE', 'Samsung', 'Phiên bản dành cho Fan, sở hữu nhiều tính năng cao cấp với mức giá dễ tiếp cận.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-s23-fe-1.jpg', 'SMARTPHONE', 'ANDROID', 6.4, 4500, 8, 'ACTIVE', 3100, 4.5, 340, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Samsung Galaxy A55', 'Samsung', 'Thiết kế khung kim loại cao cấp, camera 50MP, màn hình mượt mà Super AMOLED 120Hz.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a55-5g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.6, 5000, 8, 'ACTIVE', 3500, 4.5, 450, DATE_SUB(NOW(), INTERVAL 50 MINUTE), DATE_SUB(NOW(), INTERVAL 50 MINUTE)),
+--      ('Samsung Galaxy A35', 'Samsung', 'Màn hình tràn viền Infinity-O đẹp mắt, kháng nước bụi bụi IP67 bền bỉ.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a35-1.jpg', 'SMARTPHONE', 'ANDROID', 6.6, 5000, 8, 'ACTIVE', 4200, 4.4, 490, DATE_SUB(NOW(), INTERVAL 55 MINUTE), DATE_SUB(NOW(), INTERVAL 55 MINUTE)),
+--      ('Samsung Galaxy A25', 'Samsung', 'Hỗ trợ kết nối 5G siêu tốc, màn hình Super AMOLED cùng camera chống rung OIS.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a25-1.jpg', 'SMARTPHONE', 'ANDROID', 6.5, 5000, 6, 'ACTIVE', 4800, 4.3, 510, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Samsung Galaxy A15', 'Samsung', 'Lựa chọn quốc dân phân khúc giá rẻ, màn hình AMOLED sắc nét vượt trội phân khúc.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a15-1.jpg', 'SMARTPHONE', 'ANDROID', 6.5, 5000, 4, 'ACTIVE', 8500, 4.4, 920, DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+--      ('Samsung Galaxy A05s', 'Samsung', 'Màn hình lớn 6.7 inch mượt mà, chip Snapdragon ổn định hiệu năng, pin bền bỉ.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a05s-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 4, 'ACTIVE', 9900, 4.3, 1100, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Samsung Galaxy M54', 'Samsung', 'Quái vật pin trâu dung lượng 6000mAh, camera độ phân giải siêu cao 108MP.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-m54-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 6000, 8, 'ACTIVE', 1900, 4.5, 210, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Samsung Galaxy M34', 'Samsung', 'Pin khủng 6000mAh thoải mái dùng 2 ngày, màn hình Super AMOLED 120Hz mượt mà.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-m34-1.jpg', 'SMARTPHONE', 'ANDROID', 6.5, 6000, 8, 'ACTIVE', 2400, 4.4, 270, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Samsung Galaxy M14', 'Samsung', 'Phân khúc giá rẻ sở hữu pin lớn 6000mAh, hỗ trợ 5G đón đầu xu hướng.', 'https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-m14-1.jpg', 'SMARTPHONE', 'ANDROID', 6.6, 6000, 4, 'ACTIVE', 3800, 4.2, 310, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--
+-- -- === 3. XIAOMI (ID: 46 -> 66) ===
+--      ('Xiaomi 15 Ultra', 'Xiaomi', 'Đỉnh cao nhiếp ảnh cảm biến 1 inch thế hệ mới, chip Snapdragon 8 Gen 4 cực đại.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.73, 5400, 16, 'ACTIVE', 300, 4.9, 35, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Xiaomi 15', 'Xiaomi', 'Flagship nhỏ gọn cấu hình mạnh mẽ nhất, ống kính Leica Summilux cao cấp.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14-5g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.36, 4800, 12, 'ACTIVE', 550, 4.8, 62, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Xiaomi 14 Ultra', 'Xiaomi', 'Hệ thống camera Leica thế hệ mới, màn hình cong LTPO, chip Snapdragon 8 Gen 3.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.73, 5300, 16, 'ACTIVE', 800, 4.7, 120, DATE_SUB(NOW(), INTERVAL 55 MINUTE), DATE_SUB(NOW(), INTERVAL 55 MINUTE)),
+--      ('Xiaomi 14', 'Xiaomi', 'Kích thước nhỏ gọn cầm nắm cực tốt, camera Leica sắc nét, sạc nhanh 90W.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14-5g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.36, 4610, 12, 'ACTIVE', 1200, 4.7, 180, DATE_SUB(NOW(), INTERVAL 60 MINUTE), DATE_SUB(NOW(), INTERVAL 60 MINUTE)),
+--      ('Xiaomi 14T Pro', 'Xiaomi', 'Chuyên gia chụp đêm phân khúc cận cao cấp hợp tác Leica, chip Dimensity 9300+.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14t-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 12, 'ACTIVE', 1100, 4.7, 130, DATE_SUB(NOW(), INTERVAL 4 MONTH), DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+--      ('Xiaomi 14T', 'Xiaomi', 'Thiết kế vuông thời thượng, camera Leica chuyên nghiệp, màn hình AI đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-14t-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 12, 'ACTIVE', 1600, 4.6, 175, DATE_SUB(NOW(), INTERVAL 4 MONTH), DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+--      ('Xiaomi Redmi Note 14 Pro+', 'Xiaomi', 'Thiết kế đổi mới sang trọng, siêu bền bỉ chống va đập, sạc nhanh ấn tượng.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note-13-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 6200, 12, 'ACTIVE', 1400, 4.7, 150, DATE_SUB(NOW(), INTERVAL 3 MONTH), DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+--      ('Xiaomi Redmi Note 14 Pro', 'Xiaomi', 'Màn hình cong nghệ thuật, camera Sony sắc nét, thiết kế chống chịu đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note-13-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5500, 8, 'ACTIVE', 2200, 4.6, 210, DATE_SUB(NOW(), INTERVAL 3 MONTH), DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+--      ('Xiaomi Redmi Note 13 Pro+', 'Xiaomi', 'Camera độ phân giải siêu cao 200MP, kháng nước IP68, sạc siêu tốc 120W.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note-13-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 12, 'ACTIVE', 2800, 4.6, 380, DATE_SUB(NOW(), INTERVAL 65 MINUTE), DATE_SUB(NOW(), INTERVAL 65 MINUTE)),
+--      ('Xiaomi Redmi Note 13 Pro', 'Xiaomi', 'Màn hình 1.5K AMOLED tuyệt đẹp, camera 200MP chống rung OIS ổn định.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note-13-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5100, 8, 'ACTIVE', 3400, 4.5, 410, DATE_SUB(NOW(), INTERVAL 66 MINUTE), DATE_SUB(NOW(), INTERVAL 66 MINUTE)),
+--      ('Xiaomi Redmi Note 13', 'Xiaomi', 'Màn hình AMOLED 120Hz viền siêu mỏng, camera 108MP, giá thành cực tốt.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note-13-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 6, 'ACTIVE', 5000, 4.5, 620, DATE_SUB(NOW(), INTERVAL 75 MINUTE), DATE_SUB(NOW(), INTERVAL 75 MINUTE)),
+--      ('Xiaomi Poco F6 Pro', 'Xiaomi', 'Sát thủ flagship cấu hình siêu khủng chip Snapdragon 8 Gen 2, sạc nhanh 120W.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-poco-f6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 12, 'ACTIVE', 950, 4.7, 115, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Xiaomi Poco F6', 'Xiaomi', 'Cấu hình gaming tối ưu mạnh mẽ với chip Snapdragon 8s Gen 3 tân tiến.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-poco-f6-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 1300, 4.6, 140, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Xiaomi Poco X6 Pro', 'Xiaomi', 'Quái vật cấu hình tầm trung, chip Dimensity 8300-Ultra, màn hình AMOLED 1.5K.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-poco-x6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 12, 'ACTIVE', 1800, 4.5, 260, DATE_SUB(NOW(), INTERVAL 70 MINUTE), DATE_SUB(NOW(), INTERVAL 70 MINUTE)),
+--      ('Xiaomi Poco X6', 'Xiaomi', 'Trải nghiệm mượt mà tầm giá, màn hình sắc nét sắc sảo, viền siêu mỏng gọn.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-poco-x6-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5100, 8, 'ACTIVE', 2100, 4.4, 230, DATE_SUB(NOW(), INTERVAL 72 MINUTE), DATE_SUB(NOW(), INTERVAL 72 MINUTE)),
+--      ('Xiaomi Poco M6 Pro', 'Xiaomi', 'Thiết kế mặt lưng 2 tông màu cá tính, sạc nhanh 67W, màn hình 120Hz mượt mà.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-poco-m6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 2900, 4.4, 310, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Xiaomi Redmi 13', 'Xiaomi', 'Mặt lưng kính sang trọng độc đáo, camera độ phân giải cao 108MP rõ nét.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-13-1.jpg', 'SMARTPHONE', 'ANDROID', 6.79, 5030, 6, 'ACTIVE', 4300, 4.3, 380, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Xiaomi Redmi 13C', 'Xiaomi', 'Màn hình lớn trải nghiệm thoải mái, pin trâu dùng cả ngày, giá siêu bình dân.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-13c-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 5000, 4, 'ACTIVE', 9200, 4.4, 850, DATE_SUB(NOW(), INTERVAL 9 MONTH), DATE_SUB(NOW(), INTERVAL 9 MONTH)),
+--      ('Xiaomi Redmi A3', 'Xiaomi', 'Thiết kế cụm camera tròn độc đáo phong cách flagship, giá rẻ cho mọi người.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-a3-1.jpg', 'SMARTPHONE', 'ANDROID', 6.71, 5000, 3, 'ACTIVE', 8800, 4.2, 790, DATE_SUB(NOW(), INTERVAL 10 MONTH), DATE_SUB(NOW(), INTERVAL 10 MONTH)),
+--      ('Xiaomi 13 Ultra', 'Xiaomi', 'Đỉnh cao camera thế hệ cũ cảm biến 1 inch Leica, cấu hình vẫn cực mạnh.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-13-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.73, 5000, 12, 'ACTIVE', 1500, 4.8, 220, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Xiaomi 13 Pro', 'Xiaomi', 'Thiết kế gốm sang trọng đỉnh cao, camera Leica xuất sắc, sạc siêu nhanh 120W.', 'https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-13-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.73, 4820, 12, 'ACTIVE', 2400, 4.7, 310, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--
+-- -- === 4. OPPO (ID: 67 -> 87) ===
+--      ('Oppo Find X8 Ultra', 'Oppo', 'Siêu phẩm camera tương lai zoom tàu ngầm kép cải tiến, chip siêu cấp.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-x7-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.82, 5300, 16, 'ACTIVE', 80, 4.9, 10, NOW(), NOW()),
+--      ('Oppo Find X8 Pro', 'Oppo', 'Thiết kế đẳng cấp tràn cạnh, camera Hasselblad tối ưu màu sắc đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-x7-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5200, 16, 'ACTIVE', 250, 4.8, 32, DATE_SUB(NOW(), INTERVAL 2 MONTH), DATE_SUB(NOW(), INTERVAL 2 MONTH)),
+--      ('Oppo Find X7 Ultra', 'Oppo', 'Hệ thống camera Periscope kép độc bản, chip Snapdragon 8 Gen 3, sạc siêu nhanh 100W.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-x7-ultra-1.jpg', 'SMARTPHONE', 'ANDROID', 6.82, 5000, 16, 'ACTIVE', 450, 4.6, 70, DATE_SUB(NOW(), INTERVAL 80 MINUTE), DATE_SUB(NOW(), INTERVAL 80 MINUTE)),
+--      ('Oppo Find N3', 'Oppo', 'Màn hình gập ngang mỏng nhất thế giới, tối ưu không gian làm việc đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-n3-1.jpg', 'SMARTPHONE', 'ANDROID', 7.82, 4805, 16, 'ACTIVE', 520, 4.8, 65, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Oppo Find N3 Flip', 'Oppo', 'Màn hình phụ dạng dọc tiện lợi, cụm 3 camera Hasselblad chất lượng đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-n3-flip-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 4300, 12, 'ACTIVE', 400, 4.5, 52, DATE_SUB(NOW(), INTERVAL 95 MINUTE), DATE_SUB(NOW(), INTERVAL 95 MINUTE)),
+--      ('Oppo Reno 12 Pro', 'Oppo', 'Thiết kế dòng chảy bạc tương lai, tích hợp AI sáng tạo ảnh thông minh đột phá.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno12-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 12, 'ACTIVE', 1200, 4.7, 140, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Oppo Reno 12', 'Oppo', 'Chuyên gia chân dung AI cao cấp, thiết kế mỏng nhẹ lấp lánh bền bỉ kiên cố.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno12-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 12, 'ACTIVE', 2100, 4.6, 230, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Oppo Reno 12 F', 'Oppo', 'Thiết kế vòng sáng năng động phong cách trẻ trung, camera AI chụp ảnh sắc nét.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno12-f-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 3200, 4.5, 290, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Oppo Reno 11 Pro', 'Oppo', 'Chuyên gia chân dung AI cao cấp, thiết kế mỏng nhẹ lấp lánh thời trang.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno11-pro-5g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4600, 12, 'ACTIVE', 950, 4.4, 110, DATE_SUB(NOW(), INTERVAL 85 MINUTE), DATE_SUB(NOW(), INTERVAL 85 MINUTE)),
+--      ('Oppo Reno 11', 'Oppo', 'Camera chân dung chuyên nghiệp, màn hình cong 3D mượt mà, sạc nhanh SuperVOOC.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno11-5g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 1500, 4.4, 180, DATE_SUB(NOW(), INTERVAL 90 MINUTE), DATE_SUB(NOW(), INTERVAL 90 MINUTE)),
+--      ('Oppo Reno 11 F', 'Oppo', 'Thiết kế vân kim cương bắt mắt, kháng nước IP65 an tâm sử dụng hàng ngày.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno11f-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 2800, 4.5, 260, DATE_SUB(NOW(), INTERVAL 10 MONTH), DATE_SUB(NOW(), INTERVAL 10 MONTH)),
+--      ('Oppo A3 Pro', 'Oppo', 'Vua độ bền phân khúc tầm trung, kháng nước ngâm mình, thiết kế giả da sang trọng.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a3-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 4500, 4.6, 390, DATE_SUB(NOW(), INTERVAL 4 MONTH), DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+--      ('Oppo A98', 'Oppo', 'Sạc siêu nhanh 67W, màn hình mượt mà tần số quét 120Hz, camera kính hiển vi độc đáo.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a98-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 8, 'ACTIVE', 2200, 4.3, 190, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Oppo A79', 'Oppo', 'Thiết kế lông vũ độc đáo, loa kép âm thanh nổi sống động, pin lớn bền bỉ.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a79-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 8, 'ACTIVE', 2300, 4.3, 140, DATE_SUB(NOW(), INTERVAL 100 MINUTE), DATE_SUB(NOW(), INTERVAL 100 MINUTE)),
+--      ('Oppo A60', 'Oppo', 'Thiết kế siêu mỏng thời thượng, đạt chứng nhận độ bền quân đội Mỹ siêu bền bỉ.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a60-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 5900, 4.5, 480, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Oppo A58', 'Oppo', 'Màn hình hiển thị sắc nét rực rỡ, pin khỏe đi kèm sạc nhanh đầy năng lượng.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a58-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 6, 'ACTIVE', 7800, 4.4, 690, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Oppo A38', 'Oppo', 'Thiết kế năng động cá tính năng, camera 50MP bắt trọn khoảnh khắc thường ngày.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a38-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5000, 4, 'ACTIVE', 8900, 4.3, 720, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Oppo A18', 'Oppo', 'Smartphone giá rẻ đáng sở hữu mượt mà ổn định lâu dài, thiết kế tinh tế gọn nhẹ.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-a18-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5000, 4, 'ACTIVE', 9500, 4.2, 810, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Oppo Find X6 Pro', 'Oppo', 'Đỉnh cao camera thế hệ cũ phong cách cổ điển, cấu hình siêu mạnh mẽ chip Snapdragon.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-find-x6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.82, 5000, 12, 'ACTIVE', 1200, 4.7, 180, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR)),
+--      ('Oppo Reno 10 Pro+', 'Oppo', 'Flagship dòng Reno trang bị camera tiềm vọng đỉnh cao zoom sắc nét ấn tượng.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno10-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 4700, 16, 'ACTIVE', 1800, 4.6, 210, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Oppo Reno 10', 'Oppo', 'Chuyên gia chân dung thế hệ cũ, thiết kế bo cong mềm mại mượt mà thanh lịch.', 'https://fdn2.gsmarena.com/vv/pics/oppo/oppo-reno10-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 4200, 4.4, 430, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--
+-- -- === 5. VIVO (ID: 88 -> 108) ===
+--      ('Vivo X200 Pro', 'Vivo', 'Siêu phẩm camera hợp tác ZEISS chip Dimensity 9400 đỉnh cao hiệu năng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-x100-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 6000, 16, 'ACTIVE', 150, 4.9, 20, DATE_SUB(NOW(), INTERVAL 3 MONTH), DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+--      ('Vivo X100 Pro', 'Vivo', 'Ống kính ZEISS cao cấp APO, chip Dimensity 9300 xử lý đồ họa mượt mà.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-x100-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5400, 16, 'ACTIVE', 380, 4.6, 55, DATE_SUB(NOW(), INTERVAL 105 MINUTE), DATE_SUB(NOW(), INTERVAL 105 MINUTE)),
+--      ('Vivo X100', 'Vivo', 'Màn hình siêu sáng rực rỡ nét sâu, cụm camera ZEISS chụp ảnh nghệ thuật đỉnh cao.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-x100-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5000, 12, 'ACTIVE', 620, 4.6, 78, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Vivo V40 Pro', 'Vivo', 'Hệ thống ánh sáng Aura thế hệ mới thông minh, camera ZEISS toàn diện cao cấp.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 12, 'ACTIVE', 450, 4.8, 50, DATE_SUB(NOW(), INTERVAL 4 MONTH), DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+--      ('Vivo V40', 'Vivo', 'Thiết kế thời trang siêu mỏng tinh tế, kháng nước bụi tiêu chuẩn cao cấp IP68.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 8, 'ACTIVE', 890, 4.6, 95, DATE_SUB(NOW(), INTERVAL 4 MONTH), DATE_SUB(NOW(), INTERVAL 4 MONTH)),
+--      ('Vivo V30 Pro', 'Vivo', 'Hệ thống Aura Light chụp chân dung độc quyền, 3 camera đồng độ 50MP từ ZEISS.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5000, 12, 'ACTIVE', 750, 4.5, 88, DATE_SUB(NOW(), INTERVAL 110 MINUTE), DATE_SUB(NOW(), INTERVAL 110 MINUTE)),
+--      ('Vivo V30', 'Vivo', 'Thiết kế siêu mỏng nhẹ, màn hình cong tràn cạnh, camera selfie góc rộng 50MP.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5000, 8, 'ACTIVE', 1100, 4.4, 115, DATE_SUB(NOW(), INTERVAL 115 MINUTE), DATE_SUB(NOW(), INTERVAL 115 MINUTE)),
+--      ('Vivo V30e', 'Vivo', 'Màn hình cong cao cấp phân khúc tầm trung, dung lượng pin bền bỉ ấn tượng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30e-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 8, 'ACTIVE', 1400, 4.4, 130, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Vivo V29 Pro', 'Vivo', 'Chuyên gia chân dung thế hệ cũ nghệ thuật, thiết kế mặt lưng kính mờ sang trọng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v29-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 4600, 12, 'ACTIVE', 1900, 4.5, 210, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Vivo V29', 'Vivo', 'Hỗ trợ đèn Aura Light thế hệ đầu tiên độc đáo sắc nét, cấu hình mượt ổn định.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v29-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 4600, 8, 'ACTIVE', 2500, 4.4, 270, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Vivo Y100', 'Vivo', 'Mặt lưng đổi màu độc đáo dưới ánh nắng, sạc siêu tốc 80W, loa kép siêu âm lượng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y100-4g-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 2600, 4.4, 210, DATE_SUB(NOW(), INTERVAL 120 MINUTE), DATE_SUB(NOW(), INTERVAL 120 MINUTE)),
+--      ('Vivo Y58', 'Vivo', 'Thiết kế sang trọng bắt mắt cuốn hút, dung lượng pin khủng trải nghiệm suốt ngày dài.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y58-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 6000, 8, 'ACTIVE', 1800, 4.3, 150, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Vivo Y38', 'Vivo', 'Hỗ trợ mạng 5G tốc độ nhanh vượt trội, sạc nhanh công suất lớn an tâm sử dụng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y38-1.jpg', 'SMARTPHONE', 'ANDROID', 6.68, 6000, 8, 'ACTIVE', 2100, 4.3, 175, DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+--      ('Vivo Y28', 'Vivo', 'Thiết kế khung viền vuông thời thượng sang đẹp, thời lượng pin trâu dùng thả ga.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y28-1.jpg', 'SMARTPHONE', 'ANDROID', 6.68, 6000, 8, 'ACTIVE', 5400, 4.4, 460, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Vivo Y18', 'Vivo', 'Smartphone phân khúc phổ thông giá rẻ cực tốt mượt mà, màn hình sáng hiển thị nét.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y18-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5000, 4, 'ACTIVE', 7200, 4.2, 590, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Vivo Y03', 'Vivo', 'Lựa chọn cơ bản tối ưu chi phí phân khúc bình dân, pin bền bỉ sử dụng mượt.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y03-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5000, 4, 'ACTIVE', 9100, 4.3, 780, DATE_SUB(NOW(), INTERVAL 9 MONTH), DATE_SUB(NOW(), INTERVAL 9 MONTH)),
+--      ('Vivo iQOO Neo 9 Pro', 'Vivo', 'Quái kiệt gaming cấu hình mạnh đỉnh vi xử lý Dimensity 9300 mạnh mẽ ấn tượng.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-neo9-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5160, 16, 'ACTIVE', 950, 4.8, 120, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Vivo iQOO Neo 9', 'Vivo', 'Cấu hình gaming cực khủng, chip Snapdragon 8 Gen 2, màn hình tần số quét 144Hz.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-neo9-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5160, 12, 'ACTIVE', 850, 4.7, 95, DATE_SUB(NOW(), INTERVAL 125 MINUTE), DATE_SUB(NOW(), INTERVAL 125 MINUTE)),
+--      ('Vivo iQOO Z9 Pro', 'Vivo', 'Hiệu năng phân khúc tầm trung tối ưu cực tốt cho game thủ màn hình siêu mượt.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-z9-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 8, 'ACTIVE', 1300, 4.6, 140, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Vivo iQOO Z9', 'Vivo', 'Thiết kế mỏng nhẹ tinh tế năng động, vi xử lý mạnh mẽ mát máy pin cực trâu.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-z9-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 1700, 4.5, 165, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Vivo T2x', 'Vivo', 'Dòng máy tối ưu cấu hình phân khúc giá bình dân mượt ổn định bền lâu.', 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y18-1.jpg', 'SMARTPHONE', 'ANDROID', 6.58, 5000, 6, 'ACTIVE', 3200, 4.3, 290, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--
+-- -- === 6. REALME (ID: 109 -> 129) ===
+--      ('Realme GT 7 Pro', 'Realme', 'Siêu phẩm gaming tương lai tích hợp chip Snapdragon thế hệ mới siêu việt.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-6-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 6500, 16, 'ACTIVE', 90, 4.9, 12, NOW(), NOW()),
+--      ('Realme GT 6', 'Realme', 'Độ sáng màn hình tối đa lên tới 6000 nits, vi xử lý cận cao cấp Snapdragon 8s Gen 3.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-6-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 12, 'ACTIVE', 550, 4.4, 75, DATE_SUB(NOW(), INTERVAL 130 MINUTE), DATE_SUB(NOW(), INTERVAL 130 MINUTE)),
+--      ('Realme GT 6T', 'Realme', 'Sát thủ tầm trung màn hình siêu sáng nét, sạc siêu tốc SuperVOOC ấn tượng.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-6-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 8, 'ACTIVE', 780, 4.5, 88, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Realme GT Neo 6', 'Realme', 'Cấu hình gaming cực mạnh mẽ vượt cấp chip Snapdragon 8s Gen 3 đỉnh phân khúc.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-neo6-se-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 12, 'ACTIVE', 1100, 4.6, 125, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Realme GT Neo 6 SE', 'Realme', 'Hiệu năng gaming vượt trội tầm giá, màn hình bảo vệ mắt tối ưu, pin cực lớn.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-neo6-se-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5500, 12, 'ACTIVE', 900, 4.5, 110, DATE_SUB(NOW(), INTERVAL 135 MINUTE), DATE_SUB(NOW(), INTERVAL 135 MINUTE)),
+--      ('Realme 13 Pro Max', 'Realme', 'Trang bị camera AI cao cấp kiến trúc tiên tiến mới siêu nét nghệ thuật đẹp.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5200, 12, 'ACTIVE', 430, 4.8, 52, DATE_SUB(NOW(), INTERVAL 3 MONTH), DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+--      ('Realme 13 Pro', 'Realme', 'Thiết kế mặt lưng lấy cảm hứng nghệ thuật đỉnh cao tinh tế sắc sảo sang trọng.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5200, 8, 'ACTIVE', 680, 4.7, 72, DATE_SUB(NOW(), INTERVAL 3 MONTH), DATE_SUB(NOW(), INTERVAL 3 MONTH)),
+--      ('Realme 12 Pro+', 'Realme', 'Thiết kế lấy cảm hứng từ đồng hồ luxury, trang bị camera tiềm vọng cao cấp.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 1200, 4.5, 130, DATE_SUB(NOW(), INTERVAL 140 MINUTE), DATE_SUB(NOW(), INTERVAL 140 MINUTE)),
+--      ('Realme 12 Pro', 'Realme', 'Màn hình cong tràn cạnh cuốn hút tinh mượt, camera chụp chân dung xa rõ nét.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 1400, 4.5, 145, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Realme 12+', 'Realme', 'Mặt lưng giả da cao cấp chống bám vân tay sang trọng mượt mà, sạc siêu nhanh.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 8, 'ACTIVE', 1900, 4.4, 180, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Realme 12', 'Realme', 'Camera 108MP chi tiết cao, thiết kế vuông vắn trendy thời thượng, sạc nhanh 45W.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 8, 'ACTIVE', 2400, 4.3, 195, DATE_SUB(NOW(), INTERVAL 145 MINUTE), DATE_SUB(NOW(), INTERVAL 145 MINUTE)),
+--      ('Realme 12x', 'Realme', 'Hỗ trợ mạng 5G quốc dân mượt thiết kế siêu mỏng nhẹ thời trang tinh mượt đẹp.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 6, 'ACTIVE', 3500, 4.3, 260, DATE_SUB(NOW(), INTERVAL 8 MONTH), DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+--      ('Realme C67', 'Realme', 'Camera độ phân giải 108MP sắc nét đột phá dòng C phân khúc bình dân đẹp.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 8, 'ACTIVE', 5200, 4.4, 480, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Realme C65', 'Realme', 'Thiết kế mặt lưng ánh sao lấp lánh, sạc SuperVOOC 45W an toàn, mượt mà chuẩn 4 năm.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 5000, 6, 'ACTIVE', 4100, 4.4, 340, DATE_SUB(NOW(), INTERVAL 150 MINUTE), DATE_SUB(NOW(), INTERVAL 150 MINUTE)),
+--      ('Realme C63', 'Realme', 'Mặt lưng giả da phân khúc giá rẻ độc đáo ấn tượng sang đẹp, sạc nhanh cấp tốc.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 5000, 4, 'ACTIVE', 4900, 4.3, 410, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Realme C61', 'Realme', 'Smartphone giá siêu rẻ siêu bền bỉ chống chịu va đập tốt an tâm trải nghiệm lâu.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 5000, 4, 'ACTIVE', 5600, 4.2, 490, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Realme C55', 'Realme', 'Thiết kế đảo mini capsule độc đáo dòng cũ mượt mà ổn định pin trâu bền đẹp.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.72, 5000, 6, 'ACTIVE', 9800, 4.4, 1100, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Realme C53', 'Realme', 'Mặt lưng ánh kim lấp lánh sang đẹp phân khúc giá bình dân lựa chọn mượt tốt.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 5000, 4, 'ACTIVE', 8900, 4.3, 940, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Realme C51', 'Realme', 'Lựa chọn cơ bản tiết kiệm chi phí tối đa dùng mượt nghe gọi to rõ pin trâu.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-1.jpg', 'SMARTPHONE', 'ANDROID', 6.74, 5000, 4, 'ACTIVE', 9400, 4.2, 890, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Realme 11 Pro+', 'Realme', 'Flagship dòng số thế hệ cũ thiết kế luxury tinh vân bọc da cực đẹp camera sắc.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 12, 'ACTIVE', 3200, 4.6, 380, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR)),
+--      ('Realme 11', 'Realme', 'Thiết kế hào quang rực rỡ vàng óng mượt mà ổn định phân khúc tầm trung tốt.', 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-1.jpg', 'SMARTPHONE', 'ANDROID', 6.4, 5000, 8, 'ACTIVE', 5400, 4.4, 520, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR)),
+--
+-- -- === 7. HONOR (ID: 130 -> 150) ===
+--      ('Honor Magic 7 Pro', 'Honor', 'Siêu phẩm đột phá tương lai camera Falcon AI nhiếp ảnh bắt trọn khoảnh khắc.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5800, 16, 'ACTIVE', 60, 4.9, 8, NOW(), NOW()),
+--      ('Honor Magic 6 Pro', 'Honor', 'Camera Falcon siêu chụp khoảnh khắc, màn hình gốm thủy tinh siêu bền chống vỡ.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 5600, 12, 'ACTIVE', 420, 4.8, 65, DATE_SUB(NOW(), INTERVAL 155 MINUTE), DATE_SUB(NOW(), INTERVAL 155 MINUTE)),
+--      ('Honor Magic 6 Lite', 'Honor', 'Màn hình siêu bảo vệ chống chịu lực va đập toàn diện 360 độ độc quyền cực bền.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5300, 8, 'ACTIVE', 980, 4.5, 110, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Honor Magic V3', 'Honor', 'Màn hình gập mỏng nhẹ kỷ lục thế giới thiết kế tinh xảo đẳng cấp quý phái.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 7.92, 5150, 12, 'ACTIVE', 350, 4.8, 42, DATE_SUB(NOW(), INTERVAL 5 MONTH), DATE_SUB(NOW(), INTERVAL 5 MONTH)),
+--      ('Honor Magic V2', 'Honor', 'Huyền thoại siêu mỏng dòng máy gập tinh tế sang trọng đỉnh cao công nghệ mượt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 7.92, 5000, 16, 'ACTIVE', 620, 4.7, 75, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Honor 200 Pro', 'Honor', 'Chế độ chụp chân dung chuẩn Studio Harcourt Paris, màn hình cong mượt mà 120Hz.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5200, 12, 'ACTIVE', 680, 4.6, 78, DATE_SUB(NOW(), INTERVAL 160 MINUTE), DATE_SUB(NOW(), INTERVAL 160 MINUTE)),
+--      ('Honor 200', 'Honor', 'Thiết kế thanh lịch siêu mỏng, camera selfie 50MP sắc nét, sạc nhanh siêu tốc 100W.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5200, 8, 'ACTIVE', 950, 4.5, 102, DATE_SUB(NOW(), INTERVAL 165 MINUTE), DATE_SUB(NOW(), INTERVAL 165 MINUTE)),
+--      ('Honor 200 Lite', 'Honor', 'Thiết kế siêu mỏng nhẹ thời trang, màn hình AMOLED sống động sắc nét camera rõ.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4500, 8, 'ACTIVE', 1400, 4.4, 115, DATE_SUB(NOW(), INTERVAL 6 MONTH), DATE_SUB(NOW(), INTERVAL 6 MONTH)),
+--      ('Honor 100 Pro', 'Honor', 'Thiết kế mặt lưng 2 tông màu nghệ thuật phá cách độc đáo, cấu hình siêu mạnh.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5000, 12, 'ACTIVE', 1100, 4.5, 130, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Honor 100', 'Honor', 'Kiểu dáng độc đáo mượt mà ổn định phân khúc cận cao cấp trải nghiệm cực tốt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 1500, 4.4, 160, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Honor X9b', 'Honor', 'Màn hình chống va đập toàn diện 360 độ độc quyền, pin dùng thoải mái 3 ngày.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5800, 12, 'ACTIVE', 1800, 4.5, 145, DATE_SUB(NOW(), INTERVAL 170 MINUTE), DATE_SUB(NOW(), INTERVAL 170 MINUTE)),
+--      ('Honor X8b', 'Honor', 'Trang bị cụm camera 108MP siêu nét góc rộng tinh mượt, thiết kế giả da lịch lãm.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4500, 8, 'ACTIVE', 2300, 4.4, 195, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Honor X7b', 'Honor', 'Loa kép âm thanh siêu âm lượng lớn cực đã, dung lượng pin lớn trâu trải nghiệm.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 'SMARTPHONE', 'ANDROID', 6.8, 6000, 6, 'ACTIVE', 3900, 4.4, 340, DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 YEAR)),
+--      ('Honor X6a', 'Honor', 'Màn hình mượt mà phân khúc giá bình dân kinh tế, thời lượng pin trâu dùng tốt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5200, 4, 'ACTIVE', 5400, 4.2, 480, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Honor X5plus', 'Honor', 'Lựa chọn cơ bản đơn giản tối ưu chi phí sử dụng nghe gọi to rõ pin trâu bền máy.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-1.jpg', 'SMARTPHONE', 'ANDROID', 6.56, 5200, 4, 'ACTIVE', 6200, 4.1, 510, DATE_SUB(NOW(), INTERVAL 1.5 YEAR), DATE_SUB(NOW(), INTERVAL 1.5 YEAR)),
+--      ('Honor 90 Pro', 'Honor', 'Màn hình bảo vệ mắt đỉnh cao công nghệ giảm nhấp nháy tần số siêu cao mượt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 5000, 12, 'ACTIVE', 1600, 4.6, 190, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR)),
+--      ('Honor 90', 'Honor', 'Camera siêu độ phân giải 200MP rõ nét đến từng chi tiết nhỏ kiểu dáng thời trang.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 5000, 8, 'ACTIVE', 2800, 4.5, 310, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR)),
+--      ('Honor 90 Lite', 'Honor', 'Thiết kế vuông vắn mỏng nhẹ, camera 100MP siêu nét, bộ nhớ lớn lưu trữ thả ga.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4500, 8, 'ACTIVE', 2100, 4.3, 160, DATE_SUB(NOW(), INTERVAL 175 MINUTE), DATE_SUB(NOW(), INTERVAL 175 MINUTE)),
+--      ('Honor 70 Pro', 'Honor', 'Dòng máy thế hệ cũ phong cách sang trọng tinh tế bo cong ôm tay chụp ảnh rõ nét.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-1.jpg', 'SMARTPHONE', 'ANDROID', 6.78, 4500, 12, 'ACTIVE', 3100, 4.5, 390, DATE_SUB(NOW(), INTERVAL 3 YEAR), DATE_SUB(NOW(), INTERVAL 3 YEAR)),
+--      ('Honor 70', 'Honor', 'Thiết kế vòng nhẫn kép độc đáo ấn tượng bắt mắt siêu mỏng nhẹ dùng cực mượt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-1.jpg', 'SMARTPHONE', 'ANDROID', 6.67, 4800, 8, 'ACTIVE', 4200, 4.4, 460, DATE_SUB(NOW(), INTERVAL 3 YEAR), DATE_SUB(NOW(), INTERVAL 3 YEAR)),
+--      ('Honor X8a', 'Honor', 'Thiết kế vuông vắn mỏng nhẹ tinh tế phân khúc giá rẻ chụp ảnh độ nét cao tốt.', 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-1.jpg', 'SMARTPHONE', 'ANDROID', 6.7, 4500, 6, 'ACTIVE', 4800, 4.2, 410, DATE_SUB(NOW(), INTERVAL 2 YEAR), DATE_SUB(NOW(), INTERVAL 2 YEAR));
+--
+--
+-- -- =========================================================================
+-- -- II. BIẾN THỂ SẢN PHẨM (PRODUCT VARIANTS) - ID TỪ 1 -> 93
+-- -- =========================================================================
+--
+-- INSERT INTO product_variants (product_id, storage, color, color_hex, price, discount_price, stock_quantity, status) VALUES
+--
+-- -- 1. iPhone 17 Pro Max (ID: 1)
+-- -- Mùa Bạc (Silver) đầy đủ 3 dung lượng
+-- (1, 256,  'Bạc',               '#F5F5F7', 34990000, 33990000, 50,  'ACTIVE'),
+-- (1, 512,  'Bạc',               '#F5F5F7', 39990000, 38990000, 30,  'ACTIVE'),
+-- (1, 1024, 'Bạc',               '#F5F5F7', 46990000, 45990000, 15,  'ACTIVE'),
+--
+-- -- Màu Xanh Đậm (Dark Blue) đầy đủ 3 dung lượng
+-- (1, 256,  'Xanh Đậm',          '#1E293B', 34990000, 33990000, 50,  'ACTIVE'),
+-- (1, 512,  'Xanh Đậm',          '#1E293B', 39990000, 38990000, 30,  'ACTIVE'),
+-- (1, 1024, 'Xanh Đậm',         '#1E293B', 46990000, 45990000, 15,  'ACTIVE'),
+--
+--     -- Màu Cam Vũ Trụ (Cosmic Orange) đầy đủ 3 dung lượng
+-- (1, 256,  'Cam Vũ Trụ',        '#D97706', 34990000, 33990000, 50,  'ACTIVE'),
+-- (1, 512,  'Cam Vũ Trụ',        '#D97706', 39990000, 38990000, 30,  'ACTIVE'),
+-- (1, 1024, 'Cam Vũ Trụ',        '#D97706', 46990000, 45990000, 15,  'ACTIVE'),
+--
+--     -- 2. iPhone 17 Pro (ID: 2)
+-- -- iPhone 17 Pro - Màu Bạc
+-- (2, 256,  'Bạc',               '#F5F5F7', 30990000, 29990000, 60,  'ACTIVE'),
+-- (2, 512,  'Bạc',               '#F5F5F7', 35990000, 34990000, 40,  'ACTIVE'),
+--
+--     -- iPhone 17 Pro - Màu Xanh Đậm
+-- (2, 256,  'Xanh Đậm',          '#1E293B', 30990000, 29990000, 60,  'ACTIVE'),
+-- (2, 512,  'Xanh Đậm',          '#1E293B', 35990000, 34990000, 40,  'ACTIVE'),
+--
+--     -- iPhone 17 Pro - Màu Cam Vũ Trụ
+-- (2, 256,  'Cam Vũ Trụ',        '#D97706', 30990000, 29990000, 60,  'ACTIVE'),
+-- (2, 512,  'Cam Vũ Trụ',        '#D97706', 35990000, 34990000, 40,  'ACTIVE'),
+--
+--
+--
+-- -- 4. iPhone 17 (ID: 3)
+-- (3, 128,  'Đen Tuyền',         '#1C1C1E', 22990000, 21990000, 100, 'ACTIVE'),
+-- (3, 256,  'Xanh Mint',         '#E2F0D9', 25990000, 24990000, 80,  'ACTIVE'),
+-- (3, 512,  'Hồng Nhạt',         '#FAD0C4', 31990000, 30490000, 15,  'ACTIVE'),
+--
+-- -- 5. iPhone 16 Pro Max (ID: 4)
+-- (4, 256,  'Titan Sa Mạc',      '#C2B4A6', 31990000, 30990000, 120, 'ACTIVE'),
+-- (4, 512,  'Titan Tự Nhiên',    '#8E8C87', 36990000, 35490000, 85,  'ACTIVE'),
+-- (4, 1024, 'Titan Đen',         '#232526', 43990000, 42490000, 40,  'ACTIVE'),
+--
+-- -- 6. iPhone 16 Pro (ID: 5)
+-- (5, 128,  'Titan Trắng',       '#F2F1ED', 25990000, 24790000, 90,  'ACTIVE'),
+-- (5, 256,  'Titan Sa Mạc',      '#C2B4A6', 28990000, 27690000, 110, 'ACTIVE'),
+-- (5, 512,  'Titan Đen',         '#232526', 34990000, 33490000, 30,  'ACTIVE'),
+--
+--
+-- -- 8. iPhone 16 (ID: 6)
+-- (6, 128,  'Hồng',              '#FFB6C1', 19990000, 18990000, 200, 'ACTIVE'),
+-- (6, 256,  'Đen',               '#1C1C1E', 22990000, 21990000, 150, 'ACTIVE'),
+-- (6, 512,  'Trắng',             '#FFFFFF', 28990000, 27490000, 25,  'ACTIVE'),
+--
+-- -- 9. iPhone 15 Pro Max (ID: 7)
+-- (7, 256,  'Titan Tự Nhiên',    '#8E8C87', 28990000, 26990000, 140, 'ACTIVE'),
+-- (7, 512,  'Titan Xanh',        '#2F4452', 33990000, 31990000, 90,  'ACTIVE'),
+-- (7, 1024, 'Titan Đen',         '#232526', 40990000, 38990000, 35,  'ACTIVE'),
+--
+-- -- 10. iPhone 15 Pro (ID: 8)
+-- (8, 128, 'Titan Trắng',       '#F2F1ED', 22990000, 21490000, 80,  'ACTIVE'),
+-- (8, 256, 'Titan Tự Nhiên',    '#8E8C87', 25990000, 24290000, 95,  'ACTIVE'),
+--
+--
+-- -- 12. iPhone 15 (ID: 9)
+-- (9, 128, 'Đen',               '#1C1C1E', 17990000, 16690000, 220, 'ACTIVE'),
+-- (9, 256, 'Xanh Lá',           '#E0F0E3', 20990000, 19490000, 130, 'ACTIVE'),
+-- (9, 512, 'Vàng Chanh',        '#FEF7DC', 26990000, 24990000, 15,  'ACTIVE'),
+--
+-- -- 13. iPhone 14 Pro Max (ID: 10)
+-- (10, 128, 'Tím Đậm',           '#3E3B4F', 24990000, 22990000, 45,  'ACTIVE'),
+-- (10, 256, 'Vàng Gold',         '#EAE6D8', 27490000, 25490000, 60,  'ACTIVE'),
+-- (10, 512, 'Bạc Silver',        '#F5F5F7', 32490000, 30490000, 20,  'ACTIVE'),
+--
+-- -- 14. iPhone 14 Pro (ID: 11)
+-- (11, 128, 'Tím Đậm',           '#3E3B4F', 21990000, 19990000, 40,  'ACTIVE'),
+-- (11, 256, 'Đen Không Gian',    '#2C2C2C', 24490000, 22490000, 50,  'ACTIVE'),
+--
+--
+-- -- 16. iPhone 14 (ID: 12)
+-- (12, 128, 'Đỏ (Product RED)',  '#E11D48', 15990000, 14490000, 85,  'ACTIVE'),
+-- (12, 256, 'Trắng Starlight',   '#F9F6EE', 18990000, 17490000, 70,  'ACTIVE'),
+--
+-- -- 17. iPhone 13 Pro Max (ID: 13)
+-- (13, 128, 'Xanh Sierra Blue',  '#9BB5CE', 20990000, 18990000, 75,  'ACTIVE'),
+-- (13, 256, 'Xanh Alpine Green', '#4E5B4E', 22990000, 20990000, 65,  'ACTIVE'),
+-- (13, 512, 'Vàng Gold',         '#EAE6D8', 26990000, 24990000, 10,  'ACTIVE'),
+--
+-- -- 18. iPhone 13 Pro (ID: 14)
+-- (14, 128, 'Xanh Sierra Blue',  '#9BB5CE', 18490000, 16990000, 35,  'ACTIVE'),
+-- (14, 256, 'Xám Graphite',      '#4B4B4B', 20990000, 19490000, 40,  'ACTIVE'),
+--
+-- -- 19. iPhone 13 (ID: 15)
+-- (15, 128, 'Hồng Pink',         '#FFC0CB', 13990000, 12690000, 180, 'ACTIVE'),
+-- (15, 256, 'Xanh Midnight',     '#171E26', 16490000, 14990000, 120, 'ACTIVE'),
+--
+-- -- 20. iPhone 13 mini (ID: 16)
+-- (16, 128, 'Xanh Midnight',     '#171E26', 11990000, 10490000, 45,  'ACTIVE'),
+-- (16, 256, 'Trắng Starlight',   '#F9F6EE', 14490000, 12990000, 20,  'ACTIVE'),
+--
+-- -- 21. iPhone 12 Pro Max (ID: 17)
+-- (17, 128, 'Xanh Pacific Blue', '#2E4A62', 16990000, 14990000, 50,  'ACTIVE'),
+-- (17, 256, 'Vàng Gold',         '#EAE6D8', 18990000, 16990000, 40,  'ACTIVE'),
+--
+-- -- 22. iPhone 12 (ID: 18)
+-- (18, 64,  'Đen',               '#1C1C1E', 10990000, 9490000,  150, 'ACTIVE'),
+-- (18, 128, 'Trắng',             '#FFFFFF', 12490000, 10990000, 200, 'ACTIVE'),
+-- (18, 256, 'Xanh Ngọc',         '#A3E4D7', 14990000, 13490000, 30,  'ACTIVE'),
+--
+-- -- 23. iPhone SE 2022 (ID: 19)
+-- (19, 64,  'Đỏ (Product RED)',  '#E11D48', 9990000,  8490000,  90,  'ACTIVE'),
+-- (19, 128, 'Đen Midnight',      '#171E26', 11490000, 9990000,  110, 'ACTIVE'),
+--
+--
+-- -- Vivo Y100 (Product 24) -> Variant 60, 61
+-- (20, 128, 'Đen Kim Cương', '#232426', 6490000, 5990000, 180, 'ACTIVE'),
+-- (20, 256, 'Xanh Sáng Sân', '#9CE5D7', 6990000, 6490000, 110, 'ACTIVE'),
+--
+-- -- Vivo iQOO Neo 9 (Product 25) -> Variant 62, 63
+-- (21, 256, 'Đỏ Trắng Sport','#D03138', 9490000, 8990000, 45, 'ACTIVE'),
+-- (21, 256, 'Đen Trơn',      '#191A1C', 9490000, 8990000, 40, 'ACTIVE'),
+--
+-- -- Realme GT 6 (Product 26) -> Variant 64, 65
+-- (22, 256, 'Bạc Ánh Kim',   '#C0C0C4', 13990000, 12990000, 60, 'ACTIVE'),
+-- (22, 512, 'Xanh Phong Phong','#2D6B4F', 15990000, 14990000, 35, 'ACTIVE'),
+--
+-- -- Realme GT Neo 6 SE (Product 27) -> Variant 66, 67
+-- (23, 256, 'Bạc Chiến Binh','#B0B3B8', 7990000, 7490000, 90, 'ACTIVE'),
+-- (23, 256, 'Xanh Thảo Nguyên','#7A9A82', 7990000, 7490000, 65, 'ACTIVE'),
+--
+-- -- Realme 12 Pro+ (Product 28) -> Variant 68, 69
+-- (24, 256, 'Xanh Thủy Thủ', '#1E2D4A', 11990000, 10990000, 55, 'ACTIVE'),
+-- (24, 256, 'Be Cát Sa Mạc', '#E6D7C3', 11990000, 10990000, 40, 'ACTIVE'),
+--
+-- -- Realme 12 (Product 29) -> Variant 70, 71
+-- (25, 128, 'Xanh Rừng Sâu', '#2E4A3F', 6490000, 5990000, 130, 'ACTIVE'),
+-- (25, 128, 'Vàng Ánh Dương','#EED6A1', 6490000, 5990000, 90, 'ACTIVE'),
+--
+-- -- Realme C65 (Product 30) -> Variant 72 -> 74
+-- (26, 128, 'Đen Tinh Vân',  '#1F2124', 3990000, 3690000, 250, 'ACTIVE'),
+-- (26, 128, 'Tím Tinh Tú',   '#D4C2DC', 3990000, 3690000, 220, 'ACTIVE'),
+-- (26, 256, 'Đen Tinh Vân',  '#1F2124', 4790000, 4390000, 130, 'ACTIVE'),
+--
+-- -- Honor Magic 6 Pro (Product 31) -> Variant 75 -> 77
+-- (27, 256, 'Đen Nhung',     '#1A1B1D', 24990000, 23490000, 35, 'ACTIVE'),
+-- (27, 512, 'Xanh Phi Thạch','#577B6D', 27990000, 26490000, 25, 'ACTIVE'),
+-- (27, 512, 'Tím Sương Mai', '#C9B0D3', 27990000, 26490000, 15, 'ACTIVE'),
+--
+-- -- Honor 200 Pro (Product 32) -> Variant 78 -> 81
+-- (28, 256, 'Trắng Tuyết',   '#FFFFFF', 15990000, 14990000, 50, 'ACTIVE'),
+-- (28, 256, 'Xanh Ngọc Trai','#A6D8D5', 15990000, 14990000, 45, 'ACTIVE'),
+-- (28, 512, 'Trắng Tuyết',   '#FFFFFF', 17990000, 16490000, 30, 'ACTIVE'),
+-- (28, 512, 'Đen Huyền Bí',  '#1C1C1E', 17990000, 16490000, 25, 'ACTIVE'),
+--
+-- -- Honor 200 (Product 33) -> Variant 82 -> 85
+-- (29, 256, 'Đen',           '#151617', 11990000, 10990000, 75, 'ACTIVE'),
+-- (29, 256, 'Hồng San Hô',   '#F6CBD1', 11990000, 10990000, 60, 'ACTIVE'),
+-- (29, 256, 'Xanh Lục Bảo',  '#2C5D4B', 11990000, 10990000, 50, 'ACTIVE'),
+-- (29, 512, 'Đen',           '#151617', 13500000, 12500000, 30, 'ACTIVE'),
+--
+-- -- Honor X9b (Product 34) -> Variant 86 -> 90
+-- (30, 256, 'Cam Bình Minh', '#E36E39', 8990000, 8190000, 120, 'ACTIVE'),
+-- (30, 256, 'Xanh Lục Bảo',  '#1A4335', 8990000, 8190000, 95, 'ACTIVE'),
+-- (30, 256, 'Đen Ma Trận',   '#1A1A1A', 8990000, 8190000, 110, 'ACTIVE'),
+-- (30, 512, 'Cam Bình Minh', '#E36E39', 9990000, 9190000, 45, 'ACTIVE'),
+-- (30, 512, 'Đen Ma Trận',   '#1A1A1A', 9990000, 9190000, 40, 'ACTIVE'),
+--
+-- -- Honor 90 Lite (Product 35) -> Variant 91 -> 93
+-- (31, 256, 'Xanh Biển Hồ',  '#4E879C', 5990000, 5290000, 140, 'ACTIVE'),
+-- (31, 256, 'Bạc Ánh Sao',   '#DCE3E6', 5990000, 5290000, 110, 'ACTIVE'),
+-- (31, 256, 'Đen Bóng Đêm',  '#1C1D1F', 5990000, 5290000, 130, 'ACTIVE');
+--
+--
+-- -- =========================================================================
+-- -- III. HÌNH ẢNH BIẾN THỂ (VARIANT IMAGES) - ĐỒNG BỘ 1 -> 93
+-- -- =========================================================================
+-- INSERT INTO product_variant_images (variant_id, image_url, display_order) VALUES
+--
+-- -- HÌNH ẢNH CHO IPHONE 17 SERIES (Variants 1 - 11)
+--
+-- (1, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-2.jpg', 1),
+-- (2, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-2.jpg', 1),
+-- (3, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-2.jpg', 1),
+-- (4, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-1_1.jpg', 1),
+-- (5, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-1_1.jpg', 1),
+-- (6, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-1_1.jpg', 1),
+-- (7, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max_1.jpg', 1),
+-- (8, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max_1.jpg', 1),
+-- (9, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max_1.jpg', 1),
+--
+-- --     HÌNH ẢNH CHO IPHONE 17 pro
+-- (10, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-2.jpg', 1),
+-- (11, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-2.jpg', 1),
+-- (12, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-1_1.jpg', 1),
+-- (13, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max-1_1.jpg', 2),
+-- (14, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max_1.jpg', 1),
+-- (15, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone-17-pro-max_1.jpg', 1),
+--
+--
+--
+--
+--
+-- (15, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg', 1),
+--
+-- (16, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-plus-1.jpg', 1),
+-- (17, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-plus-1.jpg', 1),
+-- (18, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+-- (19, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+-- (20, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+--
+-- -- HÌNH ẢNH CHO IPHONE 15 SERIES (Variants 23 - 32)
+-- (21, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg', 1),
+-- (22, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg', 1),
+-- (23, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg', 1),
+-- (24, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-1.jpg', 1),
+-- (25, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-plus-1.jpg', 1),
+-- (26, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+-- (27, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+-- (28, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-1.jpg', 1),
+--
+-- -- HÌNH ẢNH CHO IPHONE 14 SERIES (Variants 33 - 41)
+-- (29, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-max-1.jpg', 1),
+-- (30, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-max-1.jpg', 1),
+-- (31, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-max-1.jpg', 1),
+-- (32, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-pro-1.jpg', 1),
+-- (33, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-plus-1.jpg', 1),
+-- (34, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-1.jpg', 1),
+-- (35, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-14-1.jpg', 1),
+--
+-- -- HÌNH ẢNH CHO IPHONE 13 SERIES (Variants 42 - 49)
+-- (36, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-max-1.jpg', 1),
+-- (37, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-max-1.jpg', 1),
+-- (38, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-max-1.jpg', 1),
+-- (39, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-1.jpg', 1),
+-- (40, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-pro-1.jpg', 1),
+-- (41, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-13-mini-1.jpg', 1),
+--
+-- -- HÌNH ẢNH CHO IPHONE 12 & SE (Variants 50 - 54)
+-- (42, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-pro-max-1.jpg', 1),
+-- (43, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-pro-max-1.jpg', 1),
+-- (44, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-1.jpg', 1),
+-- (45, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-12-1.jpg', 1),
+-- (46, 'https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-se-2022-1.jpg', 1),
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+-- (47, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-x100-pro-2.jpg', 0),
+--
+-- -- Vivo V30 Pro (56 -> 57)
+-- (48, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-pro-2.jpg', 0),
+-- (49, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-pro-3.jpg', 0),
+--
+-- -- Vivo V30 (58 -> 59)
+-- (50, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-2.jpg', 0),
+-- (51, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-v30-3.jpg', 0),
+--
+-- -- Vivo Y100 (60 -> 61)
+-- (52, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y100-4g-2.jpg', 0),
+-- (53, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-y100-4g-3.jpg', 0),
+--
+-- -- Vivo iQOO Neo 9 (62 -> 63)
+-- (54, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-neo9-2.jpg', 0),
+-- (55, 'https://fdn2.gsmarena.com/vv/pics/vivo/vivo-iqoo-neo9-1.jpg', 0),
+--
+-- -- Realme GT 6 (64 -> 65)
+-- (56, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-6-2.jpg', 0),
+-- (57, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-6-3.jpg', 0),
+--
+-- -- Realme GT Neo 6 SE (66 -> 67)
+-- (58, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-neo6-se-2.jpg', 0),
+-- (59, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-gt-neo6-se-3.jpg', 0),
+--
+-- -- Realme 12 Pro+ (68 -> 69)
+-- (60, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-2.jpg', 0),
+-- (61, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-pro-plus-3.jpg', 0),
+--
+-- -- Realme 12 (70 -> 71)
+-- (62, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-2.jpg', 0),
+-- (63, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-12-3.jpg', 0),
+--
+-- -- Realme C65 (72 -> 74)
+-- (64, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-2.jpg', 0),
+-- (65, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-3.jpg', 0),
+-- (66, 'https://fdn2.gsmarena.com/vv/pics/realme/realme-c65-2.jpg', 0),
+--
+-- -- Honor Magic 6 Pro (75 -> 77)
+-- (67, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-2.jpg', 0),
+-- (68, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-3.jpg', 0),
+-- (69, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-magic6-pro-4.jpg', 0),
+--
+-- -- Honor 200 Pro (78 -> 81)
+-- (70, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-2.jpg', 0),
+-- (71, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-3.jpg', 0),
+-- (72, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-2.jpg', 0),
+-- (73, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-pro-1.jpg', 0),
+--
+-- -- Honor 200 (82 -> 85)
+-- (74, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-2.jpg', 0),
+-- (75, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-3.jpg', 0),
+-- (76, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-4.jpg', 0),
+-- (77, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-200-2.jpg', 0),
+--
+-- -- Honor X9b (86 -> 90)
+-- (78, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-2.jpg', 0),
+-- (79, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-3.jpg', 0),
+-- (80, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 0),
+-- (81, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-2.jpg', 0),
+-- (82, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-x9b-1.jpg', 0),
+--
+-- -- Honor 90 Lite (91 -> 93)
+-- (83, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-2.jpg', 0),
+-- (84, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-3.jpg', 0),
+-- (85, 'https://fdn2.gsmarena.com/vv/pics/honor/honor-90-lite-1.jpg', 0),
+--
+-- -- Bổ sung hình ảnh cho các biến thể mới của iPhone 15 Pro Max
+-- (86, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-1tb-titan-trang.jpg', 0),
+-- (87, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-1tb-titan-nau.jpg', 0),
+-- (88, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-1tb-titan-den.jpg', 0),
+-- (89, 'https://cdn2.cellphones.com.vn/358x/media/catalog/product/i/p/iphone15-pro-max-1tb-titan-trang.jpg', 0);
+-- SET FOREIGN_KEY_CHECKS = 1;

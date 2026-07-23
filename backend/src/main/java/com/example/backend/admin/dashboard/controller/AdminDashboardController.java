@@ -16,7 +16,8 @@ public class AdminDashboardController {
     private final AdminDashboardService adminDashboardService;
 
     @GetMapping("/stats")
-    public ResponseEntity<AdminDashboardStatsResponse> getStats() {
-        return ResponseEntity.ok(adminDashboardService.getDashboardStats());
+    public ResponseEntity<AdminDashboardStatsResponse> getStats(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "7days") String period) {
+        return ResponseEntity.ok(adminDashboardService.getDashboardStats(period));
     }
 }

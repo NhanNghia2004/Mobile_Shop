@@ -25,47 +25,83 @@ public class AdminDashboardService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public AdminDashboardStatsResponse getDashboardStats() {
+    public AdminDashboardStatsResponse getDashboardStats(String period) {
         AdminDashboardStatsResponse response = new AdminDashboardStatsResponse();
 
-        // 1. Total counts
+        // 1. Total counts (All time)
         response.setTotalOrders(orderRepository.count());
         response.setTotalProducts(productRepository.count());
         response.setTotalUsers(userRepository.count());
 
-        // 2. Total Revenue (only DELIVERED orders)
         Double totalRev = orderRepository.sumTotalPriceByStatus(OrderStatus.DELIVERED);
         response.setTotalRevenue(totalRev != null ? totalRev.longValue() : 0L);
 
-        // 3. Revenue by Date (Last 7 days)
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(6).with(LocalTime.MIN);
-        List<Order> recentDeliveredOrders = orderRepository.findByStatusAndCreatedAtAfter(OrderStatus.DELIVERED, sevenDaysAgo);
+        // 2. Determine start date and formatter based on period
+        LocalDateTime startDate;
+        DateTimeFormatter formatter;
+        int daysOrMonthsToSubtract = 0;
+        boolean isMonthGrouping = false;
 
-        Map<String, Long> revenueMap = new HashMap<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
-
-        // Initialize last 7 days with 0
-        for (int i = 6; i >= 0; i--) {
-            String dateStr = LocalDate.now().minusDays(i).format(formatter);
-            revenueMap.put(dateStr, 0L);
+        if ("1year".equalsIgnoreCase(period)) {
+            startDate = LocalDateTime.now().minusMonths(11).withDayOfMonth(1).with(LocalTime.MIN);
+            formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+            daysOrMonthsToSubtract = 11;
+            isMonthGrouping = true;
+        } else if ("1month".equalsIgnoreCase(period)) {
+            startDate = LocalDateTime.now().minusDays(29).with(LocalTime.MIN);
+            formatter = DateTimeFormatter.ofPattern("dd/MM");
+            daysOrMonthsToSubtract = 29;
+        } else {
+            // Default 7 days
+            startDate = LocalDateTime.now().minusDays(6).with(LocalTime.MIN);
+            formatter = DateTimeFormatter.ofPattern("dd/MM");
+            daysOrMonthsToSubtract = 6;
         }
 
-        // Aggregate revenue
-        for (Order order : recentDeliveredOrders) {
+        // 3. Revenue by Date for the period
+        List<Order> periodDeliveredOrders = orderRepository.findByStatusAndCreatedAtAfter(OrderStatus.DELIVERED, startDate);
+        
+        Map<String, Long> revenueMap = new LinkedHashMap<>();
+        
+        // Initialize map with 0s to preserve order
+        if (isMonthGrouping) {
+            for (int i = daysOrMonthsToSubtract; i >= 0; i--) {
+                String dateStr = LocalDate.now().minusMonths(i).format(formatter);
+                revenueMap.put(dateStr, 0L);
+            }
+        } else {
+            for (int i = daysOrMonthsToSubtract; i >= 0; i--) {
+                String dateStr = LocalDate.now().minusDays(i).format(formatter);
+                revenueMap.put(dateStr, 0L);
+            }
+        }
+
+        for (Order order : periodDeliveredOrders) {
             String dateStr = order.getCreatedAt().format(formatter);
             if (revenueMap.containsKey(dateStr)) {
                 revenueMap.put(dateStr, revenueMap.get(dateStr) + order.getTotalAmount().longValue());
             }
         }
 
-        // Convert to list sorted by date
         List<DailyRevenue> revenueByDate = new ArrayList<>();
-        for (int i = 6; i >= 0; i--) {
-            String dateStr = LocalDate.now().minusDays(i).format(formatter);
-            revenueByDate.add(new DailyRevenue(dateStr, revenueMap.get(dateStr)));
+        for (Map.Entry<String, Long> entry : revenueMap.entrySet()) {
+            revenueByDate.add(new DailyRevenue(entry.getKey(), entry.getValue()));
         }
-
         response.setRevenueByDate(revenueByDate);
+
+        // 4. Orders by Status for the pie chart (for the selected period)
+        List<Order> periodOrders = orderRepository.findByCreatedAtAfter(startDate);
+        Map<OrderStatus, Long> statusCountMap = periodOrders.stream()
+                .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
+
+        List<AdminDashboardStatsResponse.OrderStatusStat> ordersByStatus = new ArrayList<>();
+        for (OrderStatus status : OrderStatus.values()) {
+            ordersByStatus.add(new AdminDashboardStatsResponse.OrderStatusStat(
+                    status.name(),
+                    statusCountMap.getOrDefault(status, 0L)
+            ));
+        }
+        response.setOrdersByStatus(ordersByStatus);
 
         return response;
     }

@@ -15,6 +15,15 @@ public class AdminDashboardStatsResponse {
     private long totalProducts;
     private long totalUsers;
     private List<DailyRevenue> revenueByDate;
+    private List<OrderStatusStat> ordersByStatus;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OrderStatusStat {
+        private String status;
+        private long count;
+    }
 
     @Data
     @AllArgsConstructor

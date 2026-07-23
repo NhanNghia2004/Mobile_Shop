@@ -29,4 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @org.springframework.data.jpa.repository.Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = :status")
     Double sumTotalPriceByStatus(@org.springframework.data.repository.query.Param("status") com.example.backend.order.entity.OrderStatus status);
+
+    java.util.List<Order> findByCreatedAtAfter(java.time.LocalDateTime startDate);
 }

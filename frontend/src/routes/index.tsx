@@ -3,6 +3,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../pages/public/MainLayout";
 import Home from "../pages/public/Home";
 import Products from "../pages/public/Products";
+import ComparePage from "../pages/public/ComparePage";
 import LoginPage from "../pages/public/LoginPage";
 import Register from "../pages/public/Register";
 import ProductDetail from "../pages/public/ProductDetail";
@@ -29,6 +30,7 @@ const AppRoutes = () => {
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/compare" element={<ComparePage />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
 
 

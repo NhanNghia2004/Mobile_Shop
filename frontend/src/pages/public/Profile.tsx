@@ -211,7 +211,7 @@ function OrderCard({ order, defaultExpanded = false, onCancelOrder }: { order: O
                     <div className="flex gap-2 flex-wrap">
                         {canReviewOrder && (
                             <>
-                                <Link to="/products"
+                                <Link to={`/product/${order.items[0].productId}`}
                                       className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
                                     <RotateCcw size={12} />Mua lại
                                 </Link>

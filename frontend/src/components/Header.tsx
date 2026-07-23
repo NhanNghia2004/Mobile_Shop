@@ -1,11 +1,10 @@
-import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings } from 'lucide-react';
+import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings, Store, Headphones, MapPin, Binoculars, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axios';
 import { productApi } from '../api/productApi';
 
-// 1. Định nghĩa kiểu dữ liệu cho User để hết lỗi đỏ
 interface UserType {
     username: string;
     email: string;
@@ -14,7 +13,6 @@ interface UserType {
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    // 2. Khởi tạo state với kiểu UserType hoặc null
     const [user, setUser] = useState<UserType | null>(null);
     const [cartCount, setCartCount] = useState(0);
     const [searchVal, setSearchVal] = useState('');
@@ -38,7 +36,6 @@ export default function Header() {
         return () => clearTimeout(timer);
     }, [searchVal]);
 
-    // Hàm lấy dữ liệu user từ local
     const fetchUser = () => {
         const savedUser = localStorage.getItem('user');
         if (savedUser && savedUser !== 'undefined') {
@@ -67,10 +64,9 @@ export default function Header() {
     };
 
     useEffect(() => {
-        fetchUser(); // Lấy user khi mount component
-        fetchCartCount(); // Lấy số lượng giỏ hàng khi mount component
+        fetchUser();
+        fetchCartCount();
 
-        // Lắng nghe sự kiện thay đổi storage để cập nhật UI ngay lập tức
         window.addEventListener('storage', fetchUser);
         window.addEventListener('cartUpdated', fetchCartCount);
 
@@ -86,41 +82,45 @@ export default function Header() {
         setUser(null);
         setCartCount(0);
         alert("Bạn đã đăng xuất!");
-        navigate('/login'); // Dùng navigate mượt mà
+        navigate('/login');
     };
 
     return (
-        <header className="bg-white shadow-sm sticky top-0 z-50 font-sans">
-            {/* Top Bar */}
-            <div className="bg-indigo-700 text-white py-2 px-6 text-center text-xs font-medium">
+        <header className="bg-white sticky top-0 z-50 font-sans shadow-md">
+            {/* Top Promo Bar */}
+            <div className="bg-indigo-700 text-white py-1.5 px-6 text-center text-[11px] font-medium tracking-wide">
                 Săn iPhone 15 Pro Max giảm đến 5 triệu đồng.
-                <Link to="/" className="underline ml-1">Xem ngay</Link>
+                <Link to="/" className="underline ml-1 font-bold">Xem ngay</Link>
             </div>
 
-            {/* Main Header */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16 md:h-20">
-
+            {/* Main Header (Logo, Hotline, Store, Search, Icons) */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
+                <div className="flex items-center justify-between h-20 md:h-24 gap-4 md:gap-6">
+                    
                     {/* Logo */}
-                    <div className="flex-shrink-0 flex items-center mr-8 lg:mr-12">
-                        <Link to="/" className="text-2xl font-black text-indigo-700 tracking-tighter flex items-center gap-1 hover:opacity-80 transition-opacity">
-                            <div className="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center">
-                                <Phone size={18} className="text-white" />
+                    <div className="flex-shrink-0">
+                        <Link to="/" className="text-2xl lg:text-3xl font-black text-indigo-700 tracking-tighter flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+                            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-indigo-700 rounded-lg flex items-center justify-center shadow-sm">
+                                <Phone size={20} className="text-white" />
                             </div>
                             <span>MOBI<span className="text-gray-900">SHOP</span></span>
                         </Link>
                     </div>
 
-                    <nav className="hidden md:flex space-x-8 text-sm font-bold text-gray-700 uppercase tracking-wide">
-                        <Link to="/" className="hover:text-indigo-600 transition-colors">Trang chủ</Link>
-                        <Link to="/products" className="hover:text-indigo-600 transition-colors">Tất cả điện thoại</Link>
-                        <Link to="/products?brand=Apple" className="hover:text-indigo-600 transition-colors">iPhone</Link>
-                        <Link to="/products?brand=Samsung" className="hover:text-indigo-600 transition-colors">Samsung</Link>
-                        <Link to="/products?brand=Xiaomi" className="hover:text-indigo-600 transition-colors">Xiaomi</Link>
-                    </nav>
+                    {/* Hotline (Like Reference Image) */}
+                    <div className="hidden xl:flex items-center gap-2 text-xs font-bold text-gray-700 whitespace-nowrap">
+                        <Headphones size={20} className="text-indigo-700" />
+                        <span>HOTLINE: <span className="text-indigo-600">0977508430</span></span>
+                    </div>
+
+                    {/* Hệ thống cửa hàng (Like Reference Image) */}
+                    <Link to="/products" className="hidden lg:flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-indigo-700 transition-colors uppercase whitespace-nowrap">
+                        <MapPin size={20} className="text-indigo-700" />
+                        <span>Hệ thống cửa hàng</span>
+                    </Link>
 
                     {/* Search Bar */}
-                    <div className="hidden lg:flex flex-1 max-w-md mx-8">
+                    <div className="hidden md:flex flex-1 max-w-md xl:max-w-lg relative">
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -129,22 +129,24 @@ export default function Header() {
                                     navigate(`/products?keyword=${encodeURIComponent(searchVal.trim())}`);
                                 }
                             }}
-                            className="relative w-full"
+                            className="w-full relative"
                         >
-                            <input
-                                name="search"
-                                type="text"
-                                value={searchVal}
-                                onChange={(e) => setSearchVal(e.target.value)}
-                                onFocus={() => setShowSuggestions(true)}
-                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                placeholder="Tìm kiếm sản phẩm thông minh..."
-                                className="w-full bg-gray-100 border-none rounded-xl py-2 pl-4 pr-10 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
-                            />
-                            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors">
-                                <Search size={18} />
-                            </button>
-
+                            <div className="relative flex items-center w-full">
+                                <input
+                                    name="search"
+                                    type="text"
+                                    value={searchVal}
+                                    onChange={(e) => setSearchVal(e.target.value)}
+                                    onFocus={() => setShowSuggestions(true)}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    placeholder="Tìm sản phẩm..."
+                                    className="w-full bg-[#f5f6f7] border border-gray-150 rounded-lg py-2.5 pl-4 pr-10 text-sm focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all outline-none text-gray-700"
+                                />
+                                <button type="submit" className="absolute right-3 text-indigo-700 hover:opacity-80 transition-opacity">
+                                    <Search size={18} />
+                                </button>
+                            </div>
+                            
                             {/* Dropdown Suggestions */}
                             <AnimatePresence>
                                 {showSuggestions && suggestions.length > 0 && (
@@ -152,9 +154,9 @@ export default function Header() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 10 }}
-                                        className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+                                        className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden z-50"
                                     >
-                                        <div className="max-h-96 overflow-y-auto">
+                                        <div className="max-h-[400px] overflow-y-auto">
                                             {suggestions.map((item, idx) => (
                                                 <div 
                                                     key={idx} 
@@ -170,7 +172,7 @@ export default function Header() {
                                                     className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-none transition-colors"
                                                 >
                                                     {item.imageUrl ? (
-                                                        <img src={item.imageUrl} alt={item.label} className="w-10 h-10 object-cover rounded-lg" />
+                                                        <img src={item.imageUrl} alt={item.label} className="w-10 h-10 object-cover rounded-lg border border-gray-100" />
                                                     ) : (
                                                         <div className="w-10 h-10 bg-indigo-50 text-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0">
                                                             <Search size={16} />
@@ -178,7 +180,7 @@ export default function Header() {
                                                     )}
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-semibold text-gray-800 truncate">{item.label}</p>
-                                                        {item.category && <p className="text-xs text-gray-500">{item.category}</p>}
+                                                        {item.category && <p className="text-[11px] text-gray-500 uppercase font-medium mt-0.5">{item.category}</p>}
                                                     </div>
                                                     {item.count != null && (
                                                         <span className="text-xs font-medium text-gray-400">({item.count})</span>
@@ -186,52 +188,70 @@ export default function Header() {
                                                 </div>
                                             ))}
                                         </div>
+                                        {suggestions.length > 0 && (
+                                            <div 
+                                                onClick={() => {
+                                                    setShowSuggestions(false);
+                                                    navigate(`/products?keyword=${encodeURIComponent(searchVal.trim())}`);
+                                                }}
+                                                className="block text-center py-3 text-sm text-indigo-600 font-bold hover:bg-gray-50 border-t border-gray-100 cursor-pointer transition-colors"
+                                            >
+                                                Xem tất cả kết quả cho "{searchVal}"
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </form>
                     </div>
 
-                    {/* Icons Actions */}
-                    <div className="flex items-center gap-2 sm:gap-4">
-                        <Link to="/cart" className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all relative">
-                            <ShoppingCart size={22} />
-                            {cartCount > 0 && (
-                                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{cartCount}</span>
-                            )}
+                    {/* Action Icons */}
+                    <div className="flex items-center gap-3 sm:gap-5">
+                        <Link to="/products" className="hidden lg:flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors group cursor-pointer">
+                            <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center bg-white group-hover:bg-indigo-50 transition-colors shadow-sm">
+                                <Binoculars size={18} strokeWidth={1.5} className="group-hover:-translate-y-0.5 transition-transform" />
+                            </div>
+                            <span className="text-[10px] uppercase font-bold mt-1 text-gray-700 tracking-wider">Tra cứu</span>
                         </Link>
 
-                        {/* Logic hiển thị User / Login */}
-                        {user ? (
-                            <div className="flex items-center gap-3 ml-2 border-l pl-4 border-gray-100">
-                                <Link to="/profile" className="flex items-center gap-2 group">
-                                    {user.avatarUrl ? (
-                                        <img
-                                            src={user.avatarUrl}
-                                            alt={user.username}
-                                            className="w-8 h-8 rounded-full object-cover border border-indigo-200"
-                                        />
-                                    ) : (
-                                        <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                            {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
-                                        </div>
-                                    )}
-                                    <span className="hidden lg:block text-sm font-bold text-gray-700">{user.username}</span>
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                                    title="Đăng xuất"
-                                >
-                                    <LogOut size={20} />
-                                </button>
-                            </div>
-                        ) : (
-                            <Link to="/login" className="hidden sm:flex items-center gap-2 p-2 text-gray-700 hover:bg-gray-100 rounded-xl transition-all">
-                                <User size={22} />
-                                <span className="text-sm font-bold">Đăng nhập</span>
+                        <div className="relative group flex flex-col items-center justify-center cursor-pointer">
+                            <Link to={user ? "/profile" : "/login"} className="flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors">
+                                {user?.avatarUrl ? (
+                                    <img src={user.avatarUrl} alt={user.username} className="w-9 h-9 rounded-full object-cover border border-gray-200 shadow-sm" />
+                                ) : (
+                                    <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center bg-white hover:bg-indigo-50 transition-colors shadow-sm">
+                                        <User size={18} strokeWidth={1.5} className="group-hover:-translate-y-0.5 transition-transform" />
+                                    </div>
+                                )}
+                                <span className="text-[10px] uppercase font-bold mt-1 text-gray-700 tracking-wider text-center whitespace-nowrap hidden sm:block">{user ? user.username : 'Tài khoản'}</span>
                             </Link>
-                        )}
+                            
+                            {/* Hover Menu for User */}
+                            {user && (
+                                <div className="absolute right-1/2 translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                                    <div className="bg-white border border-gray-100 shadow-xl rounded-xl p-2 w-40 flex flex-col">
+                                        <Link to="/profile" className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg flex items-center gap-2">
+                                            <Settings size={16} /> Hồ sơ
+                                        </Link>
+                                        <button onClick={handleLogout} className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg text-left flex items-center gap-2">
+                                            <LogOut size={16} /> Đăng xuất
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <Link to="/cart" className="flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors relative group">
+                            <div className="relative">
+                                <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center bg-white group-hover:bg-indigo-50 transition-colors shadow-sm">
+                                    <ShoppingCart size={18} strokeWidth={1.5} className="group-hover:-translate-y-0.5 transition-transform" />
+                                </div>
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1.5 -right-2 bg-[#ff5b2e] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">{cartCount}</span>
+                                )}
+                            </div>
+                            <span className="text-[10px] uppercase font-bold mt-1 text-gray-700 tracking-wider hidden sm:block">Giỏ hàng</span>
+                        </Link>
 
                         {/* Mobile Menu Button */}
                         <button
@@ -241,6 +261,56 @@ export default function Header() {
                             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                     </div>
+                </div>
+            </div>
+
+            {/* Bottom Navigation Row (Dark Theme with Balanced Spacing & Dropdown) */}
+            <div className="bg-[#2a3038] hidden md:block">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <nav className="flex justify-center gap-8 lg:gap-12 items-center h-12 text-[13px] font-bold text-white uppercase tracking-wider w-full">
+                        <Link to="/" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Trang chủ</Link>
+                        
+                        {/* Dropdown for Tất cả điện thoại */}
+                        <div className="relative group py-3.5">
+                            <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 flex items-center gap-1.5">
+                                Tất cả điện thoại
+                                <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
+                            </Link>
+                            
+                            {/* Dropdown List */}
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[180px]">
+                                <div className="bg-[#2a3038] border border-gray-700 shadow-2xl rounded-lg py-2 flex flex-col overflow-hidden">
+                                    <Link to="/products?brand=Apple" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        iPhone (Apple)
+                                    </Link>
+                                    <Link to="/products?brand=Samsung" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Samsung
+                                    </Link>
+                                    <Link to="/products?brand=Xiaomi" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Xiaomi
+                                    </Link>
+                                    <Link to="/products?brand=Oppo" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Oppo
+                                    </Link>
+                                    <Link to="/products?brand=Vivo" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Vivo
+                                    </Link>
+                                    <Link to="/products?brand=Realme" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Realme
+                                    </Link>
+                                    <Link to="/products?brand=Honor" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors">
+                                        Honor
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Khuyến mãi</Link>
+                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Tin tức</Link>
+                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Giới thiệu</Link>
+                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Liên hệ</Link>
+                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Chính sách</Link>
+                    </nav>
                 </div>
             </div>
 
@@ -260,7 +330,7 @@ export default function Header() {
                                         <img
                                             src={user.avatarUrl}
                                             alt={user.username}
-                                            className="w-10 h-10 rounded-full object-cover border border-indigo-200"
+                                            className="w-10 h-10 rounded-full object-cover border border-gray-200"
                                         />
                                     ) : (
                                         <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -274,28 +344,64 @@ export default function Header() {
                                 </div>
                             )}
 
-                            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-gray-700">Trang chủ</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-gray-700">Tất cả điện thoại</Link>
-                            <Link to="/products?brand=Apple" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-gray-700">iPhone</Link>
-                            <Link to="/products?brand=Samsung" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-gray-700">Samsung</Link>
-                            <Link to="/products?brand=Xiaomi" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-gray-700">Xiaomi</Link>
+                            {/* Mobile Search */}
+                            <form 
+                                className="mb-4"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (searchVal.trim()) {
+                                        setIsMenuOpen(false);
+                                        navigate(`/products?keyword=${encodeURIComponent(searchVal.trim())}`);
+                                    }
+                                }}
+                            >
+                                <div className="relative">
+                                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                    <input
+                                        type="text"
+                                        value={searchVal}
+                                        onChange={(e) => setSearchVal(e.target.value)}
+                                        placeholder="Tìm kiếm..."
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                            </form>
+
+                            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Trang chủ</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tất cả điện thoại</Link>
+                            <div className="pl-4 border-l border-gray-250 ml-2 space-y-1">
+                                <Link to="/products?brand=Apple" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">iPhone (Apple)</Link>
+                                <Link to="/products?brand=Samsung" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Samsung</Link>
+                                <Link to="/products?brand=Xiaomi" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Xiaomi</Link>
+                                <Link to="/products?brand=Oppo" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Oppo</Link>
+                                <Link to="/products?brand=Vivo" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Vivo</Link>
+                                <Link to="/products?brand=Realme" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Realme</Link>
+                                <Link to="/products?brand=Honor" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Honor</Link>
+                            </div>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Khuyến mãi</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tin tức</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Giới thiệu</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Liên hệ</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Chính sách</Link>
 
                             <hr className="my-2 border-gray-100" />
 
                             {user ? (
                                 <>
-                                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-base font-bold text-gray-700">
+                                    <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-gray-700 uppercase">
                                         <Settings size={18} /> Hồ sơ cá nhân
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="flex items-center gap-2 px-3 py-2 text-base font-bold text-red-600 w-full text-left"
+                                        className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-red-600 uppercase w-full text-left"
                                     >
                                         <LogOut size={18} /> Đăng xuất
                                     </button>
                                 </>
                             ) : (
-                                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-base font-bold text-indigo-600">Đăng nhập / Đăng ký</Link>
+                                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-indigo-600 uppercase">
+                                    <User size={18} /> Đăng nhập / Đăng ký
+                                </Link>
                             )}
                         </div>
                     </motion.div>

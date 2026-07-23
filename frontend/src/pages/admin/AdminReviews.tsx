@@ -213,7 +213,7 @@ export default function AdminReviews() {
                         <div>
                             {loadingStats
                                 ? <div className="h-6 w-12 bg-gray-100 animate-pulse rounded mx-auto" />
-                                : <p className={`text-xl font-black leading-none mt-1 ${isAlert && value && value > 0 ? 'text-orange-600' : 'text-gray-900'}`}>{value ?? 0}</p>
+                                : <p className={`text-xl font-black leading-none mt-1 ${isAlert && value && Number(value) > 0 ? 'text-orange-600' : 'text-gray-900'}`}>{value ?? 0}</p>
                             }
                             <p className="text-xs text-gray-500 font-semibold mt-1">{label}</p>
                         </div>
