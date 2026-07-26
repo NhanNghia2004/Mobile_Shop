@@ -20,7 +20,7 @@ public class EmbeddingService {
     private String geminiApiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String EMBEDDING_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent";
+    private static final String EMBEDDING_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent";
 
     public float[] getEmbedding(String text) {
         if (geminiApiKey == null || geminiApiKey.trim().isEmpty()) {
@@ -40,7 +40,7 @@ public class EmbeddingService {
             contentMap.put("parts", Collections.singletonList(textPart));
 
             Map<String, Object> body = new HashMap<>();
-            body.put("model", "models/text-embedding-004");
+            body.put("model", "models/embedding-001");
             body.put("content", contentMap);
 
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);

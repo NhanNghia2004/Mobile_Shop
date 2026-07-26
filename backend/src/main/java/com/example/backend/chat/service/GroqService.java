@@ -45,7 +45,7 @@ public class GroqService {
             messages.add(usrMsg);
 
             Map<String, Object> body = new HashMap<>();
-            body.put("model", "llama-3.3-70b-versatile");
+            body.put("model", "llama-3.1-8b-instant");
             body.put("messages", messages);
             body.put("temperature", 0.3);
 

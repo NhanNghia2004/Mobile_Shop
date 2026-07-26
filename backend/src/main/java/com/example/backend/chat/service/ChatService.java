@@ -52,11 +52,11 @@ public class ChatService {
 
         String context = "";
         if (queryVector != null) {
-            // RAG: So sánh độ tương đồng cosine và lấy top 3 sản phẩm liên quan nhất
-            context = getRelevantProductsContext(products, queryVector);
+            // RAG: So sánh độ tương đồng cosine và lấy top sản phẩm liên quan nhất (có boost keyword)
+            context = getRelevantProductsContext(products, queryVector, userMessage);
         } else {
             // Fallback: Nếu không tạo được vector (ví dụ mất mạng, sai key), ta gộp thông tin cơ bản làm ngữ cảnh
-            context = getBasicFallbackContext(products);
+            context = getBasicFallbackContext(products, userMessage);
         }
 
         // 3. Dựng System Prompt kết hợp Context
@@ -66,30 +66,48 @@ public class ChatService {
         return groqService.getChatCompletion(systemPrompt, userMessage);
     }
 
-    private String getRelevantProductsContext(List<Product> products, float[] queryVector) {
+    private String getRelevantProductsContext(List<Product> products, float[] queryVector, String userMessage) {
         List<ProductSimilarity> similarities = new ArrayList<>();
+        String lowerQuery = userMessage.toLowerCase();
 
         for (Product product : products) {
-            // Sinh chuỗi mô tả sản phẩm (Name, Brand, OS, Specs, Price, Stock)
             String productText = productTextCache.computeIfAbsent(product.getId(), id -> buildProductDescription(product));
-
-            // Lấy hoặc sinh Vector Embedding của sản phẩm
             float[] productVector = productVectorCache.computeIfAbsent(product.getId(), id -> embeddingService.getEmbedding(productText));
 
-            if (productVector != null) {
-                double score = cosineSimilarity(queryVector, productVector);
-                similarities.add(new ProductSimilarity(product, productText, score));
+            double score = 0.0;
+            String lowerName = product.getName().toLowerCase();
+            // 1. Khớp từ khóa 2 chiều: Tên sản phẩm nằm trong câu hỏi HOẶC câu hỏi nằm trong tên sản phẩm
+            if (lowerQuery.contains(lowerName) || lowerName.contains(lowerQuery)) {
+                score += 1.0; 
+            } else {
+                // Kiểm tra từng từ khóa (ví dụ "iphone 16" -> "iphone", "16")
+                String[] words = lowerQuery.split("\\s+");
+                int matchCount = 0;
+                for (String w : words) {
+                    if (w.length() > 2 && lowerName.contains(w)) {
+                        matchCount++;
+                    }
+                }
+                if (matchCount > 0 && matchCount >= words.length / 2.0) {
+                    score += 0.5;
+                }
             }
+
+            if (productVector != null && queryVector != null) {
+                score += cosineSimilarity(queryVector, productVector);
+            }
+            
+            similarities.add(new ProductSimilarity(product, productText, score));
         }
 
-        // Sắp xếp giảm dần theo điểm tương đồng
+        // Sắp xếp giảm dần theo điểm
         similarities.sort((a, b) -> Double.compare(b.similarityScore, a.similarityScore));
 
-        // Lấy top 3 sản phẩm liên quan nhất có score > 0.3
+        // Lấy top 5 sản phẩm liên quan nhất (điểm > 0.1 để tránh bỏ sót)
         StringBuilder sb = new StringBuilder();
         int count = 0;
         for (ProductSimilarity ps : similarities) {
-            if (ps.similarityScore >= 0.3 && count < 3) {
+            if (ps.similarityScore >= 0.1 && count < 5) {
                 sb.append(ps.descriptionText).append("\n---\n");
                 count++;
             }
@@ -98,13 +116,28 @@ public class ChatService {
         return sb.toString();
     }
 
-    private String getBasicFallbackContext(List<Product> products) {
+    private String getBasicFallbackContext(List<Product> products, String userMessage) {
         StringBuilder sb = new StringBuilder();
         int count = 0;
+        String lowerQuery = userMessage.toLowerCase();
+        
+        // 1. Ưu tiên tìm các sản phẩm khớp tên
         for (Product p : products) {
-            if (count >= 5) break; // Chỉ lấy tối đa 5 sản phẩm làm context nếu không có embedding
-            sb.append(buildProductDescription(p)).append("\n---\n");
-            count++;
+            if (count >= 5) break;
+            String lowerName = p.getName().toLowerCase();
+            if (lowerQuery.contains(lowerName) || lowerName.contains(lowerQuery)) {
+                sb.append(buildProductDescription(p)).append("\n---\n");
+                count++;
+            }
+        }
+        
+        // 2. Điền thêm cho đủ 5
+        for (Product p : products) {
+            if (count >= 5) break;
+            if (!sb.toString().contains(p.getName())) {
+                sb.append(buildProductDescription(p)).append("\n---\n");
+                count++;
+            }
         }
         return sb.toString();
     }
@@ -123,22 +156,28 @@ public class ChatService {
         }
 
         // Các phiên bản cấu hình và giá
-        sb.append("Các phiên bản đang có:\n");
+        sb.append("Tình trạng: SẢN PHẨM ĐANG CÓ BÁN (NẰM TRONG DANH MỤC)\n");
+        sb.append("Các phiên bản chi tiết:\n");
         if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+            boolean hasActive = false;
             for (ProductVariant v : product.getVariants()) {
                 if (v.getStatus() == ProductStatus.ACTIVE) {
+                    hasActive = true;
                     sb.append("- ").append(v.getStorage()).append("GB, màu ")
                       .append(v.getColor()).append(": Giá bán ")
                       .append(v.getDisplayPrice().intValue()).append("đ");
                     if (v.getStockQuantity() == 0) {
-                        sb.append(" (Hết hàng)\n");
+                        sb.append(" (Hết hàng tạm thời)\n");
                     } else {
-                        sb.append(" (Còn lại ").append(v.getStockQuantity()).append(" sản phẩm trong kho)\n");
+                        sb.append(" (Còn hàng)\n");
                     }
                 }
             }
+            if (!hasActive) {
+                sb.append("- Đang cập nhật giá và chi tiết phiên bản.\n");
+            }
         } else {
-            sb.append("- Chưa có phiên bản cụ thể.\n");
+            sb.append("- Đang cập nhật giá và chi tiết phiên bản.\n");
         }
 
         return sb.toString();
