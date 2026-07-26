@@ -1,0 +1,248 @@
+Potential product elements:
+Tag: div | Class: md:grid | Text: Mở cửa 8:00 - 21:30Giao nhanh 1h nội thànhCửa hàngTra cứu đơ
+Tag: div | Class: md:grid-cols-2 | Text: Mở cửa 8:00 - 21:30Giao nhanh 1h nội thànhCửa hàngTra cứu đơ
+Tag: div | Class: items-center | Text: Mở cửa 8:00 - 21:30Giao nhanh 1h nội thànhCửa hàngTra cứu đơ
+Tag: div | Class: items-center | Text: Mở cửa 8:00 - 21:30Giao nhanh 1h nội thành
+Tag: span | Class: items-center | Text: Mở cửa 8:00 - 21:30
+Tag: span | Class: items-center | Text: Giao nhanh 1h nội thành
+Tag: div | Class: items-center | Text: Cửa hàngTra cứu đơn hàng
+Tag: a | Class: items-center | Text: Cửa hàng
+Tag: a | Class: items-center | Text: Tra cứu đơn hàng
+Tag: div | Class: items-center | Text: Danh mục1800.6018Giỏ hàngĐăng nhập
+Tag: button | Class: items-center | Text: Danh mục
+Tag: div | Class: items-start | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: transition-[border-color,box-shadow] | Text: 
+Tag: span | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 1800.6018Giỏ hàngĐăng nhập
+Tag: a | Class: items-center | Text: 1800.6018
+Tag: a | Class: items-center | Text: Giỏ hàng
+Tag: button | Class: items-center | Text: Đăng nhập
+Tag: div | Class: items-center | Text: Điện thoạiTabletMacbook & iMacMáy cũ giá rẻ Phụ kiệnĐồng hồÂ
+Tag: nav | Class: items-center | Text: Điện thoạiTabletMacbook & iMacMáy cũ giá rẻ Phụ kiệnĐồng hồÂ
+Tag: a | Class: items-center | Text: Điện thoại
+Tag: a | Class: items-center | Text: Tablet
+Tag: a | Class: items-center | Text: Macbook & iMac
+Tag: a | Class: items-center | Text: Máy cũ giá rẻ
+Tag: a | Class: items-center | Text: Phụ kiện
+Tag: a | Class: items-center | Text: Đồng hồ
+Tag: a | Class: items-center | Text: Âm thanh
+Tag: a | Class: items-center | Text: Điện máy, gia dụng
+Tag: a | Class: items-center | Text: Thu cũ đổi mới
+Tag: a | Class: items-center | Text: Công nghệ 24h
+Tag: div | Class: items-center | Text: Trang chủ
+Tag: div | Class: items-center | Text: Điện thoại
+Tag: a | Class: items-center | Text: 
+Tag: a | Class: items-center | Text: 
+Tag: a | Class: items-center | Text: 
+Tag: a | Class: items-center | Text: 
+Tag: a | Class: items-center | Text: 
+Tag: a | Class: items-center | Text: 
+Tag: div | Class: items-start | Text: LọcGiáHệ điều hànhRAMBộ nhớ trongChip xử lý (CPU)Công nghệ m
+Tag: button | Class: items-center | Text: Lọc
+Tag: svg | Class: lucide-list-filter | Text: 
+Tag: button | Class: items-center | Text: Giá
+Tag: button | Class: items-center | Text: Hệ điều hành
+Tag: button | Class: items-center | Text: RAM
+Tag: button | Class: items-center | Text: Bộ nhớ trong
+Tag: button | Class: items-center | Text: Chip xử lý (CPU)
+Tag: button | Class: items-center | Text: Công nghệ màn hình
+Tag: button | Class: items-center | Text: Dung lượng pin
+Tag: button | Class: items-center | Text: Kháng nước
+Tag: button | Class: items-center | Text: SIM
+Tag: button | Class: items-center | Text: Mạng di động
+Tag: button | Class: items-center | Text: Wifi
+Tag: button | Class: items-center | Text: Jack tai nghe
+Tag: button | Class: items-center | Text: Quay video
+Tag: button | Class: items-center | Text: Bảo mật
+Tag: button | Class: items-center | Text: Chất liệu
+Tag: button | Class: items-center | Text: Tính năng nổi bật
+Tag: div | Class: items-stretch | Text: LọcSắp xếp theo:Nổi bậtKhuyến mãiGiá tăng dầnGiá giảm dần
+Tag: div | Class: md:items-center | Text: LọcSắp xếp theo:Nổi bậtKhuyến mãiGiá tăng dầnGiá giảm dần
+Tag: div | Class: items-center | Text: LọcSắp xếp theo:Nổi bậtKhuyến mãiGiá tăng dầnGiá giảm dần
+Tag: div | Class: items-center | Text: Lọc
+Tag: button | Class: items-center | Text: Lọc
+Tag: svg | Class: lucide-list-filter | Text: 
+Tag: div | Class: items-center | Text: Sắp xếp theo:Nổi bậtKhuyến mãiGiá tăng dầnGiá giảm dần
+Tag: button | Class: items-center | Text: Nổi bật
+Tag: button | Class: items-center | Text: Khuyến mãi
+Tag: button | Class: items-center | Text: Giá tăng dần
+Tag: button | Class: items-center | Text: Giá giảm dần
+Tag: div | Class: items-start | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: transition-[border-color,box-shadow] | Text: 
+Tag: span | Class: items-center | Text: 
+Tag: ul | Class: grid | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: ul | Class: grid-cols-2 | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: ul | Class: sm:grid-cols-3 | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: ul | Class: lg:grid-cols-5 | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: a | Class: group/product-card | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: div | Class: hover:shadow-(--shadow-card-hover) | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: img | Class: group-hover/product-card:-translate-y-0.5 | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 37.990.000 đ-8%
+Tag: span | Class: items-center | Text: Giảm thêm 500K khi Thanh Toán qua Shopee Pay hoặc SPayLater.
+Tag: span | Class: items-center | Text: Giảm thêm đến 3.5 triệu Thu Cũ Đổi Mới
+Tag: div | Class: grid | Text: 
+Tag: div | Class: grid-cols-3 | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 4.9(1100)So sánh
+Tag: div | Class: items-center | Text: 4.9(1100)
+Tag: button | Class: items-center | Text: So sánh
+Tag: a | Class: group/product-card | Text: Trả góp 0%iPhone 17 Pro Max 512GB Chính Hãng42.490.000 đ44.4
+Tag: div | Class: hover:shadow-(--shadow-card-hover) | Text: Trả góp 0%iPhone 17 Pro Max 512GB Chính Hãng42.490.000 đ44.4
+Tag: div | Class: items-center | Text: Trả góp 0%
+Tag: div | Class: items-center | Text: 
+Tag: img | Class: group-hover/product-card:-translate-y-0.5 | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 44.490.000 đ-4%
+Tag: span | Class: items-center | Text: Trả góp 0% lãi suất
+Tag: span | Class: items-center | Text: Giảm thêm đến 3.5 triệu Thu Cũ Đổi Mới
+Tag: div | Class: grid | Text: 
+Tag: div | Class: grid-cols-3 | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 5.0(140)So sánh
+Tag: div | Class: items-center | Text: 5.0(140)
+Tag: button | Class: items-center | Text: So sánh
+Tag: a | Class: group/product-card | Text: Trả góp 0%iPhone 17 Pro Max 1TB Chính Hãng48.990.000 đ50.990
+Tag: div | Class: hover:shadow-(--shadow-card-hover) | Text: Trả góp 0%iPhone 17 Pro Max 1TB Chính Hãng48.990.000 đ50.990
+Tag: div | Class: items-center | Text: Trả góp 0%
+Tag: div | Class: items-center | Text: 
+Tag: img | Class: group-hover/product-card:-translate-y-0.5 | Text: 
+Tag: div | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 50.990.000 đ-4%
+Tag: span | Class: items-center | Text: Trả góp 0% lãi suất
+Tag: span | Class: items-center | Text: Giảm thêm đến 3.5 triệu Thu Cũ Đổi Mới
+Tag: div | Class: grid | Text: 
+Tag: div | Class: grid-cols-3 | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: button | Class: items-center | Text: 
+Tag: div | Class: items-center | Text: 5.0(26)So sánh
+Tag: div | Class: items-center | Text: 5.0(26)
+Tag: button | Class: items-center | Text: So sánh
+Tag: a | Class: group/product-card | Text: Trả góp 0%iPhone 17 Pro Max 2TB Chính Hãng61.990.000 đ63.990
+
+Specific elements with href containing .html and product structure:
+Product Link: /dien-thoai-samsung.html | Text: 
+  Parent classes: div ['min-w-0', 'shrink-0', 'grow-0', 'pl-0', 'basis-auto']
+  Parent classes: div ['flex', 'h-full', 'ml-0']
+  Parent classes: div ['overflow-hidden', 'h-full']
+  Parent classes: div ['relative', 'group']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai-xiaomi.html | Text: 
+  Parent classes: div ['min-w-0', 'shrink-0', 'grow-0', 'pl-0', 'basis-auto']
+  Parent classes: div ['flex', 'h-full', 'ml-0']
+  Parent classes: div ['overflow-hidden', 'h-full']
+  Parent classes: div ['relative', 'group']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-17-pro-max-256gb.html | Text: iPhone 17 Pro Max 256GB Chính Hãng34.990.000 đ37.990.000 đ-8%Giảm thêm 500K khi Thanh Toán qua Shopee Pay hoặc SPayLater. Chương trình diễn ra từ 17.07 - 27.07, có thể kết thúc sớm hơn dự kiến khi hết số lượng. Hoàn tất …Giảm thêm đến 3.5 triệu Thu Cũ Đổi MớiHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+2 ưu đãi khác4.9(1100)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-17-pro-max-512gb.html | Text: Trả góp 0%iPhone 17 Pro Max 512GB Chính Hãng42.490.000 đ44.490.000 đ-4%Trả góp 0% lãi suấtGiảm thêm đến 3.5 triệu Thu Cũ Đổi MớiHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+8 ưu đãi khác5.0(140)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-17-pro-max-1tb.html | Text: Trả góp 0%iPhone 17 Pro Max 1TB Chính Hãng48.990.000 đ50.990.000 đ-4%Trả góp 0% lãi suấtGiảm thêm đến 3.5 triệu Thu Cũ Đổi MớiHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+8 ưu đãi khác5.0(26)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-17-pro-max-2tb.html | Text: Trả góp 0%iPhone 17 Pro Max 2TB Chính Hãng61.990.000 đ63.990.000 đ-3%Giảm 38% mua gói VieON VIP kèm máyGiảm 10% sim Số đẹp Mobifone kèm máyHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC5.0(1)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/samsung-galaxy-a07.html | Text: Samsung Galaxy A07 128GB Chính Hãng3.390.000 đ4.190.000 đ-19%Giá chỉ 3,190,000đ trong khung giờ hotsale 10 - 12h và 18 - 20h từ ngày 24.7 - 26.7 (xem chi tiết)Giảm 38% mua gói VieON VIP kèm máyHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+2 ưu đãi khác5.0(301)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-14-256gb.html | Text: Trả góp 0%iPhone 14 256GB Chính Hãng (VN/A)16.990.000 đ27.990.000 đ-39%Giảm 38% mua gói VieON VIP kèm máyGiảm 10% sim Số đẹp Mobifone kèm máyHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC5.0(1)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-15-128gb.html | Text: Trả góp 0%iPhone 15 128GB Chính hãng (VN/A)17.990.000 đ24.990.000 đ-28%Giá chỉ 17,790,000đ trong khung giờ hotsale 10 - 12h và 18 - 20h từ ngày 24.7 - 26.7 (xem chi tiết)Trả góp 0% lãi suấtHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+9 ưu đãi khác4.9(147)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------
+Product Link: /dien-thoai/iphone-15-256gb.html | Text: Trả góp 0%iPhone 15 256GB Chính hãng (VN/A)18.390.000 đ26.990.000 đ-32%Trả góp 0% lãi suấtGiảm thêm đến 3.5 triệu Thu Cũ Đổi MớiHoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC+8 ưu đãi khác5.0(16)So sánh
+  Parent classes: li ['h-full']
+  Parent classes: ul ['grid', 'grid-cols-2', 'gap-2', 'sm:grid-cols-3', 'lg:grid-cols-5']
+  Parent classes: div ['p-2', 'md:p-4', 'space-y-2', 'md:space-y-4']
+  Parent classes: div ['rounded-2xl', 'bg-white']
+  Parent classes: div ['space-y-2', 'md:space-y-4']
+  Parent classes: div ['transition-opacity', 'duration-200', 'motion-reduce:transition-none']
+  Parent classes: section ['container-inner', 'mt-2', 'md:mt-4', 'space-y-2', 'md:space-y-4', 'pb-4', 'md:pb-8']
+  Parent classes: div ['animate-in', 'fade-in', 'zoom-in-[0.99]', 'duration-300', 'ease-out', 'fill-mode-both']
+  Parent classes: main ['flex-1']
+  Parent classes: div ['flex', 'min-h-screen', 'flex-col', 'relative', 'pb-[env(safe-area-inset-bottom)]', 'lg:pb-0']
+----------------------------------------

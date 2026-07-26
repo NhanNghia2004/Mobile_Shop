@@ -1,0 +1,116 @@
+<a class="block group/product-card w-full h-full" href="/dien-thoai/iphone-17-pro-max-256gb.html">
+ <div class="bg-white border border-gray-200 shadow-none hover:shadow-(--shadow-card-hover) transition-shadow duration-200 rounded-sm p-2 size-full flex flex-col gap-2">
+  <div class="flex items-center gap-0.5 min-h-4.5">
+  </div>
+  <div class="relative aspect-square w-full flex items-center justify-center">
+   <img alt="iPhone 17 Pro Max 256GB Chính Hãng" class="size-full object-contain transition-transform duration-300 ease-out group-hover/product-card:-translate-y-0.5" data-nimg="1" decoding="async" fetchpriority="high" height="200" sizes="(max-width: 640px) 44vw, (max-width: 1024px) 22vw, 226px" src="https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=3840&amp;quality=75&amp;format=avif" srcset="https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=256&amp;quality=75&amp;format=avif 256w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=384&amp;quality=75&amp;format=avif 384w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=640&amp;quality=75&amp;format=avif 640w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=750&amp;quality=75&amp;format=avif 750w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=828&amp;quality=75&amp;format=avif 828w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=1080&amp;quality=75&amp;format=avif 1080w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=1200&amp;quality=75&amp;format=avif 1200w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=1920&amp;quality=75&amp;format=avif 1920w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=2048&amp;quality=75&amp;format=avif 2048w, https://cdn-v2.didongviet.vn/files/products/2025/8/13/1/1757762327476_iphone_17_pro_pro_max_didongviet.jpg?width=3840&amp;quality=75&amp;format=avif 3840w" style="color:transparent" width="200"/>
+  </div>
+  <div class="flex flex-1 flex-col gap-2 w-full">
+   <div class="flex min-h-6 items-center">
+    <img alt="" aria-hidden="true" class="h-6 w-auto max-w-[100px] object-contain" data-nimg="1" decoding="async" height="72" loading="lazy" sizes="100px" src="https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=3840&amp;quality=75&amp;format=avif" srcset="https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=32&amp;quality=75&amp;format=avif 32w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=48&amp;quality=75&amp;format=avif 48w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=64&amp;quality=75&amp;format=avif 64w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=96&amp;quality=75&amp;format=avif 96w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=128&amp;quality=75&amp;format=avif 128w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=256&amp;quality=75&amp;format=avif 256w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=384&amp;quality=75&amp;format=avif 384w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=640&amp;quality=75&amp;format=avif 640w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=750&amp;quality=75&amp;format=avif 750w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=828&amp;quality=75&amp;format=avif 828w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=1080&amp;quality=75&amp;format=avif 1080w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=1200&amp;quality=75&amp;format=avif 1200w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=1920&amp;quality=75&amp;format=avif 1920w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=2048&amp;quality=75&amp;format=avif 2048w, https://cdn-v2.didongviet.vn/files/media/2026/6/18/21/sticker-12-7-1--08-1.png?width=3840&amp;quality=75&amp;format=avif 3840w" style="color:transparent" width="216"/>
+   </div>
+   <p class="text-sm leading-sm font-normal text-(--color-text-primary) line-clamp-2 min-h-10">
+    iPhone 17 Pro Max 256GB Chính Hãng
+   </p>
+   <div class="flex flex-col w-full">
+    <p class="font-bold text-primary-500 text-md leading-md">
+     34.990.000 đ
+    </p>
+    <div class="flex items-center gap-2 text-sm leading-sm font-medium min-h-5">
+     <span class="line-through text-gray-500">
+      37.990.000 đ
+     </span>
+     <span class="text-red-600">
+      -8%
+     </span>
+    </div>
+   </div>
+   <div class="flex w-full flex-col gap-1">
+    <span class="inline-flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[10px] md:text-xs leading-3.5 md:leading-4 font-normal bg-amber-50 text-amber-900">
+     <svg aria-hidden="true" class="lucide lucide-gift size-3 shrink-0 opacity-70" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 7v14">
+      </path>
+      <path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8">
+      </path>
+      <path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5">
+      </path>
+      <rect height="4" rx="1" width="18" x="3" y="7">
+      </rect>
+     </svg>
+     <span class="truncate">
+      Giảm thêm 500K khi Thanh Toán qua Shopee Pay hoặc SPayLater. Chương trình diễn ra từ 17.07 - 27.07, có thể kết thúc sớm hơn dự kiến khi hết số lượng. Hoàn tất …
+     </span>
+    </span>
+    <span class="inline-flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[10px] md:text-xs leading-3.5 md:leading-4 font-normal bg-blue-50 text-blue-800">
+     <svg aria-hidden="true" class="lucide lucide-gift size-3 shrink-0 opacity-70" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 7v14">
+      </path>
+      <path d="M20 11v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8">
+      </path>
+      <path d="M7.5 7a1 1 0 0 1 0-5A4.8 8 0 0 1 12 7a4.8 8 0 0 1 4.5-5 1 1 0 0 1 0 5">
+      </path>
+      <rect height="4" rx="1" width="18" x="3" y="7">
+      </rect>
+     </svg>
+     <span class="truncate">
+      Giảm thêm đến 3.5 triệu Thu Cũ Đổi Mới
+     </span>
+    </span>
+    <div class="mt-0.5 w-full cursor-default" role="presentation">
+     <div class="grid w-full grid-cols-3 gap-1.5 max-md:flex">
+      <button aria-label="Hoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC" aria-pressed="true" class="flex h-7 w-full min-w-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white transition-colors duration-150 max-md:flex-1 border-primary-500 ring-1 ring-primary-500/30 ring-inset" type="button">
+       <img alt="" aria-hidden="true" class="h-[18px] w-auto max-w-[85%] object-contain transition-opacity duration-150" data-nimg="1" decoding="async" height="24" loading="lazy" sizes="64px" src="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=3840&amp;quality=75&amp;format=avif" srcset="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=32&amp;quality=75&amp;format=avif 32w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=48&amp;quality=75&amp;format=avif 48w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=64&amp;quality=75&amp;format=avif 64w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=96&amp;quality=75&amp;format=avif 96w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=128&amp;quality=75&amp;format=avif 128w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=256&amp;quality=75&amp;format=avif 256w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=384&amp;quality=75&amp;format=avif 384w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=640&amp;quality=75&amp;format=avif 640w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=750&amp;quality=75&amp;format=avif 750w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=828&amp;quality=75&amp;format=avif 828w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=1080&amp;quality=75&amp;format=avif 1080w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=1200&amp;quality=75&amp;format=avif 1200w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=1920&amp;quality=75&amp;format=avif 1920w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=2048&amp;quality=75&amp;format=avif 2048w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/21/76/hscb4.jpg?width=3840&amp;quality=75&amp;format=avif 3840w" style="color:transparent" width="64"/>
+      </button>
+      <button aria-label="Nhận 900.000đ mở thẻ tín dụng VPBank thành công" aria-pressed="false" class="flex h-7 w-full min-w-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white transition-colors duration-150 max-md:flex-1 border-gray-200 hover:border-gray-300" type="button">
+       <img alt="" aria-hidden="true" class="h-[18px] w-auto max-w-[85%] object-contain transition-opacity duration-150" data-nimg="1" decoding="async" height="24" loading="lazy" sizes="64px" src="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=3840&amp;quality=75&amp;format=avif" srcset="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=32&amp;quality=75&amp;format=avif 32w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=48&amp;quality=75&amp;format=avif 48w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=64&amp;quality=75&amp;format=avif 64w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=96&amp;quality=75&amp;format=avif 96w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=128&amp;quality=75&amp;format=avif 128w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=256&amp;quality=75&amp;format=avif 256w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=384&amp;quality=75&amp;format=avif 384w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=640&amp;quality=75&amp;format=avif 640w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=750&amp;quality=75&amp;format=avif 750w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=828&amp;quality=75&amp;format=avif 828w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=1080&amp;quality=75&amp;format=avif 1080w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=1200&amp;quality=75&amp;format=avif 1200w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=1920&amp;quality=75&amp;format=avif 1920w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=2048&amp;quality=75&amp;format=avif 2048w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/6/10/0/vpbank-logo.png?width=3840&amp;quality=75&amp;format=avif 3840w" style="color:transparent" width="64"/>
+      </button>
+      <button aria-label="Giảm 800.000đ mở thẻ tín dụng VIB thành công" aria-pressed="false" class="flex h-7 w-full min-w-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white transition-colors duration-150 max-md:flex-1 border-gray-200 hover:border-gray-300" type="button">
+       <img alt="" aria-hidden="true" class="h-[18px] w-auto max-w-[85%] object-contain transition-opacity duration-150" data-nimg="1" decoding="async" height="24" loading="lazy" sizes="64px" src="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=3840&amp;quality=75&amp;format=avif" srcset="https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=32&amp;quality=75&amp;format=avif 32w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=48&amp;quality=75&amp;format=avif 48w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=64&amp;quality=75&amp;format=avif 64w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=96&amp;quality=75&amp;format=avif 96w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=128&amp;quality=75&amp;format=avif 128w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=256&amp;quality=75&amp;format=avif 256w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=384&amp;quality=75&amp;format=avif 384w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=640&amp;quality=75&amp;format=avif 640w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=750&amp;quality=75&amp;format=avif 750w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=828&amp;quality=75&amp;format=avif 828w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=1080&amp;quality=75&amp;format=avif 1080w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=1200&amp;quality=75&amp;format=avif 1200w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=1920&amp;quality=75&amp;format=avif 1920w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=2048&amp;quality=75&amp;format=avif 2048w, https://cdn-v2.didongviet.vn/files/extra-promotion/2026/5/13/4/image-281.png?width=3840&amp;quality=75&amp;format=avif 3840w" style="color:transparent" width="64"/>
+      </button>
+     </div>
+     <p class="mt-1.5 text-[10px] md:text-xs leading-3.5 md:leading-4 text-gray-600 line-clamp-2 motion-safe:animate-[fadeIn_.2s_ease-out]">
+      Hoàn tiền đến 2.000.000đ khi mở thẻ tín dụng HSBC
+     </p>
+    </div>
+    <span class="px-0.5 pt-0.5 text-[11px] leading-4 text-gray-500">
+     +
+     <!-- -->
+     2
+     <!-- -->
+     ưu đãi khác
+    </span>
+   </div>
+  </div>
+  <div class="mt-auto flex items-center gap-2 h-8 w-full">
+   <div aria-label="Đánh giá 4.9 trên 5 sao, 1100 lượt đánh giá" class="flex items-center gap-1" role="img">
+    <svg aria-hidden="true" class="lucide lucide-star size-3 text-yellow-400 fill-yellow-400" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+     <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z">
+     </path>
+    </svg>
+    <span class="text-xs leading-xs font-medium text-gray-600">
+     4.9
+    </span>
+    <span class="text-xs leading-xs font-normal text-gray-500">
+     (
+     <!-- -->
+     1100
+     <!-- -->
+     )
+    </span>
+   </div>
+   <button aria-label="Thêm vào danh sách so sánh" class="inline-flex items-center gap-1 text-xs leading-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm py-3.5 -my-3.5 text-text-link hover:text-primary-500 ml-auto" type="button">
+    <svg aria-hidden="true" class="lucide lucide-circle-plus size-3.5" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+     <circle cx="12" cy="12" r="10">
+     </circle>
+     <path d="M8 12h8">
+     </path>
+     <path d="M12 8v8">
+     </path>
+    </svg>
+    <span>
+     So sánh
+    </span>
+   </button>
+  </div>
+ </div>
+</a>

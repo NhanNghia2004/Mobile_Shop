@@ -1,0 +1,12 @@
+Tag: p | Class: ['h-10', 'overflow-hidden', 'text-sm', 'font-medium', 'text-gray-900', 'line-clamp-2'] | Text: Ốp lưng iPhone 17 Pro Max ZAGG Santa Cruz Snap - Pink Sorbet
+Tag: p | Class: ['h-10', 'overflow-hidden', 'text-sm', 'font-medium', 'text-gray-900', 'line-clamp-2'] | Text: Ốp lưng iPhone 17 Pro Max ZAGG Santa Cruz Snap - Pink Sorbet
+Tag: script | Class: None | Text: {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"iPhone 17 Pro Max chơi game có tốt không?","acceptedAnswer":{"@type":"Answer","text":"Sức mạnh từ chip A19 
+Tag: li | Class: None | Text: Màn hình: 6.9 inch Super Retina XDR, tần số quét ProMotion 120Hz, độ sáng tối đa 3.000 nits.
+Tag: h3 | Class: None | Text: 3.1. Màn hình 6.9 inch và bộ khung viền Titanium nguyên khối
+Tag: div | Class: ['px-4', 'pb-3', 'text-sm', 'leading-6', 'text-gray-600', '**:text-sm!', '**:leading-6!'] | Text: Sức mạnh từ chip A19 Pro và RAM 12GB giúp iPhone 17 Pro Max xử lý mượt mà mọi tựa game AAA ở mức cấu hình cao nhất mà không gặp tình trạng giật lag. Đây cũng là dòng máy đầu tiên trang bị hệ thống tản
+Tag: script | Class: None | Text: self.__next_f.push([1,"3:[\"$\",\"$L26\",null,{\"children\":[[\"$\",\"$L24\",null,{\"pageType\":\"other\"}],null,[\"$\",\"$L27\",null,{\"isMobile\":false}],[\"$\",\"div\",null,{\"className\":\"flex mi
+Tag: script | Class: None | Text: self.__next_f.push([1,"\u003cp dir=\"ltr\" style=\"text-align: justify;\"\u003eTháng 7/2026 là giao điểm tài chính hoàn hảo để sở hữu\u003cstrong\u003e Apple iPhone 17 Pro Max\u003c/strong\u003e 256GB
+Tag: script | Class: None | Text: self.__next_f.push([1,"25:[\"$\",\"div\",null,{\"className\":\"container-inner flex flex-col gap-2 bg-gray-100 py-2 md:gap-4 md:py-4\",\"children\":[[\"$\",\"$L55\",null,{\"productId\":\"50032061\",\"
+Tag: script | Class: None | Text: self.__next_f.push([1,"{\"@context\":\"https://schema.org\",\"@type\":\"FAQPage\",\"mainEntity\":[{\"@type\":\"Question\",\"name\":\"iPhone 17 Pro Max chơi game có tốt không?\",\"acceptedAnswer\":{\"@
+Tag: script | Class: None | Text: self.__next_f.push([1,"\u003cp dir=\"ltr\" style=\"text-align: justify;\"\u003eTháng 7/2026 là giao điểm tài chính hoàn hảo để sở hữu\u003cstrong\u003e Apple iPhone 17 Pro Max\u003c/strong\u003e 256GB
+Tag: script | Class: None | Text: self.__next_f.push([1,"5d:[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"$60\"}}],[\"$\",\"$L61\",null,{\"name\":\"iPhone 17 Pro Max 256GB Chính Hã

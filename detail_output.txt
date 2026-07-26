@@ -1,0 +1,136 @@
+Title: iPhone 17 Pro Max 256GB Chính Hãng
+Mô tả:
+  Selector: div[class*='description'] | Text: Tháng 7/2026 là giao điểm tài chính hoàn hảo để sở hữu Apple iPhone 17 Pro Max 256GB Chính Hãng: giá niêm yết đã giảm sâu về mức ổn định, trong khi giá trị thu cũ của các dòng máy tiền nhiệm (iPhone 1
+Main Image:
+Specs Table:
+Colors:
+  Tag: button | Class: transition-colors | Text: Danh mục
+  Tag: div | Class: transition-[border-color,box-shadow] | Text: 
+  Tag: a | Class: transition-colors | Text: 1800.6018
+  Tag: a | Class: transition-colors | Text: Giỏ hàng
+  Tag: button | Class: transition-colors | Text: Đăng nhập
+  Tag: a | Class: transition-colors | Text: Điện thoại
+  Tag: a | Class: transition-colors | Text: Tablet
+  Tag: a | Class: transition-colors | Text: Macbook & iMac
+  Tag: a | Class: transition-colors | Text: Máy cũ giá rẻ
+  Tag: a | Class: transition-colors | Text: Phụ kiện
+  Tag: a | Class: transition-colors | Text: Đồng hồ
+  Tag: a | Class: transition-colors | Text: Âm thanh
+  Tag: a | Class: transition-colors | Text: Điện máy, gia dụng
+  Tag: a | Class: transition-colors | Text: Thu cũ đổi mới
+  Tag: a | Class: transition-colors | Text: Công nghệ 24h
+  Tag: a | Class: transition-colors | Text: Trang chủ
+  Tag: a | Class: transition-colors | Text: Điện thoại
+  Tag: a | Class: transition-colors | Text: Điện thoại iPhone
+  Tag: a | Class: transition-colors | Text: iPhone 17 Series
+  Tag: button | Class: transition-colors | Text: No.0048095
+  Tag: button | Class: transition-colors | Text: Thông số kỹ thuậtThông số
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: button | Class: transition-colors | Text: Chia sẻ
+  Tag: button | Class: transition-colors | Text: Xem tất cả
+  Tag: a | Class: transition-colors | Text: 512GB
+  Tag: a | Class: transition-colors | Text: 1TB
+  Tag: a | Class: transition-colors | Text: 2TB
+  Tag: button | Class: transition-colors | Text: Cam Vũ Trụ34.990.000 đ
+  Tag: button | Class: transition-colors | Text: Bạc34.990.000 đ
+  Tag: button | Class: transition-colors | Text: Màu xanh đậm34.990.000 đ
+  Tag: button | Class: transition-colors | Text: MUA NGAY
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: Xem ngay
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 256GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro Max 512GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro 256GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro Max 1TB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro 512GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17e 256GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 512GB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro Max 2TB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone 17 Pro 1TB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: p | Class: text-(--color-text-primary) | Text: iPhone Air 1TB Chính Hãng
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: 
+  Tag: button | Class: transition-colors | Text: So sánh
+  Tag: button | Class: transition-colors | Text: Tất cả
+  Tag: button | Class: transition-colors | Text: Có hình ảnh(0)
+  Tag: button | Class: transition-colors | Text: 5 sao(1.1k)
+  Tag: button | Class: transition-colors | Text: 4 sao(20)
+  Tag: button | Class: transition-colors | Text: 3 sao(8)
+  Tag: button | Class: transition-colors | Text: 2 sao(3)
+  Tag: button | Class: transition-colors | Text: 1 sao(9)
+  Tag: button | Class: transition-colors | Text: Viết đánh giá
+  Tag: button | Class: transition-colors | Text: Gửi câu hỏi
+  Tag: a | Class: transition-colors | Text: Giới thiệu về công ty
+  Tag: a | Class: transition-colors | Text: Liên hệ hợp tác kinh doanh (B2B)
+  Tag: a | Class: transition-colors | Text: Ưu đãi dành cho giáo dục
+  Tag: a | Class: transition-colors | Text: Danh sách cửa hàng
+  Tag: a | Class: transition-colors | Text: Tuyển dụng mới nhất
+  Tag: a | Class: transition-colors | Text: Hướng dẫn mua hàng online
+  Tag: a | Class: transition-colors | Text: Hướng dẫn mua hàng trả góp
+  Tag: a | Class: transition-colors | Text: Hướng dẫn thanh toán VNPay
+  Tag: a | Class: transition-colors | Text: Chính sách bảo hành
+  Tag: a | Class: transition-colors | Text: Chính sách bán hàng
+  Tag: a | Class: transition-colors | Text: Chính sách bảo mật
+  Tag: a | Class: transition-colors | Text: Chính sách mua hàng trả góp
+  Tag: a | Class: transition-colors | Text: Trung tâm bảo hành Apple tại Việt Nam
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: a | Class: transition-colors | Text: 
+  Tag: div | Class: transition-[border-color,box-shadow] | Text: 
+  Tag: a | Class: transition-colors | Text: 1. Phân tích mức dung lượng 256GB theo nhu cầu sử dụng thực tế năm 2026
+  Tag: a | Class: transition-colors | Text: 1.1. Không gian lưu trữ khả dụng thực tế trên thiết bị
+  Tag: a | Class: transition-colors | Text: 1.2. Đối tượng phù hợp với phiên bản 256GB
+  Tag: a | Class: transition-colors | Text: 2. Đánh giá hiệu năng chip A19 Pro và hệ thống tản nhiệt buồng hơi
+  Tag: a | Class: transition-colors | Text: 3. Trải nghiệm cầm nắm thiết kế 6.9 inch và thời lượng pin thực tế
+  Tag: button | Class: transition-colors | Text: Xem tất cả mục lục
