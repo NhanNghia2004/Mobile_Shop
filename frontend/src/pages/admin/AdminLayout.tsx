@@ -1,13 +1,20 @@
+import { useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Package, LogOut, Ticket, Warehouse, ShoppingBag, Star } from 'lucide-react';
 
 export default function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const handleLogout = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        setShowLogoutConfirm(false);
         navigate('/login');
     };
 
@@ -77,6 +84,30 @@ export default function AdminLayout() {
                     <Outlet />
                 </main>
             </div>
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div 
+                        className="bg-white text-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200"
+                    >
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Xác nhận đăng xuất</h3>
+                        <p className="text-gray-500 text-sm mb-6">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản admin không?</p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="px-4.5 py-2 border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm"
+                            >
+                                Hủy
+                            </button>
+                            <button 
+                                onClick={confirmLogout}
+                                className="px-4.5 py-2 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors text-sm shadow-sm"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

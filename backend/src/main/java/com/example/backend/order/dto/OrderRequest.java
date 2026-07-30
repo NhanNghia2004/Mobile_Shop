@@ -11,4 +11,5 @@ public class OrderRequest {
     private String paymentMethod;
     private List<Long> variantIds;
     private String couponCode;
+    private Double shippingFee;
 }

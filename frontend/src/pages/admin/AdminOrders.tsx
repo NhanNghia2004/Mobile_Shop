@@ -27,6 +27,7 @@ interface Order {
     shippingAddress: string;
     totalAmount: number;
     discountAmount: number;
+    shippingFee?: number;
     couponCode: string;
     paymentMethod: string;
     status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
@@ -339,8 +340,14 @@ export default function AdminOrders() {
                                                                 <div className="flex flex-col gap-1.5 text-sm max-w-xs ml-auto">
                                                                     <div className="flex justify-between text-gray-600">
                                                                         <span>Tạm tính:</span>
-                                                                        <span className="font-semibold">{fmtPrice(order.totalAmount + (order.discountAmount || 0))}</span>
+                                                                        <span className="font-semibold">{fmtPrice(order.totalAmount + (order.discountAmount || 0) - (order.shippingFee || 0))}</span>
                                                                     </div>
+                                                                    {(order.shippingFee || 0) > 0 && (
+                                                                        <div className="flex justify-between text-gray-600">
+                                                                            <span>Phí vận chuyển:</span>
+                                                                            <span className="font-semibold">{fmtPrice(order.shippingFee || 0)}</span>
+                                                                        </div>
+                                                                    )}
                                                                     {order.discountAmount > 0 && (
                                                                         <div className="flex justify-between text-green-600">
                                                                             <span>Giảm giá ({order.couponCode}):</span>

@@ -15,6 +15,7 @@ public class OrderResponse {
     private String shippingAddress;
     private Double totalAmount;
     private Double discountAmount;
+    private Double shippingFee;
     private String couponCode;
     private String paymentMethod;
     private String status;
@@ -29,6 +30,7 @@ public class OrderResponse {
         response.setShippingAddress(order.getShippingAddress());
         response.setTotalAmount(order.getTotalAmount());
         response.setDiscountAmount(order.getDiscountAmount());
+        response.setShippingFee(order.getShippingFee());
         response.setCouponCode(order.getCouponCode());
         response.setPaymentMethod(order.getPaymentMethod());
         response.setStatus(order.getStatus().name());

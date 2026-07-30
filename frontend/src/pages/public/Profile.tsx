@@ -758,6 +758,16 @@ export default function Profile() {
     const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
     const [isEditingMode, setIsEditingMode] = useState(false);
     const [alertMsg, setAlertMsg]         = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+    const handleLogout = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
+        localStorage.clear();
+        window.location.href = '/login';
+    };
 
     const showAlert = (text: string, type: 'success' | 'error') => {
         setAlertMsg({ text, type });
@@ -851,7 +861,7 @@ export default function Profile() {
                             </button>
                         ))}
                         <div className="pt-2 mt-2 border-t border-gray-100">
-                            <button type="button" onClick={() => { localStorage.clear(); window.location.href = '/login'; }}
+                            <button type="button" onClick={handleLogout}
                                     className="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-all">
                                 <LogOut size={16} />Đăng xuất
                             </button>
@@ -987,6 +997,28 @@ export default function Profile() {
                     )}
                 </div>
             </div>
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-white text-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Xác nhận đăng xuất</h3>
+                        <p className="text-gray-500 text-sm mb-6">Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?</p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="px-4.5 py-2 border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm"
+                            >
+                                Hủy
+                            </button>
+                            <button 
+                                onClick={confirmLogout}
+                                className="px-4.5 py-2 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors text-sm shadow-sm"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

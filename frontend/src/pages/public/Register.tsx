@@ -15,6 +15,9 @@ export default function Register() {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    // State quản lý lỗi validation
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
     // State quản lý thông báo nội bộ
     const [alertMsg, setAlertMsg] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
@@ -43,6 +46,29 @@ export default function Register() {
     // BƯỚC 1: Gửi thông tin đăng ký -> nhận OTP qua email
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate inputs
+        const newErrors: { email?: string; password?: string } = {};
+        if (!formData.email.trim()) {
+            newErrors.email = "Hãy nhập email";
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                newErrors.email = "Email không hợp lệ";
+            }
+        }
+
+        if (!formData.password) {
+            newErrors.password = "Hãy nhập mật khẩu";
+        } else if (formData.password.length < 6) {
+            newErrors.password = "Mật khẩu ít nhất 6 ký tự";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
 
         if (formData.password !== formData.confirmPassword) {
             showAlert("Mật khẩu xác nhận không khớp!", "error");
@@ -141,10 +167,14 @@ export default function Register() {
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.id]: e.target.value
+            [id]: value
         });
+        if (errors[id as 'email' | 'password']) {
+            setErrors(prev => ({ ...prev, [id]: undefined }));
+        }
     };
 
     // Format countdown thành mm:ss
@@ -190,8 +220,7 @@ export default function Register() {
                                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Tạo tài khoản</h1>
                                 <p className="text-gray-500 text-base">Bắt đầu hành trình công nghệ của bạn ngay hôm nay.</p>
                             </div>
-
-                            <form className="space-y-4" onSubmit={handleRegister}>
+                            <form className="space-y-4" onSubmit={handleRegister} noValidate>
                                 {/* Username */}
                                 <div className="space-y-1">
                                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider ml-1" htmlFor="username">
@@ -202,7 +231,6 @@ export default function Register() {
                                         <input
                                             id="username"
                                             type="text"
-                                            required
                                             value={formData.username}
                                             onChange={handleChange}
                                             placeholder="nguyenvan_a"
@@ -221,13 +249,15 @@ export default function Register() {
                                         <input
                                             id="email"
                                             type="email"
-                                            required
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="name@company.com"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600 transition-all text-base placeholder:text-gray-400"
+                                            className={`w-full bg-gray-50 border rounded-lg py-2.5 pl-11 pr-4 focus:outline-none transition-all text-base placeholder:text-gray-400 ${errors.email ? 'border-red-500 focus:ring-4 focus:ring-red-50 focus:border-red-500' : 'border-gray-200 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600'}`}
                                         />
                                     </div>
+                                    {errors.email && (
+                                        <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.email}</p>
+                                    )}
                                 </div>
 
                                 {/* Password Grid */}
@@ -241,13 +271,15 @@ export default function Register() {
                                             <input
                                                 id="password"
                                                 type="password"
-                                                required
                                                 value={formData.password}
                                                 onChange={handleChange}
                                                 placeholder="••••••••"
-                                                className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600 transition-all text-base placeholder:text-gray-400"
+                                                className={`w-full bg-gray-50 border rounded-lg py-2.5 pl-11 pr-4 focus:outline-none transition-all text-base placeholder:text-gray-400 ${errors.password ? 'border-red-500 focus:ring-4 focus:ring-red-50 focus:border-red-500' : 'border-gray-200 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600'}`}
                                             />
                                         </div>
+                                        {errors.password && (
+                                            <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.password}</p>
+                                        )}
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-bold text-gray-700 uppercase tracking-wider ml-1" htmlFor="confirmPassword">
@@ -258,7 +290,6 @@ export default function Register() {
                                             <input
                                                 id="confirmPassword"
                                                 type="password"
-                                                required
                                                 value={formData.confirmPassword}
                                                 onChange={handleChange}
                                                 placeholder="••••••••"

@@ -13,6 +13,9 @@ export default function Login() {
     const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     
+    // State quản lý lỗi validation
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
     // State quản lý thông báo nội bộ
     const [alertMsg, setAlertMsg] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
@@ -23,11 +26,48 @@ export default function Login() {
 
     const navigate = useNavigate();
 
-
     const HERO_IMAGE = "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop";
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+        if (errors.email) {
+            setErrors(prev => ({ ...prev, email: undefined }));
+        }
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+        if (errors.password) {
+            setErrors(prev => ({ ...prev, password: undefined }));
+        }
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validate inputs
+        const newErrors: { email?: string; password?: string } = {};
+        if (!email.trim()) {
+            newErrors.email = "Hãy nhập email";
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                newErrors.email = "Email không hợp lệ";
+            }
+        }
+
+        if (!password) {
+            newErrors.password = "Hãy nhập mật khẩu";
+        } else if (password.length < 6) {
+            newErrors.password = "Mật khẩu ít nhất 6 ký tự";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
+
         setIsLoading(true);
         try {
             const response = await api.post('/auth/login', { email, password });
@@ -105,7 +145,7 @@ export default function Login() {
                         <p className="text-gray-500 text-base">Chào mừng bạn quay trở lại với cửa hàng</p>
                     </div>
 
-                    <form className="space-y-4" onSubmit={handleLogin}>
+                    <form className="space-y-4" onSubmit={handleLogin} noValidate>
                         {/* Email */}
                         <div className="space-y-1">
 
@@ -118,12 +158,15 @@ export default function Login() {
                                     type="email"
                                     id="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={handleEmailChange}
                                     placeholder="email@vidu.com"
 
-                                    className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-base focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all placeholder:text-gray-400"
+                                    className={`w-full pl-11 pr-4 py-2.5 bg-gray-50 border rounded-lg text-base outline-none transition-all placeholder:text-gray-400 ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-50' : 'border-gray-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50'}`}
                                 />
                             </div>
+                            {errors.email && (
+                                <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.email}</p>
+                            )}
                         </div>
 
                         {/* Mật khẩu */}
@@ -137,12 +180,15 @@ export default function Login() {
                                     type="password"
                                     id="password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={handlePasswordChange}
                                     placeholder="••••••••"
 
-                                    className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-base focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all placeholder:text-gray-400"
+                                    className={`w-full pl-11 pr-4 py-2.5 bg-gray-50 border rounded-lg text-base outline-none transition-all placeholder:text-gray-400 ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-50' : 'border-gray-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50'}`}
                                 />
                             </div>
+                            {errors.password && (
+                                <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.password}</p>
+                            )}
                         </div>
 
 

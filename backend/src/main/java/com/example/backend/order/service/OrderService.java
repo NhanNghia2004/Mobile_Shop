@@ -63,9 +63,12 @@ public class OrderService {
         order.setShippingAddress(request.getShippingAddress());
         order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "COD");
 
+        Double shippingFee = request.getShippingFee() != null ? request.getShippingFee() : 0.0;
+        order.setShippingFee(shippingFee);
+
         double totalAmount = itemsToProcess.stream()
                 .mapToDouble(item -> item.getSubTotal() != null ? item.getSubTotal() : 0.0)
-                .sum();
+                .sum() + shippingFee;
 
         // Apply coupon if provided
         double discountAmount = 0.0;

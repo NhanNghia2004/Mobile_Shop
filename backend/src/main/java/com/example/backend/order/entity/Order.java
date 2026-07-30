@@ -29,6 +29,7 @@ public class Order {
     private Double totalAmount;
 
     private Double discountAmount = 0.0;
+    private Double shippingFee = 0.0;
     private String couponCode;
 
     private String paymentMethod; // e.g. "COD"

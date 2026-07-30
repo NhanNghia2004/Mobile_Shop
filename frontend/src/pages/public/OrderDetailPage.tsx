@@ -15,6 +15,7 @@ interface OrderItem {
 interface OrderData {
     id: number; recipientName: string; phone: string; shippingAddress: string;
     totalAmount: number; discountAmount?: number; couponCode?: string; paymentMethod: string;
+    shippingFee?: number;
     status: string; createdAt: string; items: OrderItem[];
 }
 
@@ -62,7 +63,7 @@ export default function OrderDetailPage() {
     if (!order) return null;
 
     const subTotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const shippingFee = 0; // Giả sử free ship
+    const shippingFee = order.shippingFee || 0;
     const finalTotal = order.totalAmount;
 
     return (
