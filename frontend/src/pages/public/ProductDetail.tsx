@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Star, ShoppingCart, ShieldCheck, Truck, ArrowLeft,
     Package, ChevronRight, Loader2, MessageCircle,
-    ThumbsUp, Share2, RefreshCw, ZoomIn, GitCompare
+    ThumbsUp, Share2, RefreshCw, ZoomIn, GitCompare,
+    Pencil, Trash2, X, Send, Camera, ImagePlus, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
 import type { ProductResponse, VariantResponse } from '../../types/product';
@@ -17,11 +18,13 @@ interface ReviewData {
     userId: number;
     username: string;
     userAvatar?: string;
+    variantId: number;
     variantColor: string;
     variantStorage: number;
     rating: number;
     comment: string;
     imageUrls: string[];
+    images?: { id: number; url: string }[];
     adminReply?: string;
     createdAt: string;
 }
@@ -68,12 +71,204 @@ function ImageZoom({ src, onClose }: { src: string; onClose: () => void }) {
 }
 
 
-function ReviewCard({ review }: { review: ReviewData }) {
-    const initials = review.username?.slice(0, 2).toUpperCase() || 'U';
-    const date = new Date(review.createdAt).toLocaleDateString('vi-VN');
+// ── Edit Review Modal (inline) ────────────────────────────────────────────────
+const STAR_LABELS = ['', 'Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Xuất sắc'];
+
+function EditReviewModal({
+    productId, review, onClose, onSaved
+}: {
+    productId: number;
+    review: ReviewData;
+    onClose: () => void;
+    onSaved: () => void;
+}) {
+    const [rating, setRating]         = useState(review.rating);
+    const [comment, setComment]       = useState(review.comment || '');
+    const [hovered, setHovered]       = useState(0);
+    const [existingImages, setExistingImages] = useState(review.images || []);
+    const [images, setImages]         = useState<File[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError]           = useState('');
+
+    const display = hovered || rating;
+
+    const handleDeleteExistingImage = async (imageId: number) => {
+        if (!window.confirm('Xóa ảnh này?')) return;
+        try {
+            await axiosInstance.delete(`/products/${productId}/reviews/${review.id}/images/${imageId}`);
+            setExistingImages(prev => prev.filter(img => img.id !== imageId));
+        } catch {
+            alert('Không thể xóa ảnh này');
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (rating === 0) { setError('Vui lòng chọn số sao'); return; }
+        if (comment.trim().length < 10) { setError('Nhận xét phải có ít nhất 10 ký tự'); return; }
+        setError('');
+        setSubmitting(true);
+        try {
+            const fd = new FormData();
+            fd.append('rating', String(rating));
+            fd.append('comment', comment);
+            images.forEach(f => fd.append('images', f));
+            await axiosInstance.put(`/products/${productId}/reviews/${review.id}`, fd, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            onSaved();
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Cập nhật thất bại');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+            onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+        >
+            <motion.div
+                initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl"
+            >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                    <h2 className="font-bold text-gray-900">Chỉnh sửa đánh giá</h2>
+                    <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <X size={16} className="text-gray-500" />
+                    </button>
+                </div>
+                <div className="px-5 py-5 space-y-5 max-h-[75vh] overflow-y-auto">
+                    {/* Stars */}
+                    <div className="text-center">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Chất lượng sản phẩm</p>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="flex gap-1.5">
+                                {[1,2,3,4,5].map(i => (
+                                    <button key={i} type="button"
+                                        onClick={() => setRating(i)}
+                                        onMouseEnter={() => setHovered(i)}
+                                        onMouseLeave={() => setHovered(0)}
+                                        className="transition-transform hover:scale-110 active:scale-95"
+                                    >
+                                        <Star size={36} fill={i <= display ? '#FBBF24' : 'none'}
+                                            className={`transition-colors ${i <= display ? 'text-yellow-400' : 'text-gray-300'}`} />
+                                    </button>
+                                ))}
+                            </div>
+                            {display > 0 && <span className={`text-sm font-semibold ${ display >= 4 ? 'text-green-600' : display === 3 ? 'text-amber-600' : 'text-red-500'}`}>{STAR_LABELS[display]}</span>}
+                        </div>
+                    </div>
+                    {/* Comment */}
+                    <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1.5">Nhận xét <span className="text-red-500">*</span></label>
+                        <textarea value={comment} onChange={e => { setComment(e.target.value); setError(''); }}
+                            rows={4} placeholder="Nhận xét của bạn..."
+                            className="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-xl resize-none focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-50 transition-all" />
+                        <span className={`text-xs mt-1 block ${comment.length < 10 ? 'text-gray-400' : 'text-green-600'}`}>
+                            {comment.length} / 1000 ký tự
+                        </span>
+                    </div>
+                    {/* Existing Images */}
+                    {existingImages.length > 0 && (
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium mb-2">Ảnh đã đăng</p>
+                            <div className="flex gap-2 flex-wrap">
+                                {existingImages.map(img => (
+                                    <div key={img.id} className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 group">
+                                        <img src={img.url} alt="" className="w-full h-full object-cover" />
+                                        <button type="button" onClick={() => handleDeleteExistingImage(img.id)}
+                                            className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-xs">
+                                            <Trash2 size={14} className="text-white" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {/* Image upload */}
+                    <div>
+                        <p className="text-xs text-gray-500 font-medium mb-2 flex items-center gap-1.5"><Camera size={13} /> Thêm ảnh mới <span className="text-gray-400">(tối đa {5 - existingImages.length})</span></p>
+                        <div className="flex gap-2 flex-wrap">
+                            {images.map((file, idx) => (
+                                <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 group">
+                                    <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                                    <button type="button" onClick={() => setImages(imgs => imgs.filter((_, i) => i !== idx))}
+                                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Trash2 size={14} className="text-white" />
+                                    </button>
+                                </div>
+                            ))}
+                            {existingImages.length + images.length < 5 && (
+                                <label className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 hover:border-indigo-400 hover:bg-indigo-50 transition-all text-gray-400 hover:text-indigo-500 cursor-pointer">
+                                    <ImagePlus size={18} />
+                                    <span className="text-[10px]">Thêm</span>
+                                    <input type="file" accept="image/*" multiple className="hidden" onChange={e => {
+                                        const files = Array.from(e.target.files || []);
+                                        const limit = 5 - existingImages.length;
+                                        setImages(prev => [...prev, ...files].slice(0, limit));
+                                        e.target.value = '';
+                                    }} />
+                                </label>
+                            )}
+                        </div>
+                    </div>
+                    {/* Error */}
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+                                <AlertCircle size={14} className="flex-shrink-0" />{error}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    {/* Submit */}
+                    <button type="button" onClick={handleSubmit} disabled={submitting || rating === 0}
+                        className={`w-full py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                            submitting || rating === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-100'
+                        }`}>
+                        {submitting ? <><Loader2 size={16} className="animate-spin" />Đang lưu...</> : <><CheckCircle2 size={16} />Cập nhật đánh giá</>}
+                    </button>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// ── ReviewCard ────────────────────────────────────────────────────────────────
+function ReviewCard({
+    review, currentUserId, productId, onEdited, onDeleted
+}: {
+    review: ReviewData;
+    currentUserId: number | null;
+    productId: number;
+    onEdited: () => void;
+    onDeleted: (id: number) => void;
+}) {
+    const initials = review.username?.slice(0, 2).toUpperCase() || 'U';
+    const date = new Date(review.createdAt).toLocaleDateString('vi-VN');
+    const isOwner = currentUserId !== null && review.userId === currentUserId;
+    const [showEdit, setShowEdit]   = useState(false);
+    const [deleting, setDeleting]   = useState(false);
+
+    const handleDelete = async () => {
+        if (!window.confirm('Xóa đánh giá này?')) return;
+        setDeleting(true);
+        try {
+            await axiosInstance.delete(`/products/${productId}/reviews/${review.id}`);
+            onDeleted(review.id);
+        } catch {
+            alert('Không thể xóa đánh giá');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    return (
+        <>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 relative group">
             <div className="flex items-start gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm flex-shrink-0 overflow-hidden">
                     {review.userAvatar
@@ -83,6 +278,7 @@ function ReviewCard({ review }: { review: ReviewData }) {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-gray-900 text-sm">{review.username}</span>
+                        {isOwner && <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded-full">Của bạn</span>}
                         <span className="text-xs text-gray-400">{date}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
@@ -92,6 +288,19 @@ function ReviewCard({ review }: { review: ReviewData }) {
                         </span>
                     </div>
                 </div>
+                {/* Owner actions */}
+                {isOwner && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setShowEdit(true)}
+                            className="p-1.5 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors" title="Sửa đánh giá">
+                            <Pencil size={14} />
+                        </button>
+                        <button onClick={handleDelete} disabled={deleting}
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50" title="Xóa đánh giá">
+                            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        </button>
+                    </div>
+                )}
             </div>
             {review.comment && (
                 <p className="text-gray-700 text-sm leading-relaxed mb-3">{review.comment}</p>
@@ -113,6 +322,17 @@ function ReviewCard({ review }: { review: ReviewData }) {
                 </div>
             )}
         </div>
+        <AnimatePresence>
+            {showEdit && (
+                <EditReviewModal
+                    productId={productId}
+                    review={review}
+                    onClose={() => setShowEdit(false)}
+                    onSaved={() => { setShowEdit(false); onEdited(); }}
+                />
+            )}
+        </AnimatePresence>
+        </>
     );
 }
 
@@ -180,6 +400,36 @@ export default function ProductDetail() {
     const [reviewTotalPages, setReviewTotalPages] = useState(0);
     const [filterRating, setFilterRating] = useState<number | null>(null);
     const [reviewLoading, setReviewLoading] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+    // Lấy userId hiện tại từ token/localStorage
+    useEffect(() => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user?.id) setCurrentUserId(Number(user.id));
+            else {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    if (payload?.userId) setCurrentUserId(Number(payload.userId));
+                }
+            }
+        } catch { /* không đăng nhập */ }
+    }, []);
+
+    const fetchReviews = useCallback(() => {
+        if (!id) return;
+        setReviewLoading(true);
+        const params: any = { page: reviewPage, size: 5 };
+        if (filterRating) params.rating = filterRating;
+        axiosInstance.get(`/products/${id}/reviews`, { params })
+            .then(r => {
+                setReviews(r.data.content || []);
+                setReviewTotalPages(r.data.totalPages || 0);
+            })
+            .catch(() => {})
+            .finally(() => setReviewLoading(false));
+    }, [id, reviewPage, filterRating]);
 
     useEffect(() => {
         if (!id) return;
@@ -196,19 +446,7 @@ export default function ProductDetail() {
             .finally(() => setLoading(false));
     }, [id]);
 
-    useEffect(() => {
-        if (!id) return;
-        setReviewLoading(true);
-        const params: any = { page: reviewPage, size: 5 };
-        if (filterRating) params.rating = filterRating;
-        axiosInstance.get(`/products/${id}/reviews`, { params })
-            .then(r => {
-                setReviews(r.data.content || []);
-                setReviewTotalPages(r.data.totalPages || 0);
-            })
-            .catch(() => {})
-            .finally(() => setReviewLoading(false));
-    }, [id, reviewPage, filterRating]);
+    useEffect(() => { fetchReviews(); }, [fetchReviews]);
 
     useEffect(() => {
         if (!id) return;
@@ -668,7 +906,16 @@ export default function ProductDetail() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {reviews.map(r => <ReviewCard key={r.id} review={r} />)}
+                            {reviews.map(r => (
+                                <ReviewCard
+                                    key={r.id}
+                                    review={r}
+                                    currentUserId={currentUserId}
+                                    productId={Number(id)}
+                                    onEdited={() => { fetchReviews(); }}
+                                    onDeleted={(deletedId) => setReviews(prev => prev.filter(x => x.id !== deletedId))}
+                                />
+                            ))}
                         </div>
                     )}
 

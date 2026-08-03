@@ -50,6 +50,9 @@ export default function AdminProducts() {
     const [isVariantsOpen, setIsVariantsOpen] = useState(false);
     const [managingVariantProductId, setManagingVariantProductId] = useState<number | null>(null);
 
+    // Action loading (per-row, so the table doesn't flash)
+    const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+
     const fmtPrice = (n: number) => n?.toLocaleString('vi-VN') + 'đ';
 
     const fetchStats = async () => {
@@ -93,6 +96,19 @@ export default function AdminProducts() {
         fetchProducts();
     }, [fetchProducts]);
 
+    // Silent refresh — doesn't show the big loading spinner
+    const fetchProductsSilent = async () => {
+        try {
+            const { data } = await axiosInstance.get('/admin/products', {
+                params: { page, size: 10, keyword: keyword || undefined, status: statusFilter, sortBy }
+            });
+            setProducts(data.content);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error("Lỗi làm mới dữ liệu", error);
+        }
+    };
+
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setKeyword(searchVal);
@@ -101,23 +117,29 @@ export default function AdminProducts() {
 
     const toggleStatus = async (product: AdminProduct) => {
         const action = product.status === 'ACTIVE' ? 'deactivate' : 'activate';
+        setActionLoadingId(product.id);
         try {
             await axiosInstance.patch(`/admin/products/${product.id}/${action}`);
-            fetchProducts();
+            await fetchProductsSilent();
             fetchStats();
         } catch (error) {
             alert('Lỗi cập nhật trạng thái');
+        } finally {
+            setActionLoadingId(null);
         }
     };
 
     const handleDelete = async (id: number) => {
         if (!window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này? Tất cả dữ liệu liên quan sẽ bị mất.')) return;
+        setActionLoadingId(id);
         try {
             await axiosInstance.delete(`/admin/products/${id}/hard`);
-            fetchProducts();
+            await fetchProductsSilent();
             fetchStats();
         } catch (error) {
             alert('Lỗi xóa sản phẩm');
+        } finally {
+            setActionLoadingId(null);
         }
     };
 
@@ -135,7 +157,7 @@ export default function AdminProducts() {
         setIsFormOpen(false);
         setEditingProductId(null);
         if (needsRefresh) {
-            fetchProducts();
+            fetchProductsSilent();
             fetchStats();
         }
     };
@@ -143,7 +165,7 @@ export default function AdminProducts() {
     const handleVariantsClose = () => {
         setIsVariantsOpen(false);
         setManagingVariantProductId(null);
-        fetchProducts();
+        fetchProductsSilent();
         fetchStats();
     };
 
@@ -259,7 +281,7 @@ export default function AdminProducts() {
                                 </tr>
                             ) : (
                                 products.map(p => (
-                                    <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
+                                    <tr key={p.id} className={`hover:bg-gray-50 transition-colors group ${actionLoadingId === p.id ? 'opacity-50 pointer-events-none' : ''}`}>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-xl bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-200">
@@ -308,34 +330,40 @@ export default function AdminProducts() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => openVariantsModal(p.id)}
-                                                    className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                                    title="Quản lý Biến thể (Màu sắc, Dung lượng, Hình ảnh)"
-                                                >
-                                                    <Layers size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => openFormModal(p.id)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Chỉnh sửa thông tin"
-                                                >
-                                                    <Edit2 size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => toggleStatus(p)}
-                                                    className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                                                    title={p.status === 'ACTIVE' ? 'Ẩn sản phẩm' : 'Hiển thị sản phẩm'}
-                                                >
-                                                    {p.status === 'ACTIVE' ? <EyeOff size={18} /> : <Eye size={18} />}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(p.id)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Xóa vĩnh viễn"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                                {actionLoadingId === p.id ? (
+                                                    <Loader2 size={18} className="animate-spin text-gray-400" />
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            onClick={() => openVariantsModal(p.id)}
+                                                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                            title="Quản lý Biến thể (Màu sắc, Dung lượng, Hình ảnh)"
+                                                        >
+                                                            <Layers size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => openFormModal(p.id)}
+                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Chỉnh sửa thông tin"
+                                                        >
+                                                            <Edit2 size={18} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => toggleStatus(p)}
+                                                            className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                                            title={p.status === 'ACTIVE' ? 'Ẩn sản phẩm' : 'Hiển thị sản phẩm'}
+                                                        >
+                                                            {p.status === 'ACTIVE' ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(p.id)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Xóa vĩnh viễn"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     ChevronRight, ChevronLeft, Star, ShoppingCart, ArrowRight,
     TrendingUp, Sparkles, Timer, Zap, Smartphone, Phone, CreditCard, ShieldCheck,
-    Wallet, Tag, RefreshCw
+    Wallet, RefreshCw
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axios';
@@ -171,79 +171,7 @@ function HeroCarousel() {
     );
 }
 
-function QuickFilterBar() {
-    const [brands, setBrands] = useState<string[]>(['Apple', 'Samsung', 'Xiaomi', 'Oppo']);
 
-    useEffect(() => {
-        axiosInstance.get('/products/brands')
-            .then(r => {
-                if (r.data && r.data.length > 0) {
-                    setBrands(r.data);
-                }
-            })
-            .catch(() => {});
-    }, []);
-
-    const BRAND_LOGOS: Record<string, { type: 'img' | 'text', src?: string, className?: string }> = {
-        'Apple': { type: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg', className: 'h-5 opacity-90 object-contain' },
-        'Samsung': { type: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg', className: 'h-4 opacity-90 object-contain' },
-        'Xiaomi': { type: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Xiaomi_logo.svg', className: 'h-5 opacity-90 object-contain' },
-        'Oppo': { type: 'text', className: 'font-black text-green-600 text-lg tracking-tighter uppercase' }
-    };
-
-    return (
-        <div className="mt-8 md:mt-12 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-                <Tag size={22} className="text-indigo-600" />
-                <h3 className="font-black text-gray-900 text-xl md:text-2xl">Lọc Nhanh Điện Thoại</h3>
-            </div>
-            
-            <div className="bg-white rounded-3xl p-4 md:p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-gray-100 flex flex-col xl:flex-row gap-4 xl:gap-6 items-start xl:items-center justify-between transition-all">
-                
-                {/* Brand Logos as Cards */}
-                <div className="flex items-center gap-3 w-full xl:w-auto overflow-x-auto pb-2 xl:pb-0 hide-scrollbar">
-                    <span className="text-sm font-bold text-gray-800 w-24 shrink-0 xl:hidden">Thương hiệu</span>
-                    {brands.map(brand => {
-                        const logoInfo = BRAND_LOGOS[brand] || { type: 'text', className: 'font-black text-gray-700 text-sm tracking-wide uppercase' };
-                        return (
-                            <Link key={brand} to={`/products?brand=${brand}`} className="flex-shrink-0 flex items-center justify-center min-w-[100px] px-4 h-12 bg-white rounded-xl border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all">
-                                {logoInfo.type === 'img' ? (
-                                    <img src={logoInfo.src} className={logoInfo.className} alt={brand} />
-                                ) : (
-                                    <span className={logoInfo.className}>{brand}</span>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </div>
-                
-                <div className="hidden xl:block w-[1px] h-10 bg-gray-200"></div>
-
-                {/* Price Pills */}
-                <div className="flex items-center gap-2 w-full xl:w-auto overflow-x-auto pb-2 xl:pb-0 hide-scrollbar">
-                    <span className="text-sm font-bold text-gray-800 w-24 shrink-0 xl:hidden">Mức giá</span>
-                    <Link to="/products?maxPrice=5000000" className="flex-shrink-0 px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                        Dưới 5 triệu
-                    </Link>
-                    <Link to="/products?minPrice=5000000&maxPrice=10000000" className="flex-shrink-0 px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                        5 - 10 triệu
-                    </Link>
-                    <Link to="/products?minPrice=10000000&maxPrice=20000000" className="flex-shrink-0 px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                        10 - 20 triệu
-                    </Link>
-                    <Link to="/products?minPrice=20000000" className="flex-shrink-0 px-5 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm font-semibold text-gray-700 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all">
-                        Trên 20 triệu
-                    </Link>
-                </div>
-            </div>
-            
-            <style>{`
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
-        </div>
-    );
-}
 
 function FlashSale() {
     const [deals, setDeals] = useState<ProductResponse[]>([]);
@@ -348,8 +276,7 @@ export default function Home() {
                 {/* Hero Banner */}
                 <HeroCarousel />
 
-                {/* Quick Filter Bar */}
-                <QuickFilterBar />
+
 
                 {/* Flash Sale */}
                 <FlashSale />

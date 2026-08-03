@@ -1,104 +1,128 @@
 package com.example.backend.review.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.cloudinary.Cloudinary;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class FileStorageService {
+
+    private final Cloudinary cloudinary;
 
     private static final List<String> ALLOWED_TYPES = List.of(
             "image/jpeg", "image/png", "image/webp", "image/gif"
     );
     private static final long MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
-    @Value("${app.upload-dir:uploads}")
-    private String uploadDir;
-
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
-
     /**
-     * Lưu file vào <uploadDir>/reviews/ và trả về [filePath, publicUrl]
+     * Upload ảnh lên Cloudinary folder reviews và trả về [publicId, secureUrl]
      */
     public String[] storeReviewImage(MultipartFile file) {
         validate(file);
-
         try {
-            Path dir = Paths.get(uploadDir, "reviews").toAbsolutePath();
-            Files.createDirectories(dir);
-
-            String ext      = getExtension(file.getOriginalFilename());
-            String fileName = UUID.randomUUID() + "." + ext;
-            Path   target   = dir.resolve(fileName);
-
-            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-
-            String filePath = "reviews/" + fileName;
-            String url      = baseUrl + "/uploads/" + filePath;
-            return new String[]{filePath, url};
-
+            Map<?, ?> params = Map.of(
+                    "folder", "mobile_shop/reviews",
+                    "resource_type", "image"
+            );
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
+            String publicId = (String) uploadResult.get("public_id");
+            String url = (String) uploadResult.get("secure_url");
+            return new String[]{publicId, url};
         } catch (IOException e) {
-            throw new RuntimeException("Không thể lưu file ảnh: " + e.getMessage());
+            throw new RuntimeException("Không thể upload ảnh lên Cloudinary: " + e.getMessage());
         }
     }
 
     /**
-     * Lưu file vào <uploadDir>/avatars/ và trả về publicUrl
+     * Upload avatar lên Cloudinary folder avatars và trả về secureUrl
      */
     public String storeAvatarImage(MultipartFile file) {
         validate(file);
-
         try {
-            Path dir = Paths.get(uploadDir, "avatars").toAbsolutePath();
-            Files.createDirectories(dir);
-
-            String ext      = getExtension(file.getOriginalFilename());
-            String fileName = UUID.randomUUID() + "." + ext;
-            Path   target   = dir.resolve(fileName);
-
-            Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-
-            String filePath = "avatars/" + fileName;
-            return baseUrl + "/uploads/" + filePath;
-
+            Map<?, ?> params = Map.of(
+                    "folder", "mobile_shop/avatars",
+                    "resource_type", "image"
+            );
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
+            return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
-            throw new RuntimeException("Không thể lưu file ảnh avatar: " + e.getMessage());
+            throw new RuntimeException("Không thể upload avatar lên Cloudinary: " + e.getMessage());
         }
     }
 
-    /** Xóa file khỏi disk (khi xóa review hoặc xóa ảnh) */
-    public void delete(String filePath) {
+    /**
+     * Upload ảnh sản phẩm lên Cloudinary folder products và trả về secureUrl
+     */
+    public String storeProductImage(MultipartFile file) {
+        validate(file);
         try {
-            Path target = Paths.get(uploadDir, filePath).toAbsolutePath();
-            Files.deleteIfExists(target);
+            Map<?, ?> params = Map.of(
+                    "folder", "mobile_shop/products",
+                    "resource_type", "image"
+            );
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
+            return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
-            // Log nhưng không throw — xóa file thất bại không nên crash request
-            System.err.println("Không xóa được file: " + filePath + " — " + e.getMessage());
+            throw new RuntimeException("Không thể upload ảnh sản phẩm lên Cloudinary: " + e.getMessage());
         }
     }
 
-    /** Xóa avatar cũ khỏi disk nếu là file nội bộ */
+    /** Xóa file trên Cloudinary */
+    public void delete(String publicId) {
+        if (publicId == null || publicId.isBlank()) return;
+        try {
+            cloudinary.uploader().destroy(publicId, Map.of());
+        } catch (IOException e) {
+            System.err.println("Không xóa được file trên Cloudinary: " + publicId + " — " + e.getMessage());
+        }
+    }
+
+    /** Xóa file trên Cloudinary bằng URL */
+    public void deleteByUrl(String url) {
+        if (url == null || url.isBlank()) return;
+        String publicId = extractPublicIdFromUrl(url);
+        if (publicId != null) {
+            delete(publicId);
+        }
+    }
+
+    /** Xóa avatar cũ khỏi Cloudinary */
     public void deleteOldAvatar(String oldAvatarUrl) {
-        if (oldAvatarUrl == null || oldAvatarUrl.isBlank()) return;
-
-        String pattern = "/uploads/avatars/";
-        int idx = oldAvatarUrl.indexOf(pattern);
-        if (idx != -1) {
-            String relativePath = "avatars/" + oldAvatarUrl.substring(idx + pattern.length());
-            delete(relativePath);
-        }
+        deleteByUrl(oldAvatarUrl);
     }
 
-    // ── helper ───────────────────────────────────────────────────────────────
+    /** Helper để extract public_id từ Cloudinary URL */
+    private String extractPublicIdFromUrl(String url) {
+        if (url == null || !url.contains("res.cloudinary.com")) return null;
+        try {
+            int uploadIndex = url.indexOf("/image/upload/");
+            if (uploadIndex == -1) return null;
+
+            String path = url.substring(uploadIndex + "/image/upload/".length());
+
+            if (path.contains("/")) {
+                String firstPart = path.substring(0, path.indexOf('/'));
+                if (firstPart.matches("v\\d+")) {
+                    path = path.substring(path.indexOf('/') + 1);
+                }
+            }
+
+            int dotIndex = path.lastIndexOf('.');
+            if (dotIndex != -1) {
+                path = path.substring(0, dotIndex);
+            }
+
+            return path;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     private void validate(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -112,10 +136,5 @@ public class FileStorageService {
         if (file.getSize() > MAX_SIZE_BYTES) {
             throw new RuntimeException("Ảnh không được vượt quá 5 MB!");
         }
-    }
-
-    private String getExtension(String filename) {
-        if (filename == null || !filename.contains(".")) return "jpg";
-        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
 }

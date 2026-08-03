@@ -300,9 +300,8 @@ public class AdminProductService {
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) continue;
 
-            // Tái sử dụng FileStorageService — lưu vào uploads/products/
-            String[] stored = storeProductImage(file);
-            ProductVariantImage image = new ProductVariantImage(variant, stored[0], order++);
+            String imageUrl = fileStorageService.storeProductImage(file);
+            ProductVariantImage image = new ProductVariantImage(variant, imageUrl, order++);
             variant.getImages().add(image);
         }
 
@@ -539,37 +538,7 @@ public class AdminProductService {
             imgs.get(i).setDisplayOrder(i);
         }
     }
-    private String[] storeProductImage(MultipartFile file) {
-        try {
-            java.nio.file.Path dir = java.nio.file.Paths.get("uploads", "products").toAbsolutePath();
-            java.nio.file.Files.createDirectories(dir);
-
-            String ext      = getExtension(file.getOriginalFilename());
-            String fileName = java.util.UUID.randomUUID() + "." + ext;
-            java.nio.file.Path target = dir.resolve(fileName);
-            java.nio.file.Files.copy(file.getInputStream(), target,
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-            // Trả về URL công khai
-            String url = "http://localhost:8080/uploads/products/" + fileName;
-            return new String[]{ url, "products/" + fileName };
-        } catch (Exception e) {
-            throw new RuntimeException("Không thể lưu ảnh sản phẩm: " + e.getMessage());
-        }
-    }
-
     private void deleteImageFile(String imageUrl) {
-        if (imageUrl == null) return;
-        String pattern = "/uploads/products/";
-        int idx = imageUrl.indexOf(pattern);
-        if (idx >= 0) {
-            String relativePath = "products/" + imageUrl.substring(idx + pattern.length());
-            fileStorageService.delete(relativePath);
-        }
-    }
-
-    private String getExtension(String filename) {
-        if (filename == null || !filename.contains(".")) return "jpg";
-        return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+        fileStorageService.deleteByUrl(imageUrl);
     }
 }

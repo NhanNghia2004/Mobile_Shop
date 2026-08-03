@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import CompareWidget from '../../components/CompareWidget';
-import ChatboxWidget from '../../components/ChatboxWidget';
+import ChatWidget from '../../components/ChatWidget';
 
 export default function MainLayout() {
     return (
@@ -13,7 +13,7 @@ export default function MainLayout() {
             </main>
             <Footer />
             <CompareWidget />
-            <ChatboxWidget />
+            <ChatWidget />
         </div>
     );
 }

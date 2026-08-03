@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GitCompare, X, Plus, Search, Loader2 } from 'lucide-react';
 import { useCompare } from '../hooks/useCompare';
 import { motion, AnimatePresence } from 'framer-motion';

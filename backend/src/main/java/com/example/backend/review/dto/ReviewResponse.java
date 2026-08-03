@@ -26,11 +26,18 @@ public class ReviewResponse {
     private Integer rating;
     private String comment;
     private List<String> imageUrls;
+    private List<ReviewImageDto> images;
 
     private ReviewStatus status;
     private String adminReply;
     private LocalDateTime adminRepliedAt;
     private LocalDateTime createdAt;
+
+    @Data
+    public static class ReviewImageDto {
+        private Long id;
+        private String url;
+    }
 
     public static ReviewResponse from(Review r) {
         ReviewResponse dto = new ReviewResponse();
@@ -51,6 +58,18 @@ public class ReviewResponse {
                 r.getImages().stream()
                         .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
                         .map(img -> img.getUrl())
+                        .collect(Collectors.toList())
+        );
+
+        dto.setImages(
+                r.getImages().stream()
+                        .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
+                        .map(img -> {
+                            ReviewImageDto imgDto = new ReviewImageDto();
+                            imgDto.setId(img.getId());
+                            imgDto.setUrl(img.getUrl());
+                            return imgDto;
+                        })
                         .collect(Collectors.toList())
         );
 

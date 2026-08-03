@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
     Star, MessageSquare, EyeOff, Eye, Loader2,
     RefreshCw, CornerDownRight, CheckCircle2,
-    AlertCircle, Search
+    AlertCircle, Search, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axiosInstance from '../../api/axios';
@@ -67,6 +67,9 @@ export default function AdminReviews() {
 
     // Toggling state
     const [togglingId, setTogglingId] = useState<number | null>(null);
+
+    // Deleting state
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const fmtDate = (s: string) =>
         new Date(s).toLocaleString('vi-VN', {
@@ -151,6 +154,20 @@ export default function AdminReviews() {
             alert('Lỗi gửi phản hồi');
         } finally {
             setIsSubmittingReply(false);
+        }
+    };
+
+    const handleDeleteReview = async (id: number) => {
+        if (!window.confirm('Xóa vĩnh viễn đánh giá này?')) return;
+        setDeletingId(id);
+        try {
+            await axiosInstance.delete(`/admin/reviews/${id}`);
+            fetchReviews();
+            fetchStats();
+        } catch {
+            alert('Lỗi xóa đánh giá');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -313,17 +330,28 @@ export default function AdminReviews() {
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between gap-4 mb-3">
                                         {renderStars(review.rating)}
-                                        <button
-                                            onClick={() => handleToggleVisibility(review.id)}
-                                            disabled={togglingId === review.id}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 ${review.status === 'VISIBLE'
-                                                ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                                                : 'bg-green-50 text-green-700 hover:bg-green-100'
-                                                }`}
-                                        >
-                                            {togglingId === review.id ? <Loader2 size={14} className="animate-spin" /> : review.status === 'VISIBLE' ? <EyeOff size={14} /> : <Eye size={14} />}
-                                            {review.status === 'VISIBLE' ? 'Ẩn đánh giá' : 'Hiện đánh giá'}
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleToggleVisibility(review.id)}
+                                                disabled={togglingId === review.id}
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors disabled:opacity-50 ${review.status === 'VISIBLE'
+                                                    ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                                    : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                                    }`}
+                                            >
+                                                {togglingId === review.id ? <Loader2 size={14} className="animate-spin" /> : review.status === 'VISIBLE' ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                {review.status === 'VISIBLE' ? 'Ẩn đánh giá' : 'Hiện đánh giá'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteReview(review.id)}
+                                                disabled={deletingId === review.id}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+                                                title="Xóa vĩnh viễn đánh giá"
+                                            >
+                                                {deletingId === review.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                                                Xóa
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <p className={`text-sm ${review.status === 'HIDDEN' ? 'text-gray-400 italic' : 'text-gray-800'}`}>

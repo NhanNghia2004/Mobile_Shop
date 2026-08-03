@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings, Store, Headphones, MapPin, Binoculars, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings, Headphones, MapPin, Binoculars, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
@@ -276,10 +276,10 @@ export default function Header() {
                     <nav className="flex justify-center gap-8 lg:gap-12 items-center h-12 text-[13px] font-bold text-white uppercase tracking-wider w-full">
                         <Link to="/" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Trang chủ</Link>
                         
-                        {/* Dropdown for Tất cả điện thoại */}
+                        {/* Dropdown for Tất cả sản phẩm */}
                         <div className="relative group py-3.5">
                             <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 flex items-center gap-1.5">
-                                Tất cả điện thoại
+                                Tất cả sản phẩm
                                 <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
                             </Link>
                             
@@ -287,25 +287,19 @@ export default function Header() {
                             <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[180px]">
                                 <div className="bg-[#2a3038] border border-gray-700 shadow-2xl rounded-lg py-2 flex flex-col overflow-hidden">
                                     <Link to="/products?brand=Apple" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
-                                        iPhone (Apple)
+                                        iPhone
                                     </Link>
                                     <Link to="/products?brand=Samsung" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
                                         Samsung
                                     </Link>
-                                    <Link to="/products?brand=Xiaomi" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
-                                        Xiaomi
-                                    </Link>
                                     <Link to="/products?brand=Oppo" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
                                         Oppo
                                     </Link>
-                                    <Link to="/products?brand=Vivo" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
-                                        Vivo
+                                    <Link to="/products?brand=Tecno" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
+                                        Tecno
                                     </Link>
-                                    <Link to="/products?brand=Realme" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors border-b border-gray-700/50">
-                                        Realme
-                                    </Link>
-                                    <Link to="/products?brand=Honor" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors">
-                                        Honor
+                                    <Link to="/products?brand=Xiaomi" className="px-5 py-2.5 text-xs font-bold text-white hover:bg-indigo-600 transition-colors">
+                                        Xiaomi
                                     </Link>
                                 </div>
                             </div>
@@ -374,15 +368,13 @@ export default function Header() {
                             </form>
 
                             <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Trang chủ</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tất cả điện thoại</Link>
-                            <div className="pl-4 border-l border-gray-250 ml-2 space-y-1">
-                                <Link to="/products?brand=Apple" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">iPhone (Apple)</Link>
+                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tất cả sản phẩm</Link>
+                            <div className="pl-4 border-l border-gray-200 ml-2 space-y-1">
+                                <Link to="/products?brand=Apple" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">iPhone</Link>
                                 <Link to="/products?brand=Samsung" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Samsung</Link>
-                                <Link to="/products?brand=Xiaomi" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Xiaomi</Link>
                                 <Link to="/products?brand=Oppo" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Oppo</Link>
-                                <Link to="/products?brand=Vivo" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Vivo</Link>
-                                <Link to="/products?brand=Realme" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Realme</Link>
-                                <Link to="/products?brand=Honor" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Honor</Link>
+                                <Link to="/products?brand=Tecno" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Tecno</Link>
+                                <Link to="/products?brand=Xiaomi" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Xiaomi</Link>
                             </div>
                             <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Khuyến mãi</Link>
                             <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tin tức</Link>
