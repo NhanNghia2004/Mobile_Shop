@@ -70,11 +70,12 @@ export default function Footer() {
                         </h6>
                         <ul className="space-y-2.5 text-sm">
                             {[
-                                { label: 'Giới thiệu MobiShop', to: '/' },
-                                { label: 'Hệ thống cửa hàng', to: '/' },
-                                { label: 'Tuyển dụng', to: '/' },
-                                { label: 'Tin tức & Khuyến mãi', to: '/' },
-                                { label: 'Liên hệ', to: '/' },
+                                { label: 'Giới thiệu MobiShop', to: '/about' },
+                                { label: 'Hệ thống cửa hàng', to: '/products' },
+                                { label: 'Tuyển dụng', to: '/about' },
+                                { label: 'Tin tức công nghệ', to: '/news' },
+                                { label: 'Chương trình khuyến mãi', to: '/promotions' },
+                                { label: 'Liên hệ', to: '/contact' },
                             ].map(item => (
                                 <li key={item.label}>
                                     <Link
@@ -96,21 +97,21 @@ export default function Footer() {
                         </h6>
                         <ul className="space-y-2.5 text-sm">
                             {[
-                                'Chính sách bảo hành',
-                                'Chính sách đổi trả',
-                                'Chính sách giao hàng',
-                                'Chính sách trả góp 0%',
-                                'Chính sách bảo mật',
-                                'Điều khoản sử dụng',
-                            ].map(label => (
-                                <li key={label}>
-                                    <a
-                                        href="#"
+                                { label: 'Chính sách bảo hành', to: '/policies?tab=warranty' },
+                                { label: 'Chính sách đổi trả', to: '/policies?tab=return' },
+                                { label: 'Chính sách giao hàng', to: '/policies?tab=delivery' },
+                                { label: 'Chính sách trả góp 0%', to: '/policies?tab=installment' },
+                                { label: 'Chính sách bảo mật', to: '/policies?tab=privacy' },
+                                { label: 'Điều khoản sử dụng', to: '/policies?tab=terms' },
+                            ].map(item => (
+                                <li key={item.label}>
+                                    <Link
+                                        to={item.to}
                                         className="flex items-center gap-1.5 text-gray-400 hover:text-indigo-400 transition-colors group"
                                     >
                                         <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition-opacity -ml-1" />
-                                        {label}
-                                    </a>
+                                        {item.label}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

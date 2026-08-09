@@ -305,11 +305,11 @@ export default function Header() {
                             </div>
                         </div>
 
-                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Khuyến mãi</Link>
-                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Tin tức</Link>
-                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Giới thiệu</Link>
-                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Liên hệ</Link>
-                        <Link to="/products" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Chính sách</Link>
+                        <Link to="/promotions" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Khuyến mãi</Link>
+                        <Link to="/news" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Tin tức</Link>
+                        <Link to="/about" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Giới thiệu</Link>
+                        <Link to="/contact" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Liên hệ</Link>
+                        <Link to="/policies" className="hover:text-indigo-400 transition-colors whitespace-nowrap border-b-2 border-transparent hover:border-indigo-400 py-3.5">Chính sách</Link>
                     </nav>
                 </div>
             </div>
@@ -376,11 +376,11 @@ export default function Header() {
                                 <Link to="/products?brand=Tecno" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Tecno</Link>
                                 <Link to="/products?brand=Xiaomi" onClick={() => setIsMenuOpen(false)} className="block px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Xiaomi</Link>
                             </div>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Khuyến mãi</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tin tức</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Giới thiệu</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Liên hệ</Link>
-                            <Link to="/products" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Chính sách</Link>
+                            <Link to="/promotions" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Khuyến mãi</Link>
+                            <Link to="/news" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Tin tức</Link>
+                            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Giới thiệu</Link>
+                            <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Liên hệ</Link>
+                            <Link to="/policies" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-gray-700 uppercase">Chính sách</Link>
 
                             <hr className="my-2 border-gray-100" />
 

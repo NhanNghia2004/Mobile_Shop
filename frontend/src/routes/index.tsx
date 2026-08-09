@@ -23,6 +23,11 @@ import AdminLayout from "../pages/admin/AdminLayout";
 import ForgotPassword from '../pages/public/ForgotPassword';
 import ResetPassword from '../pages/public/ResetPassword';
 import PublicRoute from "./PublicRoute";
+import AboutPage from '../pages/public/AboutPage';
+import ContactPage from '../pages/public/ContactPage';
+import PromotionsPage from '../pages/public/PromotionsPage';
+import NewsPage from '../pages/public/NewsPage';
+import PoliciesPage from '../pages/public/PoliciesPage';
 
 const AppRoutes = () => {
     return (
@@ -32,6 +37,12 @@ const AppRoutes = () => {
                 <Route path="/products" element={<Products />} />
                 <Route path="/compare" element={<ComparePage />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/promotions" element={<PromotionsPage />} />
+                <Route path="/news" element={<NewsPage />} />
+                <Route path="/policies" element={<PoliciesPage />} />
+
 
 
                 {/* Private Routes - Phải đăng nhập (USER hoặc ADMIN đều được) */}

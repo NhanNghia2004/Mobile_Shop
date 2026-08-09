@@ -28,18 +28,29 @@ const StarRow = ({ rating, count }: { rating: number; count: number }) => (
 
 function ProductCard({ product, badge }: { product: ProductResponse; badge?: string }) {
     const navigate = useNavigate();
+    const [added, setAdded] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
         const defaultVariant = product.variants?.find(v => v.status === 'ACTIVE' && v.stockQuantity > 0);
-        if (!defaultVariant) return;
+        if (!defaultVariant) {
+            alert('Sản phẩm tạm thời hết hàng hoặc không có phiên bản khả dụng');
+            return;
+        }
+        setLoading(true);
         try {
             await axiosInstance.post('/cart/add', { variantId: defaultVariant.id, quantity: 1 });
             window.dispatchEvent(new Event('cartUpdated'));
+            setAdded(true);
+            setTimeout(() => setAdded(false), 2000);
         } catch (err: any) {
             alert(err.response?.data?.message || 'Không thể thêm vào giỏ');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -53,7 +64,7 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
 
     return (
         <div className="bg-white rounded-2xl border border-gray-100/80 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col group hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300">
-            <Link to={`/product/${product.id}`} className="flex-1 flex flex-col relative">
+            <Link to={`/product/${product.id}`} className="flex flex-col relative">
                 <div className="relative h-48 md:h-56 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
                     <img
                         src={img}
@@ -72,38 +83,58 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
                         </span>
                     )}
 
-                    <div className="absolute bottom-2 right-2 z-10">
+                    <div className="absolute bottom-2 right-2 z-10" onClick={e => e.stopPropagation()}>
                         <WishlistButton productId={product.id} variant="icon" />
                     </div>
                 </div>
-                <div className="p-4 flex flex-col flex-1">
+                <div className="p-4 pb-0 flex flex-col">
                     <span className="text-[10px] text-gray-500 font-semibold uppercase tracking-wide mb-1">{product.brand}</span>
                     <h3 className="font-semibold text-gray-800 text-sm md:text-sm mb-1.5 line-clamp-2 group-hover:text-indigo-600 transition-colors h-10">
                         {product.name}
                     </h3>
                     <StarRow rating={product.rating || 0} count={product.reviewCount || 0} />
-                    <div className="mt-auto pt-3">
-                        {product.minPrice !== product.maxPrice ? (
-                            <p className="text-red-600 font-black text-base">
-                                {fmtPrice(product.minPrice)}
-                                <span className="text-gray-400 font-normal text-xs block truncate mt-0.5"> – {fmtPrice(product.maxPrice)}</span>
-                            </p>
-                        ) : (
-                            <p className="text-red-600 font-black text-base">{fmtPrice(product.minPrice || 0)}</p>
-                        )}
-                        {!product.inStock && (
-                            <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold mt-2 inline-block">Hết hàng</span>
-                        )}
-                    </div>
                 </div>
             </Link>
+
+            <div className="p-4 pt-3 mt-auto">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <p className="text-red-600 font-black text-sm md:text-base truncate">{fmtPrice(product.minPrice || 0)}</p>
+                        {!product.inStock && (
+                            <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-semibold mt-1 inline-block">Hết hàng</span>
+                        )}
+                    </div>
+                    {product.inStock && (
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={loading}
+                            className={`w-9 h-9 rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center flex-shrink-0 group/btn ${
+                                added 
+                                ? 'bg-green-500 text-white shadow-green-100 hover:bg-green-600' 
+                                : 'bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white'
+                            }`}
+                            title="Thêm vào giỏ hàng"
+                        >
+                            {loading ? (
+                                <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                            ) : added ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            ) : (
+                                <ShoppingCart size={16} className="transition-transform group-hover/btn:scale-110" />
+                            )}
+                        </button>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
 
 const BANNERS = [
     { id: 1, img: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1600&auto=format&fit=crop", title: "Lễ Hội Trái Táo - Giảm Tới 30%" },
-    { id: 2, img: "https://images.unsplash.com/photo-1610945265064-3254dd6a0a86?q=80&w=1600&auto=format&fit=crop", title: "Tuần Lễ Vàng Samsung" },
+    { id: 2, img: "https://images.unsplash.com/photo-1610792516307-ea5acd9c3b00?q=80&w=1600&auto=format&fit=crop", title: "Tuần Lễ Vàng Samsung" },
     { id: 3, img: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=1600&auto=format&fit=crop", title: "Phụ Kiện Điện Thoại Siêu Rẻ" },
 ];
 
