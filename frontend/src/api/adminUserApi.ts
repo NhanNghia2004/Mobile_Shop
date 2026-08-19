@@ -31,4 +31,9 @@ export const adminUserApi = {
         const response = await axiosInstance.patch(`/admin/users/${id}/unlock`);
         return response.data;
     },
+
+    changeRole: async (id: number | string, role: string): Promise<AdminUserResponse> => {
+        const response = await axiosInstance.patch(`/admin/users/${id}/role`, { role });
+        return response.data;
+    },
 };

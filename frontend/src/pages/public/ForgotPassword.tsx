@@ -8,22 +8,24 @@ export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSent, setIsSent] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMsg('');
         setIsLoading(true);
         try {
             await api.post('/auth/forgot-password', { email });
             setIsSent(true);
-        } catch (error) {
-            setIsSent(true);
+        } catch (error: any) {
+            setErrorMsg(error.response?.data?.message || 'Email không tồn tại trong hệ thống!');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6 font-sans">
+        <div className="py-12 bg-gray-100 flex items-center justify-center p-4 sm:p-6 font-sans">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -41,8 +43,7 @@ export default function ForgotPassword() {
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Kiểm tra email!</h2>
                         <p className="text-gray-500 text-sm leading-relaxed">
-                            Nếu email <span className="font-bold text-gray-700">{email}</span> tồn tại trong hệ thống,
-                            chúng tôi đã gửi link đặt lại mật khẩu. Link có hiệu lực trong <span className="font-bold">15 phút</span>.
+                            Chúng tôi đã gửi link đặt lại mật khẩu đến email <span className="font-bold text-gray-700">{email}</span>. Link có hiệu lực trong <span className="font-bold">15 phút</span>.
                         </p>
                         <Link
                             to="/login"
@@ -70,12 +71,21 @@ export default function ForgotPassword() {
                                         type="email"
                                         required
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (errorMsg) setErrorMsg('');
+                                        }}
                                         placeholder="email@vidu.com"
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-base focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all"
+                                        className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-lg text-base outline-none transition-all ${errorMsg ? 'border-red-500 focus:ring-4 focus:ring-red-50' : 'border-gray-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50/50'}`}
                                     />
                                 </div>
                             </div>
+
+                            {errorMsg && (
+                                <div className="p-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm font-medium">
+                                    <span>{errorMsg}</span>
+                                </div>
+                            )}
 
                             <button
                                 type="submit"

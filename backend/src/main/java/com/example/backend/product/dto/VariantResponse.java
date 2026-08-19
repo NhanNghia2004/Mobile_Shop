@@ -15,7 +15,15 @@ public class VariantResponse {
     private Integer discountPercent;
     private Integer stockQuantity;
     private java.util.List<String> images;
+    private java.util.List<VariantImageDto> variantImages;
     private ProductStatus status;
+
+    @Data
+    public static class VariantImageDto {
+        private Long id;
+        private String imageUrl;
+        private Integer displayOrder;
+    }
 
     public static VariantResponse from(ProductVariant v) {
         VariantResponse dto = new VariantResponse();
@@ -32,8 +40,20 @@ public class VariantResponse {
                 .sorted(java.util.Comparator.comparingInt(com.example.backend.product.entity.ProductVariantImage::getDisplayOrder))
                 .map(com.example.backend.product.entity.ProductVariantImage::getImageUrl)
                 .collect(java.util.stream.Collectors.toList()));
+            
+            dto.setVariantImages(v.getImages().stream()
+                .sorted(java.util.Comparator.comparingInt(com.example.backend.product.entity.ProductVariantImage::getDisplayOrder))
+                .map(img -> {
+                    VariantImageDto imgDto = new VariantImageDto();
+                    imgDto.setId(img.getId());
+                    imgDto.setImageUrl(img.getImageUrl());
+                    imgDto.setDisplayOrder(img.getDisplayOrder());
+                    return imgDto;
+                })
+                .collect(java.util.stream.Collectors.toList()));
         } else {
             dto.setImages(new java.util.ArrayList<>());
+            dto.setVariantImages(new java.util.ArrayList<>());
         }
         dto.setStatus(v.getStatus());
         return dto;

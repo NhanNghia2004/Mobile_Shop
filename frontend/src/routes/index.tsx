@@ -45,6 +45,14 @@ const AppRoutes = () => {
 
 
 
+                {/* Các trang CHỈ dành cho người CHƯA đăng nhập */}
+                <Route element={<PublicRoute />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                </Route>
+
                 {/* Private Routes - Phải đăng nhập (USER hoặc ADMIN đều được) */}
                 <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]} />}>
                     <Route path="/profile" element={<Profile />} />
@@ -66,14 +74,6 @@ const AppRoutes = () => {
                     <Route path="/admin/orders" element={<AdminOrders />} />
                     <Route path="/admin/reviews" element={<AdminReviews />} />
                 </Route>
-            </Route>
-
-            {/* Các trang CHỈ dành cho người CHƯA đăng nhập */}
-            <Route element={<PublicRoute />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
             </Route>
 
             {/* Điều hướng mặc định */}

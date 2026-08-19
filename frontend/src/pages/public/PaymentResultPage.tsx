@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2, XCircle, Clock, Loader2, Package,
-    ShoppingCart, Home, RefreshCw, Phone, ChevronRight,
+    ShoppingCart, Home, RefreshCw, Phone, ChevronRight, ChevronDown,
     Receipt, Truck, ShieldCheck, Calendar, Hash, CreditCard
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
@@ -131,6 +131,7 @@ export default function PaymentResultPage() {
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
     const [loadingOrder, setLoadingOrder] = useState(!stateData?.order && !!finalOrderId);
     const [retrying, setRetrying] = useState(false);
+    const [showOrderDetails, setShowOrderDetails] = useState(false);
 
     // Load order + payment status if not from state
     useEffect(() => {
@@ -276,132 +277,160 @@ export default function PaymentResultPage() {
                     </motion.div>
                 )}
 
-                {/* ── Order details ── */}
+                {/* ── Order details (Collapsible) ── */}
                 {orderData && (
                     <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-white rounded-3xl border border-gray-100 p-6 mb-6"
+                        className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6"
                     >
-                        <h2 className="font-black text-gray-900 mb-5 flex items-center gap-2">
-                            <Receipt size={18} className="text-indigo-500" />
-                            Chi tiết đơn hàng
-                        </h2>
-
-                        {/* Info grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            {[
-                                {
-                                    icon: Package, label: 'Người nhận',
-                                    value: orderData.recipientName,
-                                },
-                                {
-                                    icon: Phone, label: 'Điện thoại',
-                                    value: orderData.phone,
-                                },
-                                {
-                                    icon: Truck, label: 'Địa chỉ giao hàng',
-                                    value: orderData.shippingAddress,
-                                },
-                                {
-                                    icon: CreditCard, label: 'Phương thức TT',
-                                    value: orderData.paymentMethod === 'VNPAY' ? '🏦 VNPay' : '💵 COD - Tiền mặt',
-                                },
-                                {
-                                    icon: Calendar, label: 'Ngày đặt',
-                                    value: orderData.createdAt
-                                        ? new Date(orderData.createdAt).toLocaleString('vi-VN')
-                                        : '—',
-                                },
-                                {
-                                    icon: ShieldCheck, label: 'Trạng thái',
-                                    value: {
-                                        PENDING: '⏳ Chờ xử lý',
-                                        PROCESSING: '⚙️ Đang xử lý',
-                                        SHIPPED: '🚚 Đang giao',
-                                        DELIVERED: '✅ Đã giao',
-                                        CANCELLED: '❌ Đã hủy',
-                                    }[orderData.status] || orderData.status,
-                                },
-                            ].map(row => (
-                                <div key={row.label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                                    <row.icon size={15} className="text-indigo-400 flex-shrink-0 mt-0.5" />
-                                    <div className="min-w-0">
-                                        <p className="text-xs text-gray-400 font-medium">{row.label}</p>
-                                        <p className="text-sm font-semibold text-gray-800 mt-0.5 leading-snug">{row.value}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* VNPay payment info */}
-                        {paymentStatus && paymentStatus.status === 'SUCCESS' && (
-                            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 mb-5">
-                                <p className="text-xs font-bold text-blue-700 mb-3 flex items-center gap-1.5">
-                                    <ShieldCheck size={12} /> Thông tin giao dịch VNPay
-                                </p>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                    {paymentStatus.transactionNo && (
-                                        <div><span className="text-blue-400">Mã GD:</span> <span className="font-mono font-semibold text-blue-700">{paymentStatus.transactionNo}</span></div>
-                                    )}
-                                    {paymentStatus.bankCode && (
-                                        <div><span className="text-blue-400">Ngân hàng:</span> <span className="font-semibold text-blue-700">{paymentStatus.bankCode}</span></div>
-                                    )}
-                                    {paymentStatus.payDate && (
-                                        <div className="col-span-2">
-                                            <span className="text-blue-400">Thời gian TT:</span>{' '}
-                                            <span className="font-semibold text-blue-700">
-                        {paymentStatus.payDate.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$3/$2/$1 $4:$5:$6')}
-                      </span>
-                                        </div>
-                                    )}
-                                    {paymentStatus.amount && (
-                                        <div><span className="text-blue-400">Số tiền:</span> <span className="font-bold text-blue-700">{fmtPrice(paymentStatus.amount)}</span></div>
-                                    )}
-                                </div>
+                        <button
+                            type="button"
+                            onClick={() => setShowOrderDetails(!showOrderDetails)}
+                            className="w-full p-6 flex items-center justify-between text-left hover:bg-gray-50/80 transition-colors"
+                        >
+                            <h2 className="font-black text-gray-900 flex items-center gap-2">
+                                <Receipt size={18} className="text-indigo-500" />
+                                Chi tiết đơn hàng
+                                <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full ml-1">
+                                    {fmtPrice(orderData.totalAmount)}
+                                </span>
+                            </h2>
+                            <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600">
+                                <span>{showOrderDetails ? 'Thu gọn' : 'Xem chi tiết'}</span>
+                                <ChevronDown
+                                    size={18}
+                                    className={`transition-transform duration-300 ${showOrderDetails ? 'rotate-180' : ''}`}
+                                />
                             </div>
-                        )}
+                        </button>
 
-                        {/* Items */}
-                        <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Sản phẩm đã đặt</p>
-                            <div className="space-y-3">
-                                {orderData.items.map(item => (
-                                    <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                        <div className="relative flex-shrink-0">
-                                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-gray-100">
-                                                <img
-                                                    src={item.imageUrl || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=80&auto=format&fit=crop'}
-                                                    alt={item.productName}
-                                                    className="w-full h-full object-cover"
-                                                    onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=80&auto=format&fit=crop'; }}
-                                                />
+                        <AnimatePresence>
+                            {showOrderDetails && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="overflow-hidden px-6 pb-6 border-t border-gray-100 pt-5"
+                                >
+                                    {/* Info grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                        {[
+                                            {
+                                                icon: Package, label: 'Người nhận',
+                                                value: orderData.recipientName,
+                                            },
+                                            {
+                                                icon: Phone, label: 'Điện thoại',
+                                                value: orderData.phone,
+                                            },
+                                            {
+                                                icon: Truck, label: 'Địa chỉ giao hàng',
+                                                value: orderData.shippingAddress,
+                                            },
+                                            {
+                                                icon: CreditCard, label: 'Phương thức TT',
+                                                value: orderData.paymentMethod === 'VNPAY' ? '🏦 VNPay' : '💵 COD - Tiền mặt',
+                                            },
+                                            {
+                                                icon: Calendar, label: 'Ngày đặt',
+                                                value: orderData.createdAt
+                                                    ? new Date(orderData.createdAt).toLocaleString('vi-VN')
+                                                    : '—',
+                                            },
+                                            {
+                                                icon: ShieldCheck, label: 'Trạng thái',
+                                                value: {
+                                                    PENDING: '⏳ Chờ xử lý',
+                                                    PROCESSING: '⚙️ Đang xử lý',
+                                                    SHIPPED: '🚚 Đang giao',
+                                                    DELIVERED: '✅ Đã giao',
+                                                    CANCELLED: '❌ Đã hủy',
+                                                }[orderData.status] || orderData.status,
+                                            },
+                                        ].map(row => (
+                                            <div key={row.label} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                                                <row.icon size={15} className="text-indigo-400 flex-shrink-0 mt-0.5" />
+                                                <div className="min-w-0">
+                                                    <p className="text-xs text-gray-400 font-medium">{row.label}</p>
+                                                    <p className="text-sm font-semibold text-gray-800 mt-0.5 leading-snug">{row.value}</p>
+                                                </div>
                                             </div>
-                                            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-indigo-600 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1">
-                        {item.quantity}
-                      </span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <Link to={`/product/${item.productId}`}
-                                                  className="text-xs font-semibold text-gray-800 hover:text-indigo-600 line-clamp-1 transition-colors">
-                                                {item.productName}
-                                            </Link>
-                                            <p className="text-xs text-gray-400 mt-0.5">{item.color} · {item.storage}GB</p>
-                                        </div>
-                                        <span className="text-xs font-bold text-gray-800 flex-shrink-0">
-                      {fmtPrice(item.price * item.quantity)}
-                    </span>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
 
-                            {/* Total */}
-                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                                <span className="font-black text-gray-900">Tổng thanh toán</span>
-                                <span className="text-xl font-black text-indigo-700">{fmtPrice(orderData.totalAmount)}</span>
-                            </div>
-                        </div>
+                                    {/* VNPay payment info */}
+                                    {paymentStatus && paymentStatus.status === 'SUCCESS' && (
+                                        <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 mb-5">
+                                            <p className="text-xs font-bold text-blue-700 mb-3 flex items-center gap-1.5">
+                                                <ShieldCheck size={12} /> Thông tin giao dịch VNPay
+                                            </p>
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                                {paymentStatus.transactionNo && (
+                                                    <div><span className="text-blue-400">Mã GD:</span> <span className="font-mono font-semibold text-blue-700">{paymentStatus.transactionNo}</span></div>
+                                                )}
+                                                {paymentStatus.bankCode && (
+                                                    <div><span className="text-blue-400">Ngân hàng:</span> <span className="font-semibold text-blue-700">{paymentStatus.bankCode}</span></div>
+                                                )}
+                                                {paymentStatus.payDate && (
+                                                    <div className="col-span-2">
+                                                        <span className="text-blue-400">Thời gian TT:</span>{' '}
+                                                        <span className="font-semibold text-blue-700">
+                                                            {paymentStatus.payDate.replace(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$3/$2/$1 $4:$5:$6')}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {paymentStatus.amount && (
+                                                    <div><span className="text-blue-400">Số tiền:</span> <span className="font-bold text-blue-700">{fmtPrice(paymentStatus.amount)}</span></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Items */}
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Sản phẩm đã đặt</p>
+                                        <div className="space-y-3">
+                                            {orderData.items.map(item => (
+                                                <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                                    <div className="relative flex-shrink-0">
+                                                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-gray-100">
+                                                            <img
+                                                                src={item.imageUrl || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=80&auto=format&fit=crop'}
+                                                                alt={item.productName}
+                                                                className="w-full h-full object-cover"
+                                                                onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=80&auto=format&fit=crop'; }}
+                                                            />
+                                                        </div>
+                                                        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-indigo-600 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1">
+                                                            {item.quantity}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <Link to={`/product/${item.productId}`}
+                                                              className="text-xs font-semibold text-gray-800 hover:text-indigo-600 line-clamp-1 transition-colors">
+                                                            {item.productName}
+                                                        </Link>
+                                                        <p className="text-xs text-gray-400 mt-0.5">{item.color} · {item.storage}GB</p>
+                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-800 flex-shrink-0">
+                                                        {fmtPrice(item.price * item.quantity)}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Total */}
+                                        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                                            <span className="font-black text-gray-900">Tổng thanh toán</span>
+                                            <span className="text-xl font-black text-indigo-700">{fmtPrice(orderData.totalAmount)}</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </motion.div>
                 )}
 

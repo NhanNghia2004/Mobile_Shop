@@ -21,7 +21,8 @@ interface Variant {
     discountPrice?: number;
     stockQuantity: number;
     status: string;
-    images: VariantImage[];
+    images: string[];
+    variantImages: VariantImage[];
 }
 
 interface ProductVariantsModalProps {
@@ -324,12 +325,12 @@ export default function ProductVariantsModal({ productId, onClose }: ProductVari
                                             </div>
 
                                             {/* Images */}
-                                            {v.images && v.images.length > 0 && (
+                                            {v.variantImages && v.variantImages.length > 0 && (
                                                 <div
                                                     className="flex gap-2 overflow-x-auto pb-1 mt-2 pt-3 border-t border-gray-200"
                                                     style={{ scrollbarWidth: 'thin' }}
                                                 >
-                                                    {v.images
+                                                    {v.variantImages
                                                         .slice()
                                                         .sort((a, b) => a.displayOrder - b.displayOrder)
                                                         .map(img => (

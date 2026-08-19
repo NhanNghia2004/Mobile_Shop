@@ -19,6 +19,9 @@ public class GroqService {
     @Value("${groq.api.key:}")
     private String groqApiKey;
 
+    @Value("${groq.api.model:groq/compound}")
+    private String groqModel;
+
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -45,7 +48,7 @@ public class GroqService {
             messages.add(usrMsg);
 
             Map<String, Object> body = new HashMap<>();
-            body.put("model", "llama-3.1-8b-instant");
+            body.put("model", groqModel);
             body.put("messages", messages);
             body.put("temperature", 0.3);
 

@@ -1,4 +1,4 @@
-import { Mail, Lock, Apple, Check } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     
     // State quản lý lỗi validation
@@ -99,7 +98,7 @@ export default function Login() {
 
     return (
 
-        <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6 font-sans selection:bg-indigo-100">
+        <div className="py-12 bg-gray-100 flex items-center justify-center p-4 sm:p-6 font-sans selection:bg-indigo-100">
 
             {/* Container chính - Giữ nguyên min-h-[550px] */}
             <motion.div
@@ -128,15 +127,6 @@ export default function Login() {
 
                 {/* Cột phải: Form - Giữ nguyên p-8 và space-y-4 */}
                 <div className="w-full md:w-3/5 p-8 md:p-10 flex flex-col justify-center relative">
-
-                    {/* Thông báo cập nhật */}
-                    {alertMsg && (
-                        <div className={`mb-4 p-4 rounded-lg flex items-center gap-3 text-sm font-medium ${
-                            alertMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-                        }`}>
-                            <span>{alertMsg.text}</span>
-                        </div>
-                    )}
 
                     <div className="mb-8 text-center">
                         {/* Tăng từ text-2xl lên text-3xl */}
@@ -192,24 +182,20 @@ export default function Login() {
                         </div>
 
 
-                        <div className="flex items-center justify-between py-1">
-                            <label
-                                className="flex items-center gap-2 cursor-pointer group"
-                                onClick={() => setRememberMe(!rememberMe)}
-                            >
-                                <div
-                                    className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${rememberMe ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-gray-300 group-hover:border-indigo-400'}`}
-                                >
-                                    {rememberMe && <Check size={12} className="text-white" strokeWidth={4} />}
-                                </div>
-
-                                <span className="text-sm font-medium text-gray-600 select-none group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
-                            </label>
-
+                        <div className="flex justify-end py-1">
                             <Link to="/forgot-password" className="text-sm font-bold text-indigo-600 hover:underline">
                                 Quên mật khẩu?
                             </Link>
                         </div>
+
+                        {/* Thông báo cập nhật đặt ngay trên nút đăng nhập */}
+                        {alertMsg && (
+                            <div className={`p-3 rounded-lg flex items-center gap-3 text-sm font-medium ${
+                                alertMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+                            }`}>
+                                <span>{alertMsg.text}</span>
+                            </div>
+                        )}
 
                         <motion.button
                             type="submit"
@@ -229,7 +215,7 @@ export default function Login() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex justify-center">
                         <GoogleLogin
                             onSuccess={async (credentialResponse) => {
                                 try {
@@ -257,10 +243,6 @@ export default function Login() {
                             shape="rectangular"
                             theme="outline"
                         />
-                        <button className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-                            <Apple className="w-4 h-4 fill-gray-900" />
-                            Apple
-                        </button>
                     </div>
 
                     <p className="mt-8 text-center text-sm text-gray-500 font-medium">

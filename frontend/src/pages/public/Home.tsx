@@ -135,7 +135,7 @@ function ProductCard({ product, badge }: { product: ProductResponse; badge?: str
 const BANNERS = [
     { id: 1, img: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1600&auto=format&fit=crop", title: "Lễ Hội Trái Táo - Giảm Tới 30%" },
     { id: 2, img: "https://images.unsplash.com/photo-1610792516307-ea5acd9c3b00?q=80&w=1600&auto=format&fit=crop", title: "Tuần Lễ Vàng Samsung" },
-    { id: 3, img: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=1600&auto=format&fit=crop", title: "Phụ Kiện Điện Thoại Siêu Rẻ" },
+    { id: 3, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1600&auto=format&fit=crop", title: "Điện Thoại Chính Hãng - Giá Rẻ Vô Địch" },
 ];
 
 function HeroCarousel() {

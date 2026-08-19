@@ -70,17 +70,10 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(
             @RequestBody ForgotPasswordRequest request) {
-        try {
-            passwordResetService.requestPasswordReset(request.getEmail());
-        } catch (Exception e) {
-
-            System.err.println("=== Lỗi forgot-password: " + e.getMessage() + " ===");
-            e.printStackTrace();
-
-        }
+        passwordResetService.requestPasswordReset(request.getEmail());
 
         return ResponseEntity.ok(Map.of(
-                "message", "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu!"
+                "message", "Chúng tôi đã gửi link đặt lại mật khẩu đến email của bạn!"
         ));
     }
 

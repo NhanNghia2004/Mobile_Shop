@@ -14,11 +14,13 @@ interface DashboardStats {
 
 interface RecentOrder {
     id: number;
-    totalPrice: number;
+    recipientName?: string;
+    totalAmount?: number;
+    totalPrice?: number;
     status: string;
     createdAt: string;
-    user: { username: string; email: string };
-    items: { quantity: number; variant: { color: string; storage: number; product: { name: string } } }[];
+    user?: { username: string; email: string };
+    items?: { quantity: number }[];
 }
 
 export default function AdminDashboard() {
@@ -37,7 +39,7 @@ export default function AdminDashboard() {
         'CANCELLED': 'Đã hủy'
     };
 
-    const fmtPrice = (n: number) => n?.toLocaleString('vi-VN') + 'đ';
+    const fmtPrice = (n?: number) => (n !== undefined && n !== null && !isNaN(n)) ? n.toLocaleString('vi-VN') + 'đ' : '0đ';
     const fmtDate = (s: string) => new Date(s).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
     useEffect(() => {
@@ -91,7 +93,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-gray-900">Chào quay trở lại, {user?.username || 'Admin'}! 👋</h1>
+                    <h1 className="text-2xl font-black text-gray-900">Chào quay trở lại, {user?.username || 'Admin'}!</h1>
                     <p className="text-sm text-gray-500 mt-1">Tổng quan tình hình kinh doanh của shop</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 shadow-sm hover:border-indigo-300 transition-colors">
@@ -234,7 +236,7 @@ export default function AdminDashboard() {
                             <div key={order.id} className="p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:shadow-md transition-all bg-gray-50/50 flex flex-col justify-between">
                                 <div className="flex items-start justify-between mb-3">
                                     <div>
-                                        <p className="font-bold text-gray-900 text-sm line-clamp-1">{order.user?.username || 'Khách vãng lai'}</p>
+                                        <p className="font-bold text-gray-900 text-sm line-clamp-1">{order.recipientName || order.user?.username || 'Khách hàng'}</p>
                                         <p className="text-[11px] text-gray-400 mt-1">{fmtDate(order.createdAt)}</p>
                                     </div>
                                     <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider whitespace-nowrap ${
@@ -250,7 +252,7 @@ export default function AdminDashboard() {
                                     <div className="text-xs text-gray-500 font-medium">
                                         {order.items?.length || 0} sản phẩm
                                     </div>
-                                    <p className="font-black text-indigo-600">{fmtPrice(order.totalPrice)}</p>
+                                    <p className="font-black text-indigo-600">{fmtPrice(order.totalAmount ?? order.totalPrice)}</p>
                                 </div>
                             </div>
                         ))

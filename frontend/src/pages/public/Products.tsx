@@ -163,7 +163,7 @@ export default function Products() {
                             onClick={() => updateFilters({ brand: b })}
                             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${brand === b ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'}`}
                         >
-                            {b}
+                            {b === 'Apple' ? 'iPhone' : b}
                             {brand === b && <ChevronRight size={16} />}
                         </button>
                     ))}

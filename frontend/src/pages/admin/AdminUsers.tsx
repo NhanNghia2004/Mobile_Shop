@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Lock, Unlock, X } from 'lucide-react';
+import { Search, Eye, Lock, Unlock, X, UserCog, ShieldCheck } from 'lucide-react';
 import { adminUserApi, type AdminUserResponse } from '../../api/adminUserApi';
 
 export default function AdminUsers() {
@@ -54,9 +54,31 @@ export default function AdminUsers() {
             if (selectedUser && selectedUser.id === userId) {
                 setSelectedUser({ ...selectedUser, locked: !currentLocked });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Lỗi khi thay đổi trạng thái tài khoản", error);
-            alert("Không thể thay đổi trạng thái tài khoản lúc này!");
+            alert(error.response?.data?.message || "Không thể thay đổi trạng thái tài khoản lúc này!");
+        }
+    };
+
+    const handleChangeRole = async (userId: number, targetRole: string) => {
+        const confirmMsg = targetRole === 'ADMIN'
+            ? "Bạn có chắc chắn muốn nâng quyền người dùng này thành ADMIN?"
+            : "Bạn có chắc chắn muốn hạ quyền tài khoản này xuống USER?";
+
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            const updatedUser = await adminUserApi.changeRole(userId, targetRole);
+
+            setUsers(users.map(user => user.id === userId ? updatedUser : user));
+
+            if (selectedUser && selectedUser.id === userId) {
+                setSelectedUser(updatedUser);
+            }
+            alert(`Đã đổi vai trò sang ${targetRole} thành công!`);
+        } catch (error: any) {
+            console.error("Lỗi khi thay đổi vai trò", error);
+            alert(error.response?.data?.message || "Không thể thay đổi vai trò tài khoản lúc này!");
         }
     };
 
@@ -150,6 +172,17 @@ export default function AdminUsers() {
                                                 <Eye size={18} />
                                             </button>
 
+                                            <button
+                                                onClick={() => handleChangeRole(user.id, user.role === 'ADMIN' ? 'USER' : 'ADMIN')}
+                                                className={`p-2 rounded-lg transition-colors tooltip ${user.role === 'ADMIN'
+                                                        ? 'text-purple-600 hover:bg-purple-50'
+                                                        : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
+                                                    }`}
+                                                title={user.role === 'ADMIN' ? "Hạ quyền xuống USER" : "Nâng quyền thành ADMIN"}
+                                            >
+                                                {user.role === 'ADMIN' ? <UserCog size={18} /> : <ShieldCheck size={18} />}
+                                            </button>
+
                                             {user.role !== 'ADMIN' && (
                                                 <button
                                                     onClick={() => toggleLockStatus(user.id, user.locked)}
@@ -200,9 +233,19 @@ export default function AdminUsers() {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex justify-between py-2 border-b border-gray-50">
+                                <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Vai trò</span>
-                                    <span className="font-medium text-gray-800">{selectedUser.role}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${selectedUser.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            {selectedUser.role}
+                                        </span>
+                                        <button
+                                            onClick={() => handleChangeRole(selectedUser.id, selectedUser.role === 'ADMIN' ? 'USER' : 'ADMIN')}
+                                            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline"
+                                        >
+                                            {selectedUser.role === 'ADMIN' ? 'Chuyển về USER' : 'Nâng thành ADMIN'}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Trạng thái</span>
@@ -228,6 +271,13 @@ export default function AdminUsers() {
                                 className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors font-medium"
                             >
                                 Đóng
+                            </button>
+                            <button
+                                onClick={() => handleChangeRole(selectedUser.id, selectedUser.role === 'ADMIN' ? 'USER' : 'ADMIN')}
+                                className="px-4 py-2 text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors font-medium flex items-center gap-2"
+                            >
+                                <UserCog size={16} />
+                                {selectedUser.role === 'ADMIN' ? 'Hạ quyền USER' : 'Nâng quyền ADMIN'}
                             </button>
                             {selectedUser.role !== 'ADMIN' && (
                                 <button

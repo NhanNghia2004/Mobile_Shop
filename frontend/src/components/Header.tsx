@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings, Headphones, MapPin, Binoculars, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, User, Phone, Menu, X, LogOut, Settings, Headphones, MapPin, Binoculars, ChevronDown, LogIn, UserPlus, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
@@ -213,7 +213,7 @@ export default function Header() {
 
                     {/* Action Icons */}
                     <div className="flex items-center gap-3 sm:gap-5">
-                        <Link to="/products" className="hidden lg:flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors group cursor-pointer">
+                        <Link to="/profile?tab=orders" className="hidden lg:flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors group cursor-pointer">
                             <div className="w-9 h-9 border border-gray-200 rounded-full flex items-center justify-center bg-white group-hover:bg-indigo-50 transition-colors shadow-sm">
                                 <Binoculars size={18} strokeWidth={1.5} className="group-hover:-translate-y-0.5 transition-transform" />
                             </div>
@@ -232,19 +232,30 @@ export default function Header() {
                                 <span className="text-[10px] uppercase font-bold mt-1 text-gray-700 tracking-wider text-center whitespace-nowrap hidden sm:block">{user ? user.username : 'Tài khoản'}</span>
                             </Link>
                             
-                            {/* Hover Menu for User */}
-                            {user && (
-                                <div className="absolute right-1/2 translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                                    <div className="bg-white border border-gray-100 shadow-xl rounded-xl p-2 w-40 flex flex-col">
-                                        <Link to="/profile" className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg flex items-center gap-2">
-                                            <Settings size={16} /> Hồ sơ
-                                        </Link>
-                                        <button onClick={handleLogout} className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg text-left flex items-center gap-2">
-                                            <LogOut size={16} /> Đăng xuất
-                                        </button>
-                                    </div>
+                            {/* Hover Menu for User & Guest */}
+                            <div className="absolute right-1/2 translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div className="bg-white border border-gray-100 shadow-xl rounded-xl p-2 w-48 flex flex-col gap-1">
+                                    {user ? (
+                                        <>
+                                            <Link to="/profile" className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg flex items-center gap-2 transition-colors">
+                                                <Settings size={16} className="text-gray-500" /> Hồ sơ
+                                            </Link>
+                                            <button onClick={handleLogout} className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg text-left flex items-center gap-2 transition-colors">
+                                                <LogOut size={16} className="text-red-500" /> Đăng xuất
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link to="/login" className="px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 rounded-lg flex items-center gap-2 transition-colors">
+                                                <LogIn size={16} className="text-indigo-600" /> Đăng nhập
+                                            </Link>
+                                            <Link to="/register" className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg flex items-center gap-2 transition-colors">
+                                                <UserPlus size={16} className="text-gray-500" /> Đăng ký
+                                            </Link>
+                                        </>
+                                    )}
                                 </div>
-                            )}
+                            </div>
                         </div>
 
                         <Link to="/cart" className="flex flex-col items-center justify-center text-gray-700 hover:text-indigo-600 transition-colors relative group">
@@ -397,9 +408,14 @@ export default function Header() {
                                     </button>
                                 </>
                             ) : (
-                                <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-indigo-600 uppercase">
-                                    <User size={18} /> Đăng nhập / Đăng ký
-                                </Link>
+                                <div className="space-y-1">
+                                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-indigo-600 uppercase">
+                                        <LogIn size={18} /> Đăng nhập
+                                    </Link>
+                                    <Link to="/register" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-gray-700 uppercase">
+                                        <UserPlus size={18} /> Đăng ký
+                                    </Link>
+                                </div>
                             )}
                         </div>
                     </motion.div>

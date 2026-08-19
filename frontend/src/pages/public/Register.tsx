@@ -16,7 +16,7 @@ export default function Register() {
     const [isLoading, setIsLoading] = useState(false);
 
     // State quản lý lỗi validation
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string; confirmPassword?: string }>({});
 
     // State quản lý thông báo nội bộ
     const [alertMsg, setAlertMsg] = useState<{text: string, type: 'success' | 'error'} | null>(null);
@@ -48,7 +48,13 @@ export default function Register() {
         e.preventDefault();
 
         // Validate inputs
-        const newErrors: { email?: string; password?: string } = {};
+        const newErrors: { username?: string; email?: string; password?: string; confirmPassword?: string } = {};
+        if (!formData.username.trim()) {
+            newErrors.username = "Vui lòng nhập tên đăng nhập";
+        } else if (formData.username.trim().length < 3) {
+            newErrors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
+        }
+
         if (!formData.email.trim()) {
             newErrors.email = "Hãy nhập email";
         } else {
@@ -64,16 +70,17 @@ export default function Register() {
             newErrors.password = "Mật khẩu ít nhất 6 ký tự";
         }
 
+        if (!formData.confirmPassword) {
+            newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+        } else if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
         setErrors({});
-
-        if (formData.password !== formData.confirmPassword) {
-            showAlert("Mật khẩu xác nhận không khớp!", "error");
-            return;
-        }
 
         setIsLoading(true);
         try {
@@ -185,7 +192,7 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6 font-sans">
+        <div className="py-12 bg-gray-100 flex items-center justify-center p-4 sm:p-6 font-sans">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -204,20 +211,11 @@ export default function Register() {
                 {/* Cột phải: Form */}
                 <div className="w-full md:w-3/5 p-8 md:p-10 flex flex-col justify-center relative">
 
-                    {/* Thông báo */}
-                    {alertMsg && (
-                        <div className={`mb-4 p-4 rounded-lg flex items-center gap-3 text-sm font-medium ${
-                            alertMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-                        }`}>
-                            <span>{alertMsg.text}</span>
-                        </div>
-                    )}
-
                     {/* ========== BƯỚC 1: FORM ĐĂNG KÝ ========== */}
                     {step === 1 && (
                         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
                             <div className="mb-8 text-center">
-                                <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Tạo tài khoản</h1>
+                                <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">Đăng ký</h1>
                                 <p className="text-gray-500 text-base">Bắt đầu hành trình công nghệ của bạn ngay hôm nay.</p>
                             </div>
                             <form className="space-y-4" onSubmit={handleRegister} noValidate>
@@ -234,9 +232,12 @@ export default function Register() {
                                             value={formData.username}
                                             onChange={handleChange}
                                             placeholder="nguyenvan_a"
-                                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600 transition-all text-base placeholder:text-gray-400"
+                                            className={`w-full bg-gray-50 border rounded-lg py-2.5 pl-11 pr-4 focus:outline-none transition-all text-base placeholder:text-gray-400 ${errors.username ? 'border-red-500 focus:ring-4 focus:ring-red-50 focus:border-red-500' : 'border-gray-200 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600'}`}
                                         />
                                     </div>
+                                    {errors.username && (
+                                        <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.username}</p>
+                                    )}
                                 </div>
 
                                 {/* Email */}
@@ -293,11 +294,23 @@ export default function Register() {
                                                 value={formData.confirmPassword}
                                                 onChange={handleChange}
                                                 placeholder="••••••••"
-                                                className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600 transition-all text-base placeholder:text-gray-400"
+                                                className={`w-full bg-gray-50 border rounded-lg py-2.5 pl-11 pr-4 focus:outline-none transition-all text-base placeholder:text-gray-400 ${errors.confirmPassword ? 'border-red-500 focus:ring-4 focus:ring-red-50 focus:border-red-500' : 'border-gray-200 focus:ring-4 focus:ring-indigo-50/50 focus:border-indigo-600'}`}
                                             />
                                         </div>
+                                        {errors.confirmPassword && (
+                                            <p className="text-red-500 text-xs mt-1 ml-1 font-semibold">{errors.confirmPassword}</p>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Thông báo đặt ngay trên nút bấm */}
+                                {alertMsg && (
+                                    <div className={`p-3 rounded-lg flex items-center gap-3 text-sm font-medium ${
+                                        alertMsg.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+                                    }`}>
+                                        <span>{alertMsg.text}</span>
+                                    </div>
+                                )}
 
                                 {/* Button Đăng ký */}
                                 <motion.button

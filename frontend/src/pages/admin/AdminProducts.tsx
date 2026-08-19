@@ -329,7 +329,7 @@ export default function AdminProducts() {
                                             </span>
                                         </td>
                                         <td className="p-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2">
                                                 {actionLoadingId === p.id ? (
                                                     <Loader2 size={18} className="animate-spin text-gray-400" />
                                                 ) : (

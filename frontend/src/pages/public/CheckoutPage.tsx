@@ -728,9 +728,6 @@ export default function CheckoutPage() {
                                                         onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=80&auto=format&fit=crop'; }}
                                                     />
                                                 </div>
-                                                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-indigo-600 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1">
-                                                    {item.quantity}
-                                                </span>
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-xs font-semibold text-gray-800 line-clamp-1 leading-snug">{item.productName}</p>

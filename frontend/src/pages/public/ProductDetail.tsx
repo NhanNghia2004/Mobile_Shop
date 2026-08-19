@@ -3,11 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Star, ShoppingCart, ShieldCheck, Truck, ArrowLeft,
-    Package, ChevronRight, Loader2, MessageCircle,
+    Package, ChevronRight, Loader2, MessageCircle, MessageSquare,
     ThumbsUp, Share2, RefreshCw, ZoomIn, GitCompare,
     Pencil, Trash2, X, Send, Camera, ImagePlus, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import axiosInstance from '../../api/axios';
+import { reviewApi } from '../../api/Reviewapi';
 import type { ProductResponse, VariantResponse } from '../../types/product';
 import WishlistButton from '../../components/WishlistButton';
 import { useCompare } from '../../hooks/useCompare';
@@ -370,6 +371,254 @@ function RelatedProducts({ productId }: { productId: number }) {
                 ))}
             </div>
         </section>
+    );
+}
+
+// ── Inline Review/Comment Form Component ───────────────────────────────────────
+function InlineReviewForm({
+    productId,
+    variantId,
+    onSuccess,
+}: {
+    productId: number;
+    variantId: number;
+    onSuccess: () => void;
+}) {
+    const [rating, setRating] = useState(5);
+    const [hovered, setHovered] = useState(0);
+    const [comment, setComment] = useState('');
+    const [images, setImages] = useState<File[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+
+    const [checkingPurchase, setCheckingPurchase] = useState(true);
+    const [hasPurchased, setHasPurchased] = useState(false);
+    const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+
+    const token = localStorage.getItem('token');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!token) {
+            setCheckingPurchase(false);
+            setHasPurchased(false);
+            setAlreadyReviewed(false);
+            return;
+        }
+
+        const username = (() => {
+            try { return JSON.parse(localStorage.getItem('user') || '{}').username; } catch { return null; }
+        })();
+
+        Promise.all([
+            axiosInstance.get('/orders', { params: { page: 0, size: 100 } }),
+            axiosInstance.get(`/products/${productId}/reviews`, { params: { page: 0, size: 100 } })
+        ])
+        .then(([ordersRes, reviewsRes]) => {
+            const orders = ordersRes.data?.content || [];
+            const bought = orders.some((order: any) =>
+                order.items?.some((item: any) => Number(item.productId) === Number(productId))
+            );
+            setHasPurchased(bought);
+
+            const reviewsList = reviewsRes.data?.content || [];
+            const hasReviewed = reviewsList.some((r: any) => r.username === username);
+            setAlreadyReviewed(hasReviewed);
+        })
+        .catch(() => {
+            setHasPurchased(false);
+            setAlreadyReviewed(false);
+        })
+        .finally(() => setCheckingPurchase(false));
+    }, [productId, token]);
+
+    const displayRating = hovered || rating;
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        if (rating === 0) {
+            setError('Vui lòng chọn số sao đánh giá');
+            return;
+        }
+        if (!comment.trim()) {
+            setError('Vui lòng nhập nội dung bình luận');
+            return;
+        }
+        if (comment.trim().length < 5) {
+            setError('Bình luận phải có ít nhất 5 ký tự');
+            return;
+        }
+
+        setError('');
+        setSubmitting(true);
+        try {
+            await reviewApi.submitReview(productId, variantId, rating, comment.trim(), images);
+            setSuccessMsg('Đánh giá & bình luận của bạn đã được gửi thành công!');
+            setAlreadyReviewed(true);
+            setComment('');
+            setImages([]);
+            setRating(5);
+            onSuccess();
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Gửi bình luận thất bại. Vui lòng thử lại sau!');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (checkingPurchase) return null;
+
+    if (!token) {
+        return (
+            <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-5 mb-8 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-left">
+                    <h3 className="font-bold text-gray-900 text-sm">Bạn muốn để lại bình luận hoặc đánh giá?</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Vui lòng đăng nhập tài khoản đã mua sản phẩm này để viết nhận xét.</p>
+                </div>
+                <Link
+                    to="/login"
+                    className="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl font-bold text-xs shadow-sm transition-all whitespace-nowrap"
+                >
+                    Đăng nhập ngay
+                </Link>
+            </div>
+        );
+    }
+
+    if (!hasPurchased) {
+        return (
+            <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4 mb-8 text-xs text-amber-800 font-semibold flex items-center gap-2.5">
+                <ShieldCheck size={18} className="text-amber-600 flex-shrink-0" />
+                <span>Chỉ những khách hàng đã mua sản phẩm này mới có thể viết bình luận & đánh giá.</span>
+            </div>
+        );
+    }
+
+    if (alreadyReviewed) {
+        return (
+            <div className="bg-green-50/70 border border-green-200 rounded-2xl p-4 mb-8 text-xs text-green-800 font-semibold flex items-center gap-2.5">
+                <CheckCircle2 size={18} className="text-green-600 flex-shrink-0" />
+                <span>Bạn đã đánh giá và bình luận sản phẩm này rồi. Cảm ơn bạn!</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-gray-50/80 border border-gray-200/80 rounded-2xl p-5 mb-8">
+            <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                <MessageSquare size={16} className="text-indigo-600" />
+                Viết bình luận & đánh giá sản phẩm
+            </h3>
+
+            {successMsg ? (
+                <div className="p-4 bg-green-50 text-green-700 border border-green-200 rounded-xl text-sm font-semibold mb-3 flex items-center gap-2">
+                    <CheckCircle2 size={18} />
+                    <span>{successMsg}</span>
+                </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Select Rating Stars */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Đánh giá sao:</span>
+                        <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setRating(star)}
+                                    onMouseEnter={() => setHovered(star)}
+                                    onMouseLeave={() => setHovered(0)}
+                                    className="p-0.5 transition-transform hover:scale-110"
+                                >
+                                    <Star
+                                        size={22}
+                                        fill={star <= displayRating ? '#FBBF24' : 'none'}
+                                        className={star <= displayRating ? 'text-yellow-400' : 'text-gray-300'}
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                        <span className="text-xs font-semibold text-amber-600 ml-1">
+                            {STAR_LABELS[displayRating] || ''}
+                        </span>
+                    </div>
+
+                    {/* Textarea comment */}
+                    <div>
+                        <textarea
+                            value={comment}
+                            onChange={(e) => {
+                                setComment(e.target.value);
+                                if (error) setError('');
+                            }}
+                            rows={3}
+                            placeholder="Nhập nội dung bình luận, đánh giá của bạn về sản phẩm này..."
+                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50 transition-all resize-none placeholder:text-gray-400"
+                        />
+                    </div>
+
+                    {/* Image Upload list */}
+                    <div>
+                        <div className="flex gap-2 flex-wrap items-center">
+                            {images.map((file, idx) => (
+                                <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden border border-gray-200 group">
+                                    <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setImages(imgs => imgs.filter((_, i) => i !== idx))}
+                                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <Trash2 size={14} className="text-white" />
+                                    </button>
+                                </div>
+                            ))}
+                            {images.length < 5 && (
+                                <label className="h-10 px-3 rounded-xl border border-gray-200 bg-white flex items-center gap-1.5 hover:border-indigo-400 hover:bg-indigo-50 transition-all text-xs font-semibold text-gray-600 hover:text-indigo-600 cursor-pointer">
+                                    <ImagePlus size={16} />
+                                    <span>Thêm ảnh ({images.length}/5)</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const files = Array.from(e.target.files || []);
+                                            setImages(prev => [...prev, ...files].slice(0, 5));
+                                            e.target.value = '';
+                                        }}
+                                    />
+                                </label>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Error message */}
+                    {error && (
+                        <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-semibold flex items-center gap-2">
+                            <AlertCircle size={15} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="px-6 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {submitting ? <Loader2 size={16} className="animate-spin" /> : <MessageSquare size={16} />}
+                            {submitting ? 'Đang gửi...' : 'Gửi bình luận'}
+                        </button>
+                    </div>
+                </form>
+            )}
+        </div>
     );
 }
 
@@ -851,9 +1100,25 @@ export default function ProductDetail() {
                     <div className="flex items-center gap-3 mb-8">
                         <MessageCircle size={24} className="text-indigo-500" />
                         <h2 className="text-xl font-black text-gray-900">
-                            Đánh giá sản phẩm
+                            Đánh giá & Bình luận sản phẩm
                         </h2>
                     </div>
+
+                    {/* Inline Comment / Review Form */}
+                    {product && (
+                        <InlineReviewForm
+                            productId={product.id}
+                            variantId={currentVariant?.id || product.variants?.[0]?.id || 0}
+                            onSuccess={() => {
+                                fetchReviews();
+                                if (id) {
+                                    axiosInstance.get(`/products/${id}/reviews/summary`)
+                                        .then(r => setReviewSummary(r.data))
+                                        .catch(() => {});
+                                }
+                            }}
+                        />
+                    )}
 
                     {reviewSummary && reviewSummary.totalReviews > 0 ? (
                         <div className="flex flex-col md:flex-row gap-8 mb-8 pb-8 border-b border-gray-100">

@@ -23,7 +23,7 @@ public class PasswordResetService {
     @Transactional
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email không tồn tại!"));
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại trong hệ thống!"));
 
 
         tokenRepository.deleteByUser(user);

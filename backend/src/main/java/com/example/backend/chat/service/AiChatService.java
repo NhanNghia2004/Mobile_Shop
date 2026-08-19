@@ -63,7 +63,10 @@ public class AiChatService {
             context = getBasicFallbackContext(products, userMessage);
         }
 
-        // 5. Dựng System Prompt kết hợp Context
+        // 5. Dựng System Prompt kết hợp Context (Giới hạn tối đa 2500 ký tự để an toàn tuyệt đối)
+        if (context.length() > 2500) {
+            context = context.substring(0, 2500) + "\n...[Đã rút gọn context]";
+        }
         String systemPrompt = String.format(SYSTEM_PROMPT_TEMPLATE, context);
 
         // 6. Gửi sang GROQ LLM để sinh câu trả lời
@@ -241,7 +244,11 @@ public class AiChatService {
         if (product.getBatteryCapacity() != null) sb.append("Dung lượng pin: ").append(product.getBatteryCapacity()).append(" mAh\n");
         if (product.getRam() != null) sb.append("RAM mặc định: ").append(product.getRam()).append(" GB\n");
         if (product.getDescription() != null && !product.getDescription().trim().isEmpty()) {
-            sb.append("Mô tả ngắn: ").append(product.getDescription()).append("\n");
+            String desc = product.getDescription().replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+            if (desc.length() > 200) {
+                desc = desc.substring(0, 200) + "...";
+            }
+            sb.append("Mô tả ngắn: ").append(desc).append("\n");
         }
 
         sb.append("Tình trạng: SẢN PHẨM ĐANG CÓ BÁN\n");

@@ -3,6 +3,12 @@ export interface ProductStatus {
     [key: string]: any;
 }
 
+export interface VariantImageResponse {
+    id: number;
+    imageUrl: string;
+    displayOrder: number;
+}
+
 export interface VariantResponse {
     id: number;
     storage: number;
@@ -13,6 +19,7 @@ export interface VariantResponse {
     discountPercent: number;
     stockQuantity: number;
     images: string[];
+    variantImages: VariantImageResponse[];
     status: string; // ProductStatus
 }
 

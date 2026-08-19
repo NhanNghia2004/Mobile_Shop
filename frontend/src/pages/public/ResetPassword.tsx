@@ -41,7 +41,7 @@ export default function ResetPassword() {
     // Không có token trên URL
     if (!token) {
         return (
-            <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6">
+            <div className="py-12 bg-gray-100 flex items-center justify-center p-4 sm:p-6 font-sans">
                 <div className="bg-white rounded-2xl p-10 text-center max-w-md w-full">
                     <p className="text-red-500 font-bold">Link không hợp lệ!</p>
                     <Link to="/forgot-password" className="mt-4 inline-block text-indigo-600 font-bold hover:underline">
@@ -53,7 +53,7 @@ export default function ResetPassword() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-200 flex items-center justify-center p-6 font-sans">
+        <div className="py-12 bg-gray-100 flex items-center justify-center p-4 sm:p-6 font-sans">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
